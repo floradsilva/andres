@@ -1,0 +1,12 @@
+[04-Nov-2018 01:22:41 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function do_shortcode() in /home/devquantum/public_html/woowbot/wp-content/plugins/woowbot-woocommerce-chatbot-pro/templates/template-00/shortcode.php:25
+Stack trace:
+#0 {main}
+  thrown in /home/devquantum/public_html/woowbot/wp-content/plugins/woowbot-woocommerce-chatbot-pro/templates/template-00/shortcode.php on line 25
+[04-Nov-2018 01:22:56 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_option() in /home/devquantum/public_html/woowbot/wp-content/plugins/woowbot-woocommerce-chatbot-pro/templates/template-00/template.php:26
+Stack trace:
+#0 {main}
+  thrown in /home/devquantum/public_html/woowbot/wp-content/plugins/woowbot-woocommerce-chatbot-pro/templates/template-00/template.php on line 26
+[04-Nov-2018 01:23:05 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function do_shortcode() in /home/devquantum/public_html/woowbot/wp-content/plugins/woowbot-woocommerce-chatbot-pro/templates/template-00/shortcode.php:25
+Stack trace:
+#0 {main}
+  thrown in /home/devquantum/public_html/woowbot/wp-content/plugins/woowbot-woocommerce-chatbot-pro/templates/template-00/shortcode.php on line 25

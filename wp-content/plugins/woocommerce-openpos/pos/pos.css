@@ -1,0 +1,19 @@
+span.option-item-label{
+    float:left;
+    font-size: 10px;
+    width:100%;
+}
+.co-checkout .mat-tab-label-active{
+    background: #00a523;
+    color:#fff;
+}
+.cart-items-container-details .mat-list .mat-list-item .mat-list-item-content{
+    padding: 0 10px 0 0;
+}
+.mat-paginator-page-size{
+    display: none!important;
+}
+
+.desk-items-container .mat-list .mat-list-item .mat-list-item-content{
+    padding: 0 10px 0 0;
+}

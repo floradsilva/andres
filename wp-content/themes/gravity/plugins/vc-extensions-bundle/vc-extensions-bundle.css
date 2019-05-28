@@ -1,0 +1,55 @@
+/* Visual Composer Extension Bundle
+----------------------------------------------------------------- */
+
+/* Tooltip */
+.tooltipster-base.tooltipster-light {
+	border: none;
+	border-radius: 0;
+	box-shadow: 0 0 14px rgba(0, 0, 0, 0.3);
+}
+.tooltipster-base.tooltipster-light .tooltipster-content {
+	padding: 1em 1em;
+	border: none;
+	background-color: #13162b;
+	color: #fff;
+}
+.tooltipster-base.tooltipster-light .tooltipster-arrow span {
+	border-top-color: #13162b !important;
+}
+.cq-hotspots .hotspot-item a.cq-tooltip span {
+	width: 10px;
+	height: 10px;
+	margin: -5px 0 0 -5px;
+}
+.cq-tabs .cq-tabmenu.style1 {
+	text-align: center;
+	background-color: transparent;
+	border-bottom: 0;
+	margin-bottom: 1.6rem;
+}
+.cq-tabs .cq-tabmenu.style1 li {
+	float: none;
+}
+.cq-tabs .cq-tabmenu.style1 i.fa {
+	display: block;
+	float: none!important;
+	font-size: 4rem;
+	margin-right: 0;
+}
+.cq-tabs .cq-tabmenu.style1 a {
+	font-size: 1.143rem;
+	font-weight: 700;
+	line-height: 2.143rem;
+	border: 8px solid red;
+	width: 9.214rem;
+	height: 9.214rem;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+.cq-tabs .cq-tabmenu.style1 li + li {
+	margin-left: 3rem;
+}
+.cq-tabs .cq-tabcontent.style1 .woocommerce ul.products li.product {
+	padding-bottom: 0;
+}

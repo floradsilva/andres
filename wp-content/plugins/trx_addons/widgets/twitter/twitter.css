@@ -1,0 +1,39 @@
+/* Widget: ThemeREX Twitter */
+.sc_twitter.slider_pagination {
+	padding-bottom: 2em;
+}
+.sc_twitter.swiper-container-horizontal > .swiper-pagination {
+	bottom: 0;
+}
+.sc_twitter.slider_swiper .swiper-pagination-bullet {
+	width: 7px;
+	height: 7px;
+	border: none;
+	margin: 0 3px;
+	background-color: #ddd;
+}
+
+.widget_twitter li {
+	text-align:center;
+	margin-bottom: 2em;
+	color: #bbb;
+	list-style-type:none;
+}
+.widget_twitter .widget_content ul > li:before {
+	content: '\e840';
+	font-family: 'trx_addons_icons';
+	font-size:1em;
+	position:static;
+	display: block;
+	margin-bottom:0.5em;
+}
+.widget_twitter .widget_twitter_follow {
+	display: block;
+	text-align:center;
+}
+.widget_twitter .widget_twitter_follow:after {
+	content: '\e884';
+	font-family: 'trx_addons_icons';
+	display:inline-block;
+	margin-left:0.5em;
+}

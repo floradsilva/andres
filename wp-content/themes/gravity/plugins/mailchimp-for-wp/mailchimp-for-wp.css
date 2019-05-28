@@ -1,0 +1,64 @@
+/* MailChimp for WP styles
+----------------------------------------------------------------- */
+.mc4wp-form {
+	position: relative;
+	padding: 5.5rem 3.6rem 3rem;
+}
+.mc4wp-form .mc4wp-form-fields input[type="email"] {
+	padding: 1em;
+	width: 100%;
+	vertical-align:top;
+}
+.mc4wp-form .mc4wp-form-fields button[type="submit"] {
+	position: absolute;
+	right: 0.7rem;
+	top: 0.55rem;
+	width: 3.5rem;
+	height: 3.429rem;
+	padding: 0;
+	vertical-align: top;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	box-sizing: border-box;
+	display: block;
+	font-size: 2rem;
+	line-height: 3.4rem;
+}
+.mc4wp-form .mc4wp-form-fields input[type="email"],
+.mc4wp-form .mc4wp-form-fields button[type="submit"] {
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+        -ms-box-sizing: border-box;
+            box-sizing: border-box;
+}
+.mc4wp-form .mc4wp-form-fields button[type="submit"]:before {
+	font-family: fontello;
+	content: '\e921';
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	position: absolute;
+	-webkit-transition: none;
+	-moz-transition: none;
+	-ms-transition: none;
+	-o-transition: none;
+	transition: none;
+}
+
+
+.mc4wp-form h3 {
+	font-size: 3.214rem;
+	margin-bottom: 1.8rem;
+}
+.mc4wp-form .info {
+	margin-bottom: 2.6rem;
+}
+.mc4wp-form .inputs_area {
+	position: relative;
+}
+.mc4wp-form .mc4wp-alert {
+	margin: 2em 0;
+	padding: 1em;
+}

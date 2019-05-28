@@ -1,0 +1,47 @@
+/* Essential Grid styles
+----------------------------------------------------------------- */
+.esg-grid i[class*="eg-icon-"] {
+	color: #fff;
+}
+.esg-grid a:hover i[class*="eg-icon-"] {
+	color: #000;
+}
+
+.gravity-skin .esg-filters .esg-sortbutton-order,
+.gravity-skin .esg-filters .esg-cartbutton-order {
+	line-height:36px;
+	margin:0;
+}
+.gravity-skin .esg-filters .esg-sortbutton {
+	padding-right: 0;
+}
+.gravity-skin .esg-filterbutton, .gravity-skin .esg-navigationbutton, .gravity-skin .esg-sortbutton, .gravity-skin .esg-cartbutton a {
+	font-size: 1.286rem !important;
+	font-weight: 700 !important;
+	line-height: 2.143rem !important;
+}
+.gravity-skin .esg-filterbutton:after {
+	content: '\e921' !important;
+}
+.eg-gravity-blog-element-1 {
+	max-width: 320px;
+}
+#grid_home_1 .eec,
+#grid_home_2 .eec,
+#grid_home_3 .eec {
+	text-align: left;
+}
+.eg-gravity-blog-element-3:before {
+	font-family: fontello;
+	content: '\e8f3';
+	margin-right: 10px;
+}
+.gravity-skin .esg-filterbutton, .gravity-skin .esg-navigationbutton, .gravity-skin .esg-sortbutton, .gravity-skin {
+	-webkit-transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	-ms-transition: all 0.3s ease;
+	-o-transition: all 0.3s ease;
+	transition: all 0.3s ease;
+}
+
+

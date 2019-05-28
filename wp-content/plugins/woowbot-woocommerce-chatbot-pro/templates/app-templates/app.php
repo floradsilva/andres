@@ -1,0 +1,1 @@
+<?phpget_header();echo do_shortcode('[woowbot_app]');get_footer();

@@ -1,0 +1,43 @@
+Version 1.2.2
+    Fixed:
+    - Scripts libraries updated
+    - Update plugins to their latest versions
+
+Version 1.2.1
+    Fixed:
+    		- Compatibility with WP 5.0
+    	 	- Compatibility with PHP 7.2
+            - Footer styles, Essential Grig filters styles
+
+Version 1.2.0
+    Added:
+            - Compatibility with Gutenberg and other PageBuilders
+            - WP GDPR Compliance plugin
+            - Privacy Policy page
+
+    Fixed:
+            - Compatibility with WP 4.9.8
+            - Update plugins to their latest versions
+            - Improve theme styles
+            - Button shortcode (button aligment and "open in new window" option)
+            - Update documentation
+
+    Changed:
+            - Update default contact forms to make them GDPR-compliant
+            - Move Importer to TRX Addons plugin
+            - Update demo data
+
+
+Version 1.1.1
+	* WordPress 4.9.1 ready
+	* plugins updated
+
+Version 1.1.Dev.01
+	\themes\gravity\plugins\js_composer\js_composer.css
+	\themes\gravity\plugins\js_composer\js_composer.php
+
+Version 1.1
+    All plugins updated.
+    Documentation updated.
+
+Version 1.0
