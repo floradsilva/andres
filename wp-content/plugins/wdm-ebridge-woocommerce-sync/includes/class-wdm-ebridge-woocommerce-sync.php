@@ -117,6 +117,11 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wdm-ebridge-woocommerce-sync-admin.php';
 
 		/**
+		 * The class responsible for defining all actions that occur in the admin area.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wdm-ebridge-woocommerce-sync-settings.php';
+
+		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
@@ -152,11 +157,13 @@ class Wdm_Ebridge_Woocommerce_Sync {
 	 */
 	private function define_admin_hooks() {
 
-		$plugin_admin = new Wdm_Ebridge_Woocommerce_Sync_Admin( $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin          = new Wdm_Ebridge_Woocommerce_Sync_Admin( $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin_settings = new Wdm_Ebridge_Woocommerce_Sync_Settings( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-
+		$this->loader->add_action( 'admin_menu', $plugin_admin_settings, 'menu_page', 10 );
+		$this->loader->add_action( 'admin_init', $plugin_admin_settings, 'setup_sections' );
 	}
 
 	/**
