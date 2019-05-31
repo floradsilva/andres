@@ -100,8 +100,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 						$this->connection_settings();
 						break;
 					case 'product_sync':
-						// $this->candidate_notification_editor();
-						echo 'P';
+						$this->product_attributes();
 						break;
 					case 'pickup_service':
 						$this->pickup_service();
@@ -121,23 +120,15 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 	}
 
 	public function pickup_service() {
-		?>
-		<?php
-			settings_fields( 'ebridge_sync_pickup_service' );
-			do_settings_sections( 'ebridge_sync_pickup_service' );
-			submit_button();
-		?>
-		<?php
+		settings_fields( 'ebridge_sync_pickup_service' );
+		do_settings_sections( 'ebridge_sync_pickup_service' );
+		submit_button();
 	}
 
 	public function connection_settings() {
-		?>
-		<?php
-			settings_fields( 'ebridge_sync_connection_settings' );
-			do_settings_sections( 'ebridge_sync_connection_settings' );
-			submit_button();
-		?>
-		<?php
+		settings_fields( 'ebridge_sync_connection_settings' );
+		do_settings_sections( 'ebridge_sync_connection_settings' );
+		submit_button();
 	}
 
 	public function setup_sections() {
@@ -152,6 +143,11 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 		add_settings_section( 'ebridge_sync_pickup_service_section', __( 'Pickup Service', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'ebridge_sync_pickup_service_callback' ), 'ebridge_sync_pickup_service' );
 		add_settings_field( 'pickup_service', __( 'Activate Pickup Service:', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'pickup_service_callback' ), 'ebridge_sync_pickup_service', 'ebridge_sync_pickup_service_section', array( 'fieldname' => 'pickup_service' ) );
 		register_setting( 'ebridge_sync_pickup_service', 'pickup_service' );
+
+		// Settings for Product Attributes
+		add_settings_section( 'ebridge_sync_product_attributes_section', __( 'Product Attributes', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'ebridge_sync_product_attributes_callback' ), 'ebridge_sync_product_attributes' );
+		add_settings_field( 'product_attributes', __( 'Product Attibutes to Sync:', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'product_attributes_callback' ), 'ebridge_sync_product_attributes', 'ebridge_sync_product_attributes_section', array( 'fieldname' => 'product_attributes' ) );
+		register_setting( 'ebridge_sync_product_attributes', 'product_attributes' );
 	}
 
 	public function ebridge_sync_pickup_service_callback() {
@@ -190,6 +186,43 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 		?>
 		<input type="text" name="<?php echo $args['fieldname']; ?>" id="<?php echo $args['fieldname']; ?>" value="<?php echo $api_token; ?>">
 		<?php
+	}
+
+	public function product_attributes() {
+		settings_fields( 'ebridge_sync_product_attributes' );
+		do_settings_sections( 'ebridge_sync_product_attributes' );
+		submit_button();
+	}
+
+	public function ebridge_sync_product_attributes_callback() {
+	}
+
+	public function product_attributes_callback( $args ) {
+		$product_attributes_options = get_option( $args['fieldname'], array() );
+		$api_url                    = get_option( 'ebridge_sync_api_url', '' );
+		$api_token                  = get_option( 'ebridge_sync_api_token', '' );
+		$product                    = 'P414TP1';
+		$response                   = wp_remote_get( $api_url . '/' . $api_token . '/products/' . $product );
+
+		if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
+			$body               = json_decode( wp_remote_retrieve_body( $response ) );
+			$product_attributes = get_object_vars( $body->product );
+
+			foreach ( $product_attributes as $key => $value ) {
+				?>
+					<div>
+						<?php if ( in_array( $key, $product_attributes_options ) ) { ?>
+							<input type="checkbox" class="" name="<?php echo $args['fieldname']; ?>[]" value="<?php echo $key; ?>" checked>
+						<?php } else { ?>
+							<input type="checkbox" class="" name="<?php echo $args['fieldname']; ?>[]" value="<?php echo $key; ?>">
+						<?php } ?>
+						<label for="<?php echo $key; ?>"><?php echo $key; ?></label>
+					</div>
+				<?php
+			}
+		} else {
+			echo __( 'Some error. Please make sure the Ebridge URL and API Token are valid.', 'wdm-ebridge-woocommerce-sync' );
+		}
 	}
 
 }
