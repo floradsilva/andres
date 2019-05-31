@@ -50,43 +50,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 	 */
 	public function menu_page() {
 
-		add_menu_page( __( 'Ebridge Sync', 'wdm-ebridge-woocommerce-sync' ), __( 'Ebridge Sync', 'wdm-ebridge-woocommerce-sync' ), 'administrator', 'ebridge_sync', array( $this, 'render_menu_page' ) );
-		// add_submenu_page('booked-appointments', esc_html__('Pending1','booked'), esc_html__('Pending1','booked'), 'edit_booked_appointments', 'booked-pending', array(&$this, 'render_menu_page'));
-	}
-
-	public function setup_sections() {
-		$args = array();
-		add_settings_section( 'ebridge_sync_connection_settings_section', 'Connection Settings', array( $this, 'connection_settings_callback' ), 'ebridge_sync' );
-		add_settings_field( 'connection_settings_field_1', 'Connection Settings Field 1', array( $this, 'ebridge_sync_connection_settings_field_callback' ), 'ebridge_sync', 'ebridge_sync_connection_settings_section', $args );
-		register_setting( 'ebridge_sync_connection_settings', 'connection_settings_field_1' );
-
-		add_settings_section( 'ebridge_sync_product_sync_section', 'Product Sync', array( $this, 'product_sync_callback' ), 'ebridge_sync' );
-		add_settings_field( 'product_sync_field_1', 'Product Sync Field 1', array( $this, 'ebridge_sync_product_sync_field_callback' ), 'ebridge_sync', 'ebridge_sync_product_sync_section', $args );
-		register_setting( 'ebridge_sync_product_sync', 'product_sync_field_1' );
-
-		add_settings_section( 'ebridge_sync_pickup_service_settings_section', 'Pickup Service', array( $this, 'connection_settings_callback' ), 'ebridge_sync' );
-		add_settings_field( 'connection_settings_field_1', 'Connection Settings Field 1', array( $this, 'ebridge_sync_connection_settings_field_callback' ), 'ebridge_sync', 'ebridge_sync_pickup_service_settings_section', $args );
-		register_setting( 'ebridge_sync_connection_settings', 'connection_settings_field_1' );
-
-		add_settings_section( 'ebridge_sync_customer_sync_settings_section', 'Customer Sync', array( $this, 'connection_settings_callback' ), 'ebridge_sync' );
-		add_settings_field( 'connection_settings_field_1', 'Connection Settings Field 1', array( $this, 'ebridge_sync_connection_settings_field_callback' ), 'ebridge_sync', 'ebridge_sync_customer_sync_settings_section', $args );
-		register_setting( 'ebridge_sync_connection_settings', 'connection_settings_field_1' );
-	}
-
-	public function connection_settings_callback()
-	{}
-
-	public function ebridge_sync_connection_settings_field_callback()
-	{
-		echo "Connection Settings";
-	}
-
-	public function product_sync_callback()
-	{}
-
-	public function ebridge_sync_product_sync_field_callback()
-	{
-		echo "Product Sync";
+		add_menu_page( __( 'Ebridge Sync', 'wdm-ebridge-woocommerce-sync' ), __( 'Ebridge Sync', 'wdm-ebridge-woocommerce-sync' ), 'administrator', 'ebridge_sync', array( $this, 'render_settings_page' ) );
+		// add_submenu_page('ebridge_sync', esc_html__('Settings','wdm-ebridge-woocommerce-sync'), esc_html__('Settings','wdm-ebridge-woocommerce-sync'), 'administrator', 'ebridge_sync_settings', array(&$this, 'render_settings_page'));
 	}
 
 	/**
@@ -96,52 +61,134 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 	 * @access   public
 	 */
 	public function render_menu_page() {
+
+	}
+
+	/**
+	 * Render the Ebridge Sync settings page
+	 *
+	 * @since    1.0.0
+	 * @access   public
+	 */
+	public function render_settings_page() {
+		$tabs = array(
+			'connection_settings' => 'Connection Settings',
+			'product_sync'        => 'Product Sync',
+			'pickup_service'      => 'Pickup Service',
+			'customer_sync'       => 'Customer Sync',
+		);
+
+		$tab = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : 'connection_settings';
+
 		?>
 		<!-- Create a header in the default WordPress 'wrap' container -->
 		<div class="wrap">
-			<div id="icon-themes" class="icon32"></div>
 			<h2>Ebridge Sync Options</h2>
-			<?php
-				settings_errors();
-				$active_tab = 'connection_settings';
-			if ( isset( $_GET['tab'] ) ) {
-				$active_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : 'connection_settings';
-			}
-			?>
 			<h2 class="nav-tab-wrapper">
-				<a href="?page=ebridge_sync&tab=connection_settings" class="nav-tab <?php echo $active_tab == 'connection_settings' ? 'nav-tab-active' : ''; ?>">Connection Settings</a>
-				<a href="?page=ebridge_sync&tab=product_sync" class="nav-tab <?php echo $active_tab == 'product_sync' ? 'nav-tab-active' : ''; ?>">Product Sync</a>
-				<a href="?page=ebridge_sync&tab=pickup_service" class="nav-tab <?php echo $active_tab == 'pickup_service' ? 'nav-tab-active' : ''; ?>">Pickup Service</a>
-				<a href="?page=ebridge_sync&tab=customer_sync" class="nav-tab <?php echo $active_tab == 'customer_sync' ? 'nav-tab-active' : ''; ?>">Customer Sync</a>
+				<?php
+				foreach ( $tabs as $key => $value ) {
+					$active = ( $key == $tab ) ? 'nav-tab-active' : '';
+					echo '<a class="nav-tab ' . $active . '" href="?page=ebridge_sync&tab=' . esc_attr( $key ) . '">' . esc_html( $value ) . '</a>';
+				}
+				?>
 			</h2>
+			<!-- <form method="post" id="mainform" action="?page=ebridge_sync&amp;tab=<?php echo esc_attr( $tab ); ?>"> -->
 			<form method="post" action="options.php">
 				<?php
-				if ( $active_tab === 'connection_settings' ) {
-					settings_fields( 'ebridge_sync_connection_settings' );
-					do_settings_sections( 'ebridge_sync' );
+				switch ( $tab ) {
+					case 'connection_settings':
+						$this->connection_settings();
+						break;
+					case 'product_sync':
+						// $this->candidate_notification_editor();
+						echo 'P';
+						break;
+					case 'pickup_service':
+						$this->pickup_service();
+						break;
+					case 'customer_sync':
+						// $this->candidate_notification_editor();
+						echo 'Cu';
+						break;
+					default:
+						$this->connection_settings();
+						break;
 				}
 				?>
-				<?php
-				if ( $active_tab === 'product_sync' ) {
-					settings_fields( 'ebridge_sync_product_sync_settings' );
-					do_settings_sections( 'ebridge_sync_product_sync' );
-				}
-				?>
-				<?php
-				if ( $active_tab === 'pickup_service' ) {
-					settings_fields( 'ebridge_sync_pickup_service_settings' );
-					do_settings_sections( 'ebridge_sync_pickup_service' );
-				}
-				?>
-				<?php
-				if ( $active_tab === 'customer_sync' ) {
-					settings_fields( 'ebridge_sync_customer_sync_settings' );
-					do_settings_sections( 'ebridge_sync_customer_sync' );
-				}
-				?>
-				<?php submit_button(); ?>
 			</form>
 		</div>
+		<?php
+	}
+
+	public function pickup_service() {
+		?>
+		<?php
+			settings_fields( 'ebridge_sync_pickup_service' );
+			do_settings_sections( 'ebridge_sync_pickup_service' );
+			submit_button();
+		?>
+		<?php
+	}
+
+	public function connection_settings() {
+		?>
+		<?php
+			settings_fields( 'ebridge_sync_connection_settings' );
+			do_settings_sections( 'ebridge_sync_connection_settings' );
+			submit_button();
+		?>
+		<?php
+	}
+
+	public function setup_sections() {
+		// Settings for Connection Settings section
+		add_settings_section( 'ebridge_sync_connection_settings_section', __( 'Connection Settings', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'ebridge_sync_connection_settings_callback' ), 'ebridge_sync_connection_settings' );
+		add_settings_field( 'ebridge_sync_api_url', __( 'EBridge API URL:', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'ebridge_sync_api_url_callback' ), 'ebridge_sync_connection_settings', 'ebridge_sync_connection_settings_section', array( 'fieldname' => 'ebridge_sync_api_url' ) );
+		add_settings_field( 'ebridge_sync_api_token', __( 'API Token:', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'ebridge_sync_api_token_callback' ), 'ebridge_sync_connection_settings', 'ebridge_sync_connection_settings_section', array( 'fieldname' => 'ebridge_sync_api_token' ) );
+		register_setting( 'ebridge_sync_connection_settings', 'ebridge_sync_api_url' );
+		register_setting( 'ebridge_sync_connection_settings', 'ebridge_sync_api_token' );
+
+		// Settings for Pickup Service
+		add_settings_section( 'ebridge_sync_pickup_service_section', __( 'Pickup Service', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'ebridge_sync_pickup_service_callback' ), 'ebridge_sync_pickup_service' );
+		add_settings_field( 'pickup_service', __( 'Activate Pickup Service:', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'pickup_service_callback' ), 'ebridge_sync_pickup_service', 'ebridge_sync_pickup_service_section', array( 'fieldname' => 'pickup_service' ) );
+		register_setting( 'ebridge_sync_pickup_service', 'pickup_service' );
+	}
+
+	public function ebridge_sync_pickup_service_callback() {
+	}
+
+	public function pickup_service_callback( $args ) {
+		$api_url = get_option( $args['fieldname'], false );
+
+		if ( $api_url ) {
+			?>
+			<input type="checkbox" class="" name="<?php echo $args['fieldname']; ?>" id="<?php echo $args['fieldname']; ?>" checked>
+			<?php
+		} else {
+			?>
+			<input type="checkbox" class="" name="<?php echo $args['fieldname']; ?>" id="<?php echo $args['fieldname']; ?>">
+			<?php
+		}
+	}
+
+	public function ebridge_sync_api_url_sanitize( $url ) {
+		return esc_url_raw( $url );
+	}
+
+	public function ebridge_sync_connection_settings_callback() {
+	}
+
+	public function ebridge_sync_api_url_callback( $args ) {
+		$api_url = get_option( $args['fieldname'], '' );
+		?>
+		<input type="text" class="" name="<?php echo $args['fieldname']; ?>" id="<?php echo $args['fieldname']; ?>" value="<?php echo $api_url; ?>">
+		<?php
+	}
+
+	public function ebridge_sync_api_token_callback( $args ) {
+		$api_token = get_option( $args['fieldname'], '' );
+		?>
+		<input type="text" name="<?php echo $args['fieldname']; ?>" id="<?php echo $args['fieldname']; ?>" value="<?php echo $api_token; ?>">
 		<?php
 	}
 
