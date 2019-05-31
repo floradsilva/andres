@@ -28,5 +28,47 @@
 	 * Although scripts in the WordPress core, Plugins and Themes may be
 	 * practising this, we should strive to set a better example in our own work.
 	 */
+	$( window ).load(
+		function() {
+			$( '#customer_sync_form' ).validate(
+				{
+					rules: {
+						customer_sync_csv: {
+							required: true,
+						}
+					},
+					messages: {
+						customer_sync_csv: {
+							required: 'required',
+						}
+					},
+					submitHandler: function (form) {
+						event.preventDefault();
+						var formData = new FormData( document.getElementById( 'customer_sync_form' ) );
+						formData.append( "action", "upload_csv" );
+						$.ajax(
+							{
+								url: customer_sync.customer_sync_url,
+								type: 'post',
+								dataType: 'json',
+								data:  formData,
+								contentType: false,
+								cache: false,
+								processData: false,
+								success: function (response) {
+
+									if (response.success) {
+										console.log( "success" );
+									} else {
+										console.log( 'error' );
+									}
+								}
+							}
+						);
+					}
+				}
+			);
+		}
+	);
 
 })( jQuery );

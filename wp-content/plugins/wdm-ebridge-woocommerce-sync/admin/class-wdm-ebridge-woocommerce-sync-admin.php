@@ -96,8 +96,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Admin {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wdm-ebridge-woocommerce-sync-admin.js', array( 'jquery' ), $this->version, false );
-
+		wp_enqueue_script( 'wdm-validator', 'https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js', array( 'jquery' ), null, true );
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wdm-ebridge-woocommerce-sync-admin.js', array( 'jquery' ), $this->version, true );
 	}
 
 }

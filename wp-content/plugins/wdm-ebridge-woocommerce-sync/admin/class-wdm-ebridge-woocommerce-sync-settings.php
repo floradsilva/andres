@@ -93,7 +93,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 				?>
 			</h2>
 			<!-- <form method="post" id="mainform" action="?page=ebridge_sync&amp;tab=<?php echo esc_attr( $tab ); ?>"> -->
-			<form method="post" action="options.php">
 				<?php
 				switch ( $tab ) {
 					case 'connection_settings':
@@ -106,29 +105,43 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 						$this->pickup_service();
 						break;
 					case 'customer_sync':
-						// $this->candidate_notification_editor();
-						echo 'Cu';
+						$this->customer_sync();
 						break;
 					default:
 						$this->connection_settings();
 						break;
 				}
 				?>
-			</form>
 		</div>
 		<?php
 	}
 
 	public function pickup_service() {
+		?>
+		 <form method="post" action="options.php"> 
+		<?php
+
 		settings_fields( 'ebridge_sync_pickup_service' );
 		do_settings_sections( 'ebridge_sync_pickup_service' );
 		submit_button();
+
+		?>
+		 </form> 
+		<?php
 	}
 
 	public function connection_settings() {
+		?>
+		 <form method="post" action="options.php"> 
+		<?php
+
 		settings_fields( 'ebridge_sync_connection_settings' );
 		do_settings_sections( 'ebridge_sync_connection_settings' );
 		submit_button();
+
+		?>
+		 </form> 
+		<?php
 	}
 
 	public function setup_sections() {
@@ -189,9 +202,17 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 	}
 
 	public function product_attributes() {
+		?>
+		 <form method="post" action="options.php"> 
+		<?php
+
 		settings_fields( 'ebridge_sync_product_attributes' );
 		do_settings_sections( 'ebridge_sync_product_attributes' );
 		submit_button();
+
+		?>
+		 </form> 
+		<?php
 	}
 
 	public function ebridge_sync_product_attributes_callback() {
@@ -225,4 +246,85 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 		}
 	}
 
+	public function customer_sync() {
+		?>
+		<form id="customer_sync_form" action="#" method="post" enctype="multipart/form-data">
+			<div>
+				<input type="file" name="customer_sync_csv" id="customer_sync_csv" class="file" accept=".csv" data-show-preview="false" data-show-upload="false" title="<?php _e( 'Select File', 'wdm-ebridge-woocommerce-sync' ); ?>">
+			</div>
+			<div class="wdm-input-group">
+				<input type="submit" id="customer_sync_submit" name="customer_sync_submit" class="button button-primary" value="<?php _e( 'Import', 'wdm-ebridge-woocommerce-sync' ); ?>">
+			</div>
+		</form>
+		<?php
+	}
+
+	public function add_localize_script() {
+		 $args = $this->fetch_localized_script_data();
+		wp_localize_script( $this->plugin_name, 'customer_sync', $args );
+	}
+
+	public function fetch_localized_script_data() {
+		 $args = array(
+			 'customer_sync_url' => admin_url( 'admin-ajax.php' ),
+		 );
+		return $args;
+	}
+
+	public function upload_csv() {
+		if ( isset( $_FILES['customer_sync_csv'] ) ) {
+			$files = $_FILES['customer_sync_csv'];
+
+			$file            = array(
+				'name'     => $files['name'],
+				'type'     => $files['type'],
+				'tmp_name' => $files['tmp_name'],
+				'error'    => $files['error'],
+				'size'     => $files['size'],
+			);
+			$attachment_path = $this->upload_attachment( $file );
+			
+			// $row = 1;
+			// if ( ( $handle = fopen( $attachment_path, 'r' ) ) !== false ) {
+			// 	while ( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
+			// 		$num = count( $data );
+			// 		echo "<p> $num fields in line $row: <br /></p>\n";
+			// 		$row++;
+			// 		for ( $c = 0; $c < $num; $c++ ) {
+			// 			echo $data[ $c ] . "<br />\n";
+			// 		}
+					$request = new WP_REST_Request( 'GET', '/wp-json/wc/v3/customers/4' );
+					$response = rest_do_request( $request );
+					$server = rest_get_server();
+					$data = $server->response_to_data( $response, false );
+					$json = wp_json_encode( $data );
+
+					var_dump($json);
+
+			// 	}
+			// 	fclose( $handle );
+			// }
+			wp_delete_file( $attachment_path );
+		}
+	}
+
+	public function upload_attachment( $file_to_upload ) {
+		if ( ! function_exists( 'wp_handle_upload' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		$uploadedfile = $file_to_upload;
+
+		$upload_overrides = array(
+			'test_form' => false,
+		);
+
+		$movefile = wp_handle_upload( $uploadedfile, $upload_overrides );
+
+		if ( $movefile && ! isset( $movefile['error'] ) ) {
+			return $movefile['file'];
+		} else {
+			return null;
+		}
+	}
 }
