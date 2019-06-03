@@ -85,12 +85,12 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 		<div class="wrap">
 			<h2>Ebridge Sync Options</h2>
 			<h2 class="nav-tab-wrapper">
-				<?php
-				foreach ( $tabs as $key => $value ) {
-					$active = ( $key == $tab ) ? 'nav-tab-active' : '';
-					echo '<a class="nav-tab ' . $active . '" href="?page=ebridge_sync&tab=' . esc_attr( $key ) . '">' . esc_html( $value ) . '</a>';
-				}
-				?>
+			<?php
+			foreach ( $tabs as $key => $value ) {
+				$active = ( $key == $tab ) ? 'nav-tab-active' : '';
+				echo '<a class="nav-tab ' . $active . '" href="?page=ebridge_sync&tab=' . esc_attr( $key ) . '">' . esc_html( $value ) . '</a>';
+			}
+			?>
 			</h2>
 			<!-- <form method="post" id="mainform" action="?page=ebridge_sync&amp;tab=<?php echo esc_attr( $tab ); ?>"> -->
 				<?php
@@ -113,7 +113,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 				}
 				?>
 		</div>
-		<?php
+			<?php
 	}
 
 	public function pickup_service() {
@@ -232,7 +232,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 			foreach ( $product_attributes as $key => $value ) {
 				?>
 					<div>
-						<?php if ( in_array( $key, $product_attributes_options ) ) { ?>
+					<?php if ( in_array( $key, $product_attributes_options ) ) { ?>
 							<input type="checkbox" class="" name="<?php echo $args['fieldname']; ?>[]" value="<?php echo $key; ?>" checked>
 						<?php } else { ?>
 							<input type="checkbox" class="" name="<?php echo $args['fieldname']; ?>[]" value="<?php echo $key; ?>">
@@ -283,29 +283,23 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 				'size'     => $files['size'],
 			);
 			$attachment_path = $this->upload_attachment( $file );
-			
-			// $row = 1;
-			// if ( ( $handle = fopen( $attachment_path, 'r' ) ) !== false ) {
-			// 	while ( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
-			// 		$num = count( $data );
-			// 		echo "<p> $num fields in line $row: <br /></p>\n";
-			// 		$row++;
-			// 		for ( $c = 0; $c < $num; $c++ ) {
-			// 			echo $data[ $c ] . "<br />\n";
-			// 		}
-					$request = new WP_REST_Request( 'GET', '/wp-json/wc/v3/customers/4' );
-					$response = rest_do_request( $request );
-					$server = rest_get_server();
-					$data = $server->response_to_data( $response, false );
-					$json = wp_json_encode( $data );
 
-					var_dump($json);
-
-			// 	}
-			// 	fclose( $handle );
-			// }
+			$row       = 1;
+			$file_data = array();
+			if ( ( $handle = fopen( $attachment_path, 'r' ) ) !== false ) {
+				while ( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
+					$file_data[] = $data;
+					$row++;
+				}
+				fclose( $handle );
+			}
 			wp_delete_file( $attachment_path );
+
+			foreach ( $file_data as $key => $data ) {
+				wc_create_new_customer( $data[0], $data[1], $data[2] );
+			}
 		}
+		wp_send_json_success();
 	}
 
 	public function upload_attachment( $file_to_upload ) {
