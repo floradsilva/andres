@@ -272,7 +272,9 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 	}
 
 	public function upload_csv() {
+		echo "w";
 		if ( isset( $_FILES['customer_sync_csv'] ) ) {
+			echo "x";
 			$files = $_FILES['customer_sync_csv'];
 
 			$file            = array(
@@ -298,7 +300,10 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 			foreach ( $file_data as $key => $data ) {
 				wc_create_new_customer( $data[0], $data[1], $data[2] );
 			}
+			echo "y";
 		}
+		echo "z";
+		die;
 		wp_send_json_success();
 	}
 
