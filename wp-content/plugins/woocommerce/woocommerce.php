@@ -12,16 +12,16 @@
  * @package WooCommerce
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 // Define WC_PLUGIN_FILE.
-if ( ! defined( 'WC_PLUGIN_FILE' ) ) {
-	define( 'WC_PLUGIN_FILE', __FILE__ );
+if (! defined('WC_PLUGIN_FILE')) {
+    define('WC_PLUGIN_FILE', __FILE__);
 }
 
 // Include the main WooCommerce class.
-if ( ! class_exists( 'WooCommerce' ) ) {
-	include_once dirname( __FILE__ ) . '/includes/class-woocommerce.php';
+if (! class_exists('WooCommerce')) {
+    include_once dirname(__FILE__) . '/includes/class-woocommerce.php';
 }
 
 /**
@@ -30,8 +30,9 @@ if ( ! class_exists( 'WooCommerce' ) ) {
  * @since  2.1
  * @return WooCommerce
  */
-function WC() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
-	return WooCommerce::instance();
+function WC()
+{ // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+    return WooCommerce::instance();
 }
 
 // Global for backwards compatibility.

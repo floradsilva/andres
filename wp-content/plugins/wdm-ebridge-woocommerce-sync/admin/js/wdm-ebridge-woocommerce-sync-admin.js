@@ -56,11 +56,11 @@
 								cache: false,
 								processData: false,
 								success: function (response) {
-									console.log(response);
+									console.log( response );
 									if (response.success) {
-										alert("File upload completed.");
+										alert( "File upload completed." );
 									} else {
-										alert("Some error");
+										alert( "Some error" );
 									}
 								}
 							}

@@ -272,19 +272,21 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 	}
 
 	public function upload_csv() {
-		echo "w";
 		if ( isset( $_FILES['customer_sync_csv'] ) ) {
-			echo "x";
 			$files = $_FILES['customer_sync_csv'];
-
-			$file            = array(
+			$file  = array(
 				'name'     => $files['name'],
 				'type'     => $files['type'],
 				'tmp_name' => $files['tmp_name'],
 				'error'    => $files['error'],
 				'size'     => $files['size'],
 			);
+			var_dump( $file );
+
 			$attachment_path = $this->upload_attachment( $file );
+			echo '--*****************--';
+			echo $attachment_path;
+			echo '--************--';
 
 			$row       = 1;
 			$file_data = array();
@@ -298,11 +300,17 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 			wp_delete_file( $attachment_path );
 
 			foreach ( $file_data as $key => $data ) {
-				wc_create_new_customer( $data[0], $data[1], $data[2] );
+				$success = wc_create_new_customer( $data[0], $data[1], $data[2] );
+				?>
+				<pre>
+				<?php
+				echo $success;
+					print_r( $success );
+				?>
+				  </pre> 
+				  <?php
 			}
-			echo "y";
 		}
-		echo "z";
 		die;
 		wp_send_json_success();
 	}
@@ -313,16 +321,23 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 		}
 
 		$uploadedfile = $file_to_upload;
+		echo '--*****************--';
+		var_dump( $uploadedfile );
+		echo '--************--';
 
 		$upload_overrides = array(
 			'test_form' => false,
 		);
 
 		$movefile = wp_handle_upload( $uploadedfile, $upload_overrides );
-
+		echo '--*****************--';
+		var_dump( $movefile );
+		echo '--************--';
 		if ( $movefile && ! isset( $movefile['error'] ) ) {
+			echo 'x';
 			return $movefile['file'];
 		} else {
+			echo 'y';
 			return null;
 		}
 	}

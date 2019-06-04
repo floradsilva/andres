@@ -8,44 +8,45 @@
  * @package WooCommerce/Classes/Integrations
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 /**
  * Integrations class.
  */
-class WC_Integrations {
+class WC_Integrations
+{
 
-	/**
-	 * Array of integrations.
-	 *
-	 * @var array
-	 */
-	public $integrations = array();
+    /**
+     * Array of integrations.
+     *
+     * @var array
+     */
+    public $integrations = array();
 
-	/**
-	 * Initialize integrations.
-	 */
-	public function __construct() {
+    /**
+     * Initialize integrations.
+     */
+    public function __construct()
+    {
+        do_action('woocommerce_integrations_init');
 
-		do_action( 'woocommerce_integrations_init' );
+        $load_integrations = apply_filters('woocommerce_integrations', array());
 
-		$load_integrations = apply_filters( 'woocommerce_integrations', array() );
+        // Load integration classes.
+        foreach ($load_integrations as $integration) {
+            $load_integration = new $integration();
 
-		// Load integration classes.
-		foreach ( $load_integrations as $integration ) {
+            $this->integrations[ $load_integration->id ] = $load_integration;
+        }
+    }
 
-			$load_integration = new $integration();
-
-			$this->integrations[ $load_integration->id ] = $load_integration;
-		}
-	}
-
-	/**
-	 * Return loaded integrations.
-	 *
-	 * @return array
-	 */
-	public function get_integrations() {
-		return $this->integrations;
-	}
+    /**
+     * Return loaded integrations.
+     *
+     * @return array
+     */
+    public function get_integrations()
+    {
+        return $this->integrations;
+    }
 }

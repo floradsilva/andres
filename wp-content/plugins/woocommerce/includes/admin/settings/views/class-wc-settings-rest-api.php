@@ -6,6 +6,6 @@
  * @todo remove in 4.0.
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 return include 'class-wc-settings-advanced.php';

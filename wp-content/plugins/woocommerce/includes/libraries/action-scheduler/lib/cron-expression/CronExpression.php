@@ -273,7 +273,6 @@ class CronExpression
 
         // Set a hard limit to bail on an impossible date
         for ($i = 0; $i < 1000; $i++) {
-
             foreach (self::$order as $position) {
                 $part = $this->getExpression($position);
                 if (null === $part) {

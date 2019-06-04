@@ -3,17 +3,18 @@
 /**
  * Class ActionScheduler_NullSchedule
  */
-class ActionScheduler_NullSchedule implements ActionScheduler_Schedule {
+class ActionScheduler_NullSchedule implements ActionScheduler_Schedule
+{
+    public function next(DateTime $after = null)
+    {
+        return null;
+    }
 
-	public function next( DateTime $after = NULL ) {
-		return NULL;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function is_recurring() {
-		return false;
-	}
+    /**
+     * @return bool
+     */
+    public function is_recurring()
+    {
+        return false;
+    }
 }
- 

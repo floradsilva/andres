@@ -8,16 +8,16 @@
 
 global $states;
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 $states['BO'] = array(
-	'B' => __( 'Chuquisaca', 'woocommerce' ),
-	'H' => __( 'Beni', 'woocommerce' ),
-	'C' => __( 'Cochabamba', 'woocommerce' ),
-	'L' => __( 'La Paz', 'woocommerce' ),
-	'O' => __( 'Oruro', 'woocommerce' ),
-	'N' => __( 'Pando', 'woocommerce' ),
-	'P' => __( 'Potosí', 'woocommerce' ),
-	'S' => __( 'Santa Cruz', 'woocommerce' ),
-	'T' => __( 'Tarija', 'woocommerce' ),
+    'B' => __('Chuquisaca', 'woocommerce'),
+    'H' => __('Beni', 'woocommerce'),
+    'C' => __('Cochabamba', 'woocommerce'),
+    'L' => __('La Paz', 'woocommerce'),
+    'O' => __('Oruro', 'woocommerce'),
+    'N' => __('Pando', 'woocommerce'),
+    'P' => __('Potosí', 'woocommerce'),
+    'S' => __('Santa Cruz', 'woocommerce'),
+    'T' => __('Tarija', 'woocommerce'),
 );
