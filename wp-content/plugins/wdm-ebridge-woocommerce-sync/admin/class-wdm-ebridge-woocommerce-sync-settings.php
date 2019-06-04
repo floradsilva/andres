@@ -159,8 +159,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 
 		// Settings for Product Attributes
 		add_settings_section( 'ebridge_sync_product_attributes_section', __( 'Product Attributes', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'ebridge_sync_product_attributes_callback' ), 'ebridge_sync_product_attributes' );
-		add_settings_field( 'product_attributes', __( 'Product Attibutes to Sync:', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'product_attributes_callback' ), 'ebridge_sync_product_attributes', 'ebridge_sync_product_attributes_section', array( 'fieldname' => 'product_attributes' ) );
-		register_setting( 'ebridge_sync_product_attributes', 'product_attributes' );
+		add_settings_field( 'product_attributes_checked', __( 'Product Attibutes to Sync:', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'product_attributes_callback' ), 'ebridge_sync_product_attributes', 'ebridge_sync_product_attributes_section', array( 'fieldname' => 'product_attributes_checked' ) );
+		register_setting( 'ebridge_sync_product_attributes', 'product_attributes_checked' );
 	}
 
 	public function ebridge_sync_pickup_service_callback() {
@@ -203,15 +203,18 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 
 	public function product_attributes() {
 		?>
-		 <form method="post" action="options.php"> 
-		<?php
-
-		settings_fields( 'ebridge_sync_product_attributes' );
-		do_settings_sections( 'ebridge_sync_product_attributes' );
-		submit_button();
-
-		?>
-		 </form> 
+			<div>
+				<input type="button" id="refresh_product_attributes" name="refresh_product_attributes" class="button button-primary" value="<?php _e( 'Refresh Product Attributes', 'wdm-ebridge-woocommerce-sync' ); ?>">
+			</div>
+			<div>
+				<form method="post" action="options.php"> 
+					<?php
+						settings_fields( 'ebridge_sync_product_attributes' );
+						do_settings_sections( 'ebridge_sync_product_attributes' );
+						submit_button();
+					?>
+				</form>
+			</div> 
 		<?php
 	}
 
@@ -219,43 +222,40 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 	}
 
 	public function product_attributes_callback( $args ) {
-		$product_attributes_options = get_option( $args['fieldname'], array() );
-		$api_url                    = get_option( 'ebridge_sync_api_url', '' );
-		$api_token                  = get_option( 'ebridge_sync_api_token', '' );
-		$product                    = 'P414TP1';
-		$response                   = wp_remote_get( $api_url . '/' . $api_token . '/products/' . $product );
+		$product_attributes_checked = get_option( $args['fieldname'], array() );
+		$product_attributes_all     = get_option( 'product_attributes', array() );
 
-		if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
-			$body               = json_decode( wp_remote_retrieve_body( $response ) );
-			$product_attributes = get_object_vars( $body->product );
+		if ( ! $product_attributes_all ) {
+			$product_attributes_saved = $this->get_product_arttributes();
+			update_option( 'product_attributes', $product_attributes_saved );
+			$product_attributes_all = get_option( 'product_attributes', array() );
+		}
 
-			foreach ( $product_attributes as $key => $value ) {
-				?>
-					<div>
-					<?php if ( in_array( $key, $product_attributes_options ) ) { ?>
-							<input type="checkbox" class="" name="<?php echo $args['fieldname']; ?>[]" value="<?php echo $key; ?>" checked>
-						<?php } else { ?>
-							<input type="checkbox" class="" name="<?php echo $args['fieldname']; ?>[]" value="<?php echo $key; ?>">
-						<?php } ?>
-						<label for="<?php echo $key; ?>"><?php echo $key; ?></label>
-					</div>
-				<?php
-			}
-		} else {
-			echo __( 'Some error. Please make sure the Ebridge URL and API Token are valid.', 'wdm-ebridge-woocommerce-sync' );
+		foreach ( $product_attributes_all as $key => $value ) {
+			?>
+				<div>
+				<?php if ( in_array( $value, $product_attributes_checked ) ) { ?>
+						<input type="checkbox" class="" name="<?php echo $args['fieldname']; ?>[]" value="<?php echo $value; ?>" checked>
+					<?php } else { ?>
+						<input type="checkbox" class="" name="<?php echo $args['fieldname']; ?>[]" value="<?php echo $value; ?>">
+					<?php } ?>
+					<label for="<?php echo $value; ?>"><?php echo $value; ?></label>
+				</div>
+			<?php
+			$product_attributes_saved[] = $key;
 		}
 	}
 
 	public function customer_sync() {
 		?>
-		<form id="customer_sync_form" action="#" method="post" enctype="multipart/form-data">
-			<div>
-				<input type="file" name="customer_sync_csv" id="customer_sync_csv" class="file" accept=".csv" data-show-preview="false" data-show-upload="false" title="<?php _e( 'Select File', 'wdm-ebridge-woocommerce-sync' ); ?>">
-			</div>
-			<div class="wdm-input-group">
-				<input type="submit" id="customer_sync_submit" name="customer_sync_submit" class="button button-primary" value="<?php _e( 'Import', 'wdm-ebridge-woocommerce-sync' ); ?>">
-			</div>
-		</form>
+			<form id="customer_sync_form" action="#" method="post" enctype="multipart/form-data">
+				<div>
+					<input type="file" name="customer_sync_csv" id="customer_sync_csv" class="file" accept=".csv" data-show-preview="false" data-show-upload="false" title="<?php _e( 'Select File', 'wdm-ebridge-woocommerce-sync' ); ?>">
+				</div>
+				<div class="wdm-input-group">
+					<input type="submit" id="customer_sync_submit" name="customer_sync_submit" class="button button-primary" value="<?php _e( 'Import', 'wdm-ebridge-woocommerce-sync' ); ?>">
+				</div>
+			</form>
 		<?php
 	}
 
@@ -272,6 +272,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 	}
 
 	public function upload_csv() {
+		$response = array();
 		if ( isset( $_FILES['customer_sync_csv'] ) ) {
 			$files = $_FILES['customer_sync_csv'];
 			$file  = array(
@@ -281,12 +282,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 				'error'    => $files['error'],
 				'size'     => $files['size'],
 			);
-			var_dump( $file );
 
 			$attachment_path = $this->upload_attachment( $file );
-			echo '--*****************--';
-			echo $attachment_path;
-			echo '--************--';
 
 			$row       = 1;
 			$file_data = array();
@@ -299,20 +296,18 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 			}
 			wp_delete_file( $attachment_path );
 
+			$uploaded_customers = 0;
 			foreach ( $file_data as $key => $data ) {
 				$success = wc_create_new_customer( $data[0], $data[1], $data[2] );
-				?>
-				<pre>
-				<?php
-				echo $success;
-					print_r( $success );
-				?>
-				  </pre> 
-				  <?php
+
+				if ( $success ) {
+					$uploaded_customers++;
+				}
 			}
+			$response['customers'] = $uploaded_customers;
 		}
-		die;
-		wp_send_json_success();
+		$response['success'] = true;
+		wp_send_json_success( $response );
 	}
 
 	public function upload_attachment( $file_to_upload ) {
@@ -321,24 +316,77 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 		}
 
 		$uploadedfile = $file_to_upload;
-		echo '--*****************--';
-		var_dump( $uploadedfile );
-		echo '--************--';
 
 		$upload_overrides = array(
 			'test_form' => false,
 		);
 
 		$movefile = wp_handle_upload( $uploadedfile, $upload_overrides );
-		echo '--*****************--';
-		var_dump( $movefile );
-		echo '--************--';
+
 		if ( $movefile && ! isset( $movefile['error'] ) ) {
-			echo 'x';
 			return $movefile['file'];
 		} else {
-			echo 'y';
 			return null;
 		}
+	}
+
+	public function refresh_product_attributes() {
+		$response = array();
+		delete_option( 'product_attributes' );
+		delete_option( 'product_attributes_checked' );
+		$response['success'] = true;
+		wp_send_json_success( $response );
+	}
+
+	public function get_product_arttributes() {
+		$product_attributes_saved = array();
+		$api_url                  = get_option( 'ebridge_sync_api_url', '' );
+		$api_token                = get_option( 'ebridge_sync_api_token', '' );
+		$product                  = get_option( 'ebridge_sync_product', '' );
+
+		if ( $product ) {
+			$response = wp_remote_get( $api_url . '/' . $api_token . '/products/' . $product );
+
+			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
+				$body               = json_decode( wp_remote_retrieve_body( $response ) );
+				$product_attributes = get_object_vars( $body->product );
+
+				foreach ( $product_attributes as $key => $value ) {
+					$product_attributes_saved[] = $key;
+				}
+			}
+		} else {
+			$webcategories_response = wp_remote_get( $api_url . '/' . $api_token . '/webcategories' );
+			if ( wp_remote_retrieve_response_code( $webcategories_response ) == 200 ) {
+				$webcategories = json_decode( wp_remote_retrieve_body( $webcategories_response ) );
+
+				foreach ( $webcategories->webCategories as $key => $webcategory ) {
+
+					$search_response = wp_remote_get( $api_url . '/' . $api_token . '/products?webcategoryId=' . $webcategory->id );
+
+					if ( wp_remote_retrieve_response_code( $search_response ) == 200 ) {
+						$search_products = json_decode( wp_remote_retrieve_body( $search_response ) )->productMatches;
+
+						foreach ( $search_products as $key => $search_product ) {
+							update_option( 'ebridge_sync_product', $search_product->id );
+							$product  = get_option( 'ebridge_sync_product', '' );
+							$response = wp_remote_get( $api_url . '/' . $api_token . '/products/' . $product );
+
+							if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
+								$body               = json_decode( wp_remote_retrieve_body( $response ) );
+								$product_attributes = get_object_vars( $body->product );
+
+								foreach ( $product_attributes as $key => $value ) {
+									$product_attributes_saved[] = $key;
+								}
+							}
+							return $product_attributes_saved;
+						}
+					}
+				}
+			}
+		}
+
+		return $product_attributes_saved;
 	}
 }

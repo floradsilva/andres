@@ -59,13 +59,37 @@
 									console.log( response );
 									if (response.success) {
 										alert( "File upload completed." );
+										console.log( response );
 									} else {
 										alert( "Some error" );
+										console.log( response );
 									}
 								}
 							}
 						);
 					}
+				}
+			);
+
+			$( '#refresh_product_attributes' ).click(
+				function() {
+					$.ajax(
+						{
+							url: customer_sync.customer_sync_url,
+							type: 'get',
+							dataType: 'json',
+							data: {
+								action:'refresh_product_attributes',
+							},
+							success: function (response) {
+								if (response.success) {
+									location.reload();
+								} else {
+									console.log( response );
+								}
+							}
+						}
+					);
 				}
 			);
 		}
