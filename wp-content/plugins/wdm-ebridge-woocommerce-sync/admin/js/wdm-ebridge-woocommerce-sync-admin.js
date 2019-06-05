@@ -83,7 +83,7 @@
 								if (response.success) {
 									location.reload();
 								} else {
-									console.log("Some error.");
+									console.log( "Some error." );
 								}
 							}
 						}

@@ -4,27 +4,27 @@
  */
 
  .import_button {
-     padding:  4rem;
+	 padding:  4rem;
  }
 
  .refresh_button {
-    float: right;
-    width: 40%;
+	float: right;
+	width: 40%;
 }
 
 .product_attributes {
-    display: flex;
+	display: flex;
 }
 
 .width-custom {
-    width:60%
+	width:60%
 }
 
 #refresh_product_attributes {
-    /* margin: auto; */
-    margin-top: 1.5rem;
+	/* margin: auto; */
+	margin-top: 1.5rem;
 }
 
 .product_attributes #submit{
-    margin: 3rem 10rem;
+	margin: 3rem 10rem;
 }

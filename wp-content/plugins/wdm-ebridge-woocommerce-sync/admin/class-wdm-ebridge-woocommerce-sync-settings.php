@@ -247,8 +247,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 
 	public function customer_sync() {
 		?>
-			<h2><?php echo __('Sync Customers with Woocommerce', 'wdm-ebridge-woocommerce-sync'); ?></h2>
-			<p> <?php echo __('Add a .csv file with each row having data as email id, username, password.', 'wdm-ebridge-woocommerce-sync');?></p>
+			<h2><?php echo __( 'Sync Customers with Woocommerce', 'wdm-ebridge-woocommerce-sync' ); ?></h2>
+			<p> <?php echo __( 'Add a .csv file with each row having data as email id, username, password.', 'wdm-ebridge-woocommerce-sync' ); ?></p>
 
 			<form id="customer_sync_form" action="#" method="post" enctype="multipart/form-data">
 				<div class="import_button">
@@ -345,9 +345,9 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 		$product                  = get_option( 'ebridge_sync_product', '' );
 
 		$response = wp_remote_get( $api_url . '/' . $api_token . '/products/' . $product );
+		$body     = json_decode( wp_remote_retrieve_body( $response ) );
 
-		if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
-			$body               = json_decode( wp_remote_retrieve_body( $response ) );
+		if ( ( wp_remote_retrieve_response_code( $response ) == 200 ) && ( property_exists( $body, 'product' ) ) ) {
 			$product_attributes = get_object_vars( $body->product );
 
 			foreach ( $product_attributes as $key => $value ) {
