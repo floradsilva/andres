@@ -131,26 +131,37 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 
 	public function connection_settings() {
 		?>
-		 <form method="post" action="options.php"> 
+		<form id="connection_settings_form" action="#" method="post" enctype="multipart/form-data">
 		<?php
 
-		settings_fields( 'ebridge_sync_connection_settings' );
-		do_settings_sections( 'ebridge_sync_connection_settings' );
-		submit_button();
+		$api_url   = get_option( 'ebridge_sync_api_url', '' );
+		$api_token = get_option( 'ebridge_sync_api_token', '' );
 
 		?>
-		 </form> 
+			<table class="form-table">
+				<tbody>
+					<tr>
+						<th scope="row">EBridge API URL:</th>
+						<td>
+							<input type="text" class="input_text" name="ebridge_sync_api_url" id="ebridge_sync_api_url" value="<?php echo $api_url; ?>">
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">API Token:</th>
+						<td>
+							<input type="text" class="input_text" name="ebridge_sync_api_token" id="ebridge_sync_api_token" value="<?php echo $api_token; ?>">
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<p class="submit">
+				<input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes">
+			</p>
+		</form>
 		<?php
 	}
 
 	public function setup_sections() {
-		// Settings for Connection Settings section
-		add_settings_section( 'ebridge_sync_connection_settings_section', __( 'Connection Settings', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'ebridge_sync_connection_settings_callback' ), 'ebridge_sync_connection_settings' );
-		add_settings_field( 'ebridge_sync_api_url', __( 'EBridge API URL:', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'ebridge_sync_api_url_callback' ), 'ebridge_sync_connection_settings', 'ebridge_sync_connection_settings_section', array( 'fieldname' => 'ebridge_sync_api_url' ) );
-		add_settings_field( 'ebridge_sync_api_token', __( 'API Token:', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'ebridge_sync_api_token_callback' ), 'ebridge_sync_connection_settings', 'ebridge_sync_connection_settings_section', array( 'fieldname' => 'ebridge_sync_api_token' ) );
-		register_setting( 'ebridge_sync_connection_settings', 'ebridge_sync_api_url' );
-		register_setting( 'ebridge_sync_connection_settings', 'ebridge_sync_api_token' );
-
 		// Settings for Pickup Service
 		add_settings_section( 'ebridge_sync_pickup_service_section', __( 'Pickup Service', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'ebridge_sync_pickup_service_callback' ), 'ebridge_sync_pickup_service' );
 		add_settings_field( 'pickup_service', __( 'Activate Pickup Service:', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'pickup_service_callback' ), 'ebridge_sync_pickup_service', 'ebridge_sync_pickup_service_section', array( 'fieldname' => 'pickup_service' ) );
@@ -166,9 +177,9 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 	}
 
 	public function pickup_service_callback( $args ) {
-		$api_url = get_option( $args['fieldname'], false );
+		$pickup_service = get_option( $args['fieldname'], false );
 
-		if ( $api_url ) {
+		if ( $pickup_service ) {
 			?>
 			<input type="checkbox" class="" name="<?php echo $args['fieldname']; ?>" id="<?php echo $args['fieldname']; ?>" checked>
 			<?php
@@ -181,23 +192,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 
 	public function ebridge_sync_api_url_sanitize( $url ) {
 		return esc_url_raw( $url );
-	}
-
-	public function ebridge_sync_connection_settings_callback() {
-	}
-
-	public function ebridge_sync_api_url_callback( $args ) {
-		$api_url = get_option( $args['fieldname'], '' );
-		?>
-		<input type="text" class="" name="<?php echo $args['fieldname']; ?>" id="<?php echo $args['fieldname']; ?>" value="<?php echo $api_url; ?>">
-		<?php
-	}
-
-	public function ebridge_sync_api_token_callback( $args ) {
-		$api_token = get_option( $args['fieldname'], '' );
-		?>
-		<input type="text" name="<?php echo $args['fieldname']; ?>" id="<?php echo $args['fieldname']; ?>" value="<?php echo $api_token; ?>">
-		<?php
 	}
 
 	public function product_attributes() {
@@ -386,5 +380,28 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 		}
 
 		return $product_attributes_saved;
+	}
+
+	public function add_connection_settings() {
+		 $response = array();
+
+		$api_url   = isset( $_POST['ebridge_sync_api_url'] ) ? $_POST['ebridge_sync_api_url'] : '';
+		$api_token = isset( $_POST['ebridge_sync_api_token'] ) ? $_POST['ebridge_sync_api_token'] : '';
+		$response  = wp_remote_get( $api_url . '/' . $api_token . '/api' );
+
+		if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
+			$body = wp_remote_retrieve_body( $response );
+			if ( preg_match( '/\d/', $body ) ) {
+				update_option( 'ebridge_sync_api_url', $api_url );
+				update_option( 'ebridge_sync_api_token', $api_token );
+				$response['success'] = true;
+				$response['message'] = __( 'URL and token saved.', 'wdm-ebridge-woocommerce-sync' );
+				wp_send_json_success( $response );
+			}
+		}
+
+		$response['success'] = false;
+		$response['message'] = __( 'Please enter valid URL and token.', 'wdm-ebridge-woocommerce-sync' );
+		wp_send_json_error( $response );
 	}
 }

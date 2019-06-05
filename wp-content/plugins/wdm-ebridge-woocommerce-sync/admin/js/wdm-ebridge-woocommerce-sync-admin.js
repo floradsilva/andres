@@ -69,6 +69,12 @@
 				}
 			);
 
+			$('#short-time-msg').click(
+				function() {
+					$('#short-time-msg').hide();
+				}
+			);
+
 			$( '#refresh_product_attributes' ).click(
 				function() {
 					$.ajax(
@@ -88,6 +94,54 @@
 							}
 						}
 					);
+				}
+			);
+
+			$( '#connection_settings_form' ).validate(
+				{
+					rules: {
+						ebridge_sync_api_url: {
+							required: true,
+						},
+						ebridge_sync_api_token: {
+							required: true,
+						}
+					},
+					messages: {
+						ebridge_sync_api_url: {
+							required: 'Please enter a valid url.',
+						},
+						ebridge_sync_api_token: {
+							required: 'Please enter a valid token.',
+						}
+					},
+					submitHandler: function (form) {
+						event.preventDefault();
+						var formData = new FormData( document.getElementById( 'connection_settings_form' ) );
+						formData.append( "action", "add_connection_settings" );
+						$.ajax(
+							{
+								url: customer_sync.customer_sync_url,
+								type: 'post',
+								dataType: 'json',
+								data:  formData,
+								contentType: false,
+								cache: false,
+								processData: false,
+								success: function (response) {
+									$( "#short-time-msg" ).remove();
+									$( "#error-msg" ).remove();
+									if (response.data.success) {
+										$( '<p id="short-time-msg">' + response.data.message + '</p>' ).insertAfter( '#submit' );
+										window.setTimeout("document.getElementById('short-time-msg').style.display='none'", 3000);
+									} else {
+										$( '<p id="error-msg">' + response.data.message + '</p>' ).insertAfter( '#submit' );
+										window.setTimeout("document.getElementById('error-msg').style.display='none'", 3000);
+									}
+								}
+							}
+						);
+					}
 				}
 			);
 		}

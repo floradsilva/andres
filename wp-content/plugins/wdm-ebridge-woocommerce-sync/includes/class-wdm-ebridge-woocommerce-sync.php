@@ -165,6 +165,7 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin_settings, 'add_localize_script' );
 		$this->loader->add_action( 'wp_ajax_upload_csv', $plugin_admin_settings, 'upload_csv' );
 		$this->loader->add_action( 'wp_ajax_refresh_product_attributes', $plugin_admin_settings, 'refresh_product_attributes' );
+		$this->loader->add_action( 'wp_ajax_add_connection_settings', $plugin_admin_settings, 'add_connection_settings' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin_settings, 'menu_page', 10 );
 		$this->loader->add_action( 'admin_init', $plugin_admin_settings, 'setup_sections' );
 	}

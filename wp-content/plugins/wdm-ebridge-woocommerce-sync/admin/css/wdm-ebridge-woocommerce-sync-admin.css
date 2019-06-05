@@ -28,3 +28,31 @@
 .product_attributes #submit{
 	margin: 3rem 10rem;
 }
+
+#ebridge_sync_api_url, #ebridge_sync_api_token {
+	width: 80%;
+}
+
+#short-time-msg {
+	margin: auto;
+	font-style: italic;
+	font-weight: bold;
+}
+
+#short-time-msg {
+	margin: auto;
+	width:60%;
+	font-style: italic;
+	font-weight: bold;
+}
+
+#error-msg {
+	margin: auto;
+	width:60%;
+	font-style: italic;
+	color: red;
+}
+
+#connection_settings_form .submit {
+	display: flex;
+}
