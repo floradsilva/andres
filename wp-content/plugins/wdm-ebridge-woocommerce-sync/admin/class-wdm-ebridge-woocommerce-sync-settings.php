@@ -92,7 +92,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 			}
 			?>
 			</h2>
-			<!-- <form method="post" id="mainform" action="?page=ebridge_sync&amp;tab=<?php echo esc_attr( $tab ); ?>"> -->
 				<?php
 				switch ( $tab ) {
 					case 'connection_settings':
@@ -158,7 +157,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 		register_setting( 'ebridge_sync_pickup_service', 'pickup_service' );
 
 		// Settings for Product Attributes
-		add_settings_section( 'ebridge_sync_product_attributes_section', __( 'Product Attributes', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'ebridge_sync_product_attributes_callback' ), 'ebridge_sync_product_attributes' );
+		add_settings_section( 'ebridge_sync_product_attributes_section', __( '', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'ebridge_sync_product_attributes_callback' ), 'ebridge_sync_product_attributes' );
 		add_settings_field( 'product_attributes_checked', __( 'Product Attibutes to Sync:', 'wdm-ebridge-woocommerce-sync' ), array( $this, 'product_attributes_callback' ), 'ebridge_sync_product_attributes', 'ebridge_sync_product_attributes_section', array( 'fieldname' => 'product_attributes_checked' ) );
 		register_setting( 'ebridge_sync_product_attributes', 'product_attributes_checked' );
 	}
@@ -203,18 +202,18 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 
 	public function product_attributes() {
 		?>
-			<div>
+		<div class='product_attributes'>
+			<form class='width-custom' method="post" action="options.php"> 
+				<?php
+					settings_fields( 'ebridge_sync_product_attributes' );
+					do_settings_sections( 'ebridge_sync_product_attributes' );
+					submit_button();
+				?>
+			</form>
+			<div class='refresh_button'>
 				<input type="button" id="refresh_product_attributes" name="refresh_product_attributes" class="button button-primary" value="<?php _e( 'Refresh Product Attributes', 'wdm-ebridge-woocommerce-sync' ); ?>">
 			</div>
-			<div>
-				<form method="post" action="options.php"> 
-					<?php
-						settings_fields( 'ebridge_sync_product_attributes' );
-						do_settings_sections( 'ebridge_sync_product_attributes' );
-						submit_button();
-					?>
-				</form>
-			</div> 
+		</div> 
 		<?php
 	}
 
@@ -248,11 +247,12 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 
 	public function customer_sync() {
 		?>
+			<h2><?php echo __('Sync Customers with Woocommerce', 'wdm-ebridge-woocommerce-sync'); ?></h2>
+			<p> <?php echo __('Add a .csv file with each row having data as email id, username, password.', 'wdm-ebridge-woocommerce-sync');?></p>
+
 			<form id="customer_sync_form" action="#" method="post" enctype="multipart/form-data">
-				<div>
+				<div class="import_button">
 					<input type="file" name="customer_sync_csv" id="customer_sync_csv" class="file" accept=".csv" data-show-preview="false" data-show-upload="false" title="<?php _e( 'Select File', 'wdm-ebridge-woocommerce-sync' ); ?>">
-				</div>
-				<div class="wdm-input-group">
 					<input type="submit" id="customer_sync_submit" name="customer_sync_submit" class="button button-primary" value="<?php _e( 'Import', 'wdm-ebridge-woocommerce-sync' ); ?>">
 				</div>
 			</form>
@@ -344,16 +344,14 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 		$api_token                = get_option( 'ebridge_sync_api_token', '' );
 		$product                  = get_option( 'ebridge_sync_product', '' );
 
-		if ( $product ) {
-			$response = wp_remote_get( $api_url . '/' . $api_token . '/products/' . $product );
+		$response = wp_remote_get( $api_url . '/' . $api_token . '/products/' . $product );
 
-			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
-				$body               = json_decode( wp_remote_retrieve_body( $response ) );
-				$product_attributes = get_object_vars( $body->product );
+		if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
+			$body               = json_decode( wp_remote_retrieve_body( $response ) );
+			$product_attributes = get_object_vars( $body->product );
 
-				foreach ( $product_attributes as $key => $value ) {
-					$product_attributes_saved[] = $key;
-				}
+			foreach ( $product_attributes as $key => $value ) {
+				$product_attributes_saved[] = $key;
 			}
 		} else {
 			$webcategories_response = wp_remote_get( $api_url . '/' . $api_token . '/webcategories' );

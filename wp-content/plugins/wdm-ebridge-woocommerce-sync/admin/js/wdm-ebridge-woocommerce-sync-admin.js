@@ -59,10 +59,8 @@
 									console.log( response );
 									if (response.success) {
 										alert( "File upload completed." );
-										console.log( response );
 									} else {
-										alert( "Some error" );
-										console.log( response );
+										alert( "Error uploading customer data." );
 									}
 								}
 							}
@@ -85,7 +83,7 @@
 								if (response.success) {
 									location.reload();
 								} else {
-									console.log( response );
+									console.log("Some error.");
 								}
 							}
 						}
