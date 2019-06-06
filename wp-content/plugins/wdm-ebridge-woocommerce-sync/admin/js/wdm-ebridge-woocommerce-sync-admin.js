@@ -39,7 +39,7 @@
 					},
 					messages: {
 						customer_sync_csv: {
-							required: 'required',
+							required: 'Please select a valid csv file.',
 						}
 					},
 					submitHandler: function (form) {
@@ -57,8 +57,10 @@
 								processData: false,
 								success: function (response) {
 									console.log( response );
+
 									if (response.success) {
-										alert( "File upload completed." );
+										$( "#message" ).remove();
+										$('<p id="message">'+response.data.message+'</p>').insertAfter('#customer_sync_form');
 									} else {
 										alert( "Error uploading customer data." );
 									}
@@ -69,9 +71,9 @@
 				}
 			);
 
-			$('#short-time-msg').click(
+			$( '#short-time-msg' ).click(
 				function() {
-					$('#short-time-msg').hide();
+					$( '#short-time-msg' ).hide();
 				}
 			);
 
@@ -133,10 +135,10 @@
 									$( "#error-msg" ).remove();
 									if (response.data.success) {
 										$( '<p id="short-time-msg">' + response.data.message + '</p>' ).insertAfter( '#submit' );
-										window.setTimeout("document.getElementById('short-time-msg').style.display='none'", 3000);
+										window.setTimeout( "document.getElementById('short-time-msg').style.display='none'", 3000 );
 									} else {
 										$( '<p id="error-msg">' + response.data.message + '</p>' ).insertAfter( '#submit' );
-										window.setTimeout("document.getElementById('error-msg').style.display='none'", 3000);
+										window.setTimeout( "document.getElementById('error-msg').style.display='none'", 3000 );
 									}
 								}
 							}

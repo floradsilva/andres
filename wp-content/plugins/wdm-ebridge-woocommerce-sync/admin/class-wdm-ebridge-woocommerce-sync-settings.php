@@ -242,7 +242,11 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 	public function customer_sync() {
 		?>
 			<h2><?php echo __( 'Sync Customers with Woocommerce', 'wdm-ebridge-woocommerce-sync' ); ?></h2>
-			<p> <?php echo __( 'Add a .csv file with each row having data as email id, username, password.', 'wdm-ebridge-woocommerce-sync' ); ?></p>
+			<p><?php echo __( 'Add a .csv file with each row having data as email id, username, password.', 'wdm-ebridge-woocommerce-sync' ); ?></p>
+			<p><?php echo __( 'Please click', 'wdm-ebridge-woocommerce-sync' ); ?>
+				<a href="<?php echo plugin_dir_url( dirname( __FILE__ ) ) . 'example.csv'; ?>"><?php echo __( 'here', 'wdm-ebridge-woocommerce-sync' ); ?></a>
+				<?php echo __( 'to download the reference file.', 'wdm-ebridge-woocommerce-sync' ); ?>
+			</p>
 
 			<form id="customer_sync_form" action="#" method="post" enctype="multipart/form-data">
 				<div class="import_button">
@@ -266,7 +270,12 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 	}
 
 	public function upload_csv() {
-		$response = array();
+		$response           = array();
+		$error_count        = 0;
+		$success_count      = 0;
+		$file_data = array();
+		$error_str = "\n";
+
 		if ( isset( $_FILES['customer_sync_csv'] ) ) {
 			$files = $_FILES['customer_sync_csv'];
 			$file  = array(
@@ -280,7 +289,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 			$attachment_path = $this->upload_attachment( $file );
 
 			$row       = 1;
-			$file_data = array();
 			if ( ( $handle = fopen( $attachment_path, 'r' ) ) !== false ) {
 				while ( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 					$file_data[] = $data;
@@ -290,17 +298,23 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 			}
 			wp_delete_file( $attachment_path );
 
-			$uploaded_customers = 0;
 			foreach ( $file_data as $key => $data ) {
 				$success = wc_create_new_customer( $data[0], $data[1], $data[2] );
 
-				if ( $success ) {
-					$uploaded_customers++;
+				if ( is_wp_error( $success ) ) {
+					$error_str .= "Row $key: " . $success->get_error_message().'<br />';
+					$error_count++;
+				} elseif ( $success ) {
+					$success_count++;
 				}
 			}
-			$response['customers'] = $uploaded_customers;
 		}
-		$response['success'] = true;
+
+		$response['success_count'] = $success_count;
+		$response['error_count']   = $error_count;
+		$response['total_count']   = count( $file_data );
+		$response['message'] = __(count($file_data) . " customer records found.<br /> $success_count customers successfully created.<br /> Error creating $error_count customers.<br /><br /> Errors:<br />$error_str", 'wdm-ebridge-woocommerce-sync');
+
 		wp_send_json_success( $response );
 	}
 
