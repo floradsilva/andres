@@ -313,7 +313,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 		$response['success_count'] = $success_count;
 		$response['error_count']   = $error_count;
 		$response['total_count']   = count( $file_data );
-		$response['message'] = __(count($file_data) . " customer records found.<br /> $success_count customers successfully created.<br /> Error creating $error_count customers.<br /><br /> Errors:<br />$error_str", 'wdm-ebridge-woocommerce-sync');
+		$response['message'] = __(count($file_data) . " rows found.<br /> $success_count customers successfully created.<br /> Error creating $error_count customers.<br /><br /> Errors:<br />$error_str", 'wdm-ebridge-woocommerce-sync');
 
 		wp_send_json_success( $response );
 	}
