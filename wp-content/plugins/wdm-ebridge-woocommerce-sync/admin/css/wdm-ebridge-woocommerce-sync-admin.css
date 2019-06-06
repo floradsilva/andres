@@ -56,3 +56,13 @@
 #connection_settings_form .submit {
 	display: flex;
 }
+
+#message {
+    height: 200px;
+    overflow: auto;
+    width: 50%;
+    background: white;
+    border: white;
+    margin-left: 10%;
+	padding: 1%;
+}

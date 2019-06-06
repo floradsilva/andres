@@ -59,8 +59,8 @@
 									console.log( response );
 
 									if (response.success) {
-										$( "#message" ).remove();
-										$('<p id="message">'+response.data.message+'</p>').insertAfter('#customer_sync_form');
+										$( "#message-wrap" ).remove();
+										$('<div id="message-wrap"><h3>Logs:</h3><p id="message">'+response.data.message+'</p></div>').insertAfter('#customer_sync_form');
 									} else {
 										alert( "Error uploading customer data." );
 									}
