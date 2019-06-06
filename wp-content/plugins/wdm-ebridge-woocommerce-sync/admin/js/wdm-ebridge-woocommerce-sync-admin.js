@@ -44,6 +44,7 @@
 					},
 					submitHandler: function (form) {
 						event.preventDefault();
+						$( "#message-wrap" ).remove();
 						var formData = new FormData( document.getElementById( 'customer_sync_form' ) );
 						formData.append( "action", "upload_csv" );
 						$.ajax(
@@ -59,7 +60,6 @@
 									console.log( response );
 
 									if (response.success) {
-										$( "#message-wrap" ).remove();
 										$('<div id="message-wrap"><h3>Logs:</h3><p id="message">'+response.data.message+'</p></div>').insertAfter('#customer_sync_form');
 									} else {
 										alert( "Error uploading customer data." );
@@ -135,10 +135,10 @@
 									$( "#error-msg" ).remove();
 									if (response.data.success) {
 										$( '<p id="short-time-msg">' + response.data.message + '</p>' ).insertAfter( '#submit' );
-										window.setTimeout( "document.getElementById('short-time-msg').style.display='none'", 3000 );
+										// window.setTimeout( "document.getElementById('short-time-msg').style.display='none'", 3000 );
 									} else {
 										$( '<p id="error-msg">' + response.data.message + '</p>' ).insertAfter( '#submit' );
-										window.setTimeout( "document.getElementById('error-msg').style.display='none'", 3000 );
+										// window.setTimeout( "document.getElementById('error-msg').style.display='none'", 3000 );
 									}
 								}
 							}
