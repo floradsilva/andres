@@ -100,4 +100,37 @@ class Wdm_Ebridge_Woocommerce_Sync_Admin {
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wdm-ebridge-woocommerce-sync-admin.js', array( 'jquery' ), $this->version, true );
 	}
 
+	public function create_taxonomy_brand() {
+		// Add new taxonomy, NOT hierarchical (like tags)
+		$labels = array(
+			'name'                       => __( 'Brands', 'wdm-ebridge-woocommerce-sync' ),
+			'singular_name'              => __( 'Brand', 'wdm-ebridge-woocommerce-sync' ),
+			'search_items'               => __( 'Search Brands', 'wdm-ebridge-woocommerce-sync' ),
+			'popular_items'              => __( 'Popular Brands', 'wdm-ebridge-woocommerce-sync' ),
+			'all_items'                  => __( 'All Brands', 'wdm-ebridge-woocommerce-sync' ),
+			'parent_item'                => null,
+			'parent_item_colon'          => null,
+			'edit_item'                  => __( 'Edit Brand', 'wdm-ebridge-woocommerce-sync' ),
+			'update_item'                => __( 'Update Brand', 'wdm-ebridge-woocommerce-sync' ),
+			'add_new_item'               => __( 'Add New Brand', 'wdm-ebridge-woocommerce-sync' ),
+			'new_item_name'              => __( 'New Writer Brand', 'wdm-ebridge-woocommerce-sync' ),
+			'separate_items_with_commas' => __( 'Separate brands with commas', 'wdm-ebridge-woocommerce-sync' ),
+			'add_or_remove_items'        => __( 'Add or remove brands', 'wdm-ebridge-woocommerce-sync' ),
+			'choose_from_most_used'      => __( 'Choose from the most used brands', 'wdm-ebridge-woocommerce-sync' ),
+			'not_found'                  => __( 'No brands found.', 'wdm-ebridge-woocommerce-sync' ),
+			'menu_name'                  => __( 'Brands', 'wdm-ebridge-woocommerce-sync' ),
+		);
+
+		$args = array(
+			'hierarchical'          => false,
+			'labels'                => $labels,
+			'show_ui'               => true,
+			'show_admin_column'     => true,
+			'update_count_callback' => '_update_post_term_count',
+			'query_var'             => true,
+			'rewrite'               => array( 'slug' => 'brand' ),
+		);
+
+		register_taxonomy( 'brand', 'product', $args );
+	}
 }

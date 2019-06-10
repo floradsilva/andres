@@ -60,7 +60,7 @@
 									console.log( response );
 
 									if (response.success) {
-										$('<div id="message-wrap"><h3>Logs:</h3><p id="message">'+response.data.message+'</p></div>').insertAfter('#customer_sync_form');
+										$( '<div id="message-wrap"><h3>Logs:</h3><p id="message">' + response.data.message + '</p></div>' ).insertAfter( '#customer_sync_form' );
 									} else {
 										alert( "Error uploading customer data." );
 									}

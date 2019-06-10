@@ -168,6 +168,7 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		$this->loader->add_action( 'wp_ajax_add_connection_settings', $plugin_admin_settings, 'add_connection_settings' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin_settings, 'menu_page', 10 );
 		$this->loader->add_action( 'admin_init', $plugin_admin_settings, 'setup_sections' );
+		$this->loader->add_action( 'init', $plugin_admin, 'create_taxonomy_brand' );
 	}
 
 	/**

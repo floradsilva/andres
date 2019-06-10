@@ -58,11 +58,11 @@
 }
 
 #message {
-    height: 200px;
-    overflow: auto;
-    width: 50%;
-    background: white;
-    border: white;
-    margin-left: 10%;
+	height: 200px;
+	overflow: auto;
+	width: 50%;
+	background: white;
+	border: white;
+	margin-left: 10%;
 	padding: 1%;
 }

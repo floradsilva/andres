@@ -270,11 +270,11 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 	}
 
 	public function upload_csv() {
-		$response           = array();
-		$error_count        = 0;
-		$success_count      = 0;
-		$file_data = array();
-		$error_str = "\n";
+		$response      = array();
+		$error_count   = 0;
+		$success_count = 0;
+		$file_data     = array();
+		$error_str     = "\n";
 
 		if ( isset( $_FILES['customer_sync_csv'] ) ) {
 			$files = $_FILES['customer_sync_csv'];
@@ -288,7 +288,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 
 			$attachment_path = $this->upload_attachment( $file );
 
-			$row       = 1;
+			$row = 1;
 			if ( ( $handle = fopen( $attachment_path, 'r' ) ) !== false ) {
 				while ( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 					$file_data[] = $data;
@@ -302,7 +302,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 				$success = wc_create_new_customer( $data[0], $data[1], $data[2] );
 
 				if ( is_wp_error( $success ) ) {
-					$error_str .= "Row $key: " . $success->get_error_message().'<br />';
+					$error_str .= "Row $key: " . $success->get_error_message() . '<br />';
 					$error_count++;
 				} elseif ( $success ) {
 					$success_count++;
@@ -313,7 +313,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 		$response['success_count'] = $success_count;
 		$response['error_count']   = $error_count;
 		$response['total_count']   = count( $file_data );
-		$response['message'] = __(count($file_data) . " rows found.<br /> $success_count customers successfully created.<br /> Error creating $error_count customers.<br /><br /> Errors:<br />$error_str", 'wdm-ebridge-woocommerce-sync');
+		$response['message']       = __( count( $file_data ) . " rows found.<br /> $success_count customers successfully created.<br /> Error creating $error_count customers.<br /><br /> Errors:<br />$error_str", 'wdm-ebridge-woocommerce-sync' );
 
 		wp_send_json_success( $response );
 	}
