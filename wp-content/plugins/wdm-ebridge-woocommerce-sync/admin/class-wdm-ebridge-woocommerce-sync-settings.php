@@ -73,7 +73,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 	public function render_settings_page() {
 		$tabs = array(
 			'connection_settings' => 'Connection Settings',
-			'product_sync'        => 'Product Sync',
+			'product_sync'        => 'Product Attributes To Sync',
 			'pickup_service'      => 'Pickup Service',
 			'customer_sync'       => 'Customer Sync',
 		);
