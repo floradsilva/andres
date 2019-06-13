@@ -109,7 +109,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 				$no_updated_products = count( $update_product_ids );
 				// for ( $index = 0; $index < $no_updated_products; $index++ ) {
-				for ( $index = 0; $index < 100; $index++ ) {
+				for ( $index = 0; $index < 50; $index++ ) {
 					$success = $this->create_product( $update_product_ids[ $index ] );
 					$updated_products[ $update_product_ids[ $index ] ]       = $success;
 					$this->updated_products[ $update_product_ids[ $index ] ] = $success;
@@ -125,7 +125,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 				$no_deleted_products = count( $delete_product_ids );
 				// for ( $index = 0; $index < $no_deleted_products; $index++ ) {
-				for ( $index = 100; $index < 110; $index++ ) {
+				for ( $index = 110; $index < 120; $index++ ) {
 					$success = $this->delete_product( $delete_product_ids[ $index ] );
 					$updated_products[ $delete_product_ids[ $index ] ]       = $success;
 					$this->updated_products[ $delete_product_ids[ $index ] ] = $success;
