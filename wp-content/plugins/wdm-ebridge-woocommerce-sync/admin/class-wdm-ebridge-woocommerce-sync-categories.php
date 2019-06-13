@@ -38,12 +38,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Categories {
 	public function __construct() {
 		$this->api_url   = get_option( 'ebridge_sync_api_url', '' );
 		$this->api_token = get_option( 'ebridge_sync_api_token', '' );
-
-		$added_web_categories = $this->add_webcategories();
-		$added_brands         = $this->add_brands();
-
-		echo __( $added_web_categories['success_count'] . ' WebCategories added.<br />', 'wdm-ebridge-woocommerce-sync' );
-		echo __( $added_brands['success_count'] . ' Brands added.<br />', 'wdm-ebridge-woocommerce-sync' );
 	}
 
 
@@ -62,7 +56,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Categories {
 
 			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
 				foreach ( $webcategories->webCategories as $key => $webcategory ) {
-					$success = $this->create_custom_category( $webcategory, 'product_cat' );
+					$success = self::create_custom_category( $webcategory, 'product_cat' );
 					$added_web_categories[ $webcategory->description ] = $success;
 					if ( $success ) {
 						$success_count++;
@@ -94,7 +88,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Categories {
 
 			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
 				foreach ( $brands->Brands as $key => $brand ) {
-					$success                             = $this->create_custom_category( $brand, 'brand' );
+					$success                             = self::create_custom_category( $brand, 'brand' );
 					$added_brands[ $brand->description ] = $success;
 					if ( $success ) {
 						$success_count++;
@@ -118,7 +112,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Categories {
 	 * @param      string $term_obj       The ebridge term object.
 	 * @param      string $taxonomy       The taxonomy to add to.
 	 */
-	public function create_custom_category( $term_obj, $taxonomy ) {
+	public static function create_custom_category( $term_obj, $taxonomy ) {
 		$term_id       = sanitize_text_field( str_replace( '"', '', $term_obj->description ) );
 		$term          = term_exists( sanitize_title( $term_obj->id ), $taxonomy );
 		$success_count = 0;
@@ -139,4 +133,4 @@ class Wdm_Ebridge_Woocommerce_Sync_Categories {
 	}
 }
 
-new Wdm_Ebridge_Woocommerce_Sync_Categories();
+// new Wdm_Ebridge_Woocommerce_Sync_Categories();

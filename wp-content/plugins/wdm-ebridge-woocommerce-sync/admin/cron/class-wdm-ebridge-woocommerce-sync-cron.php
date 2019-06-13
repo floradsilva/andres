@@ -76,6 +76,20 @@ class Wdm_Ebridge_Woocommerce_Sync_Cron {
 		$this->api_url   = get_option( 'ebridge_sync_api_url', '' );
 		$this->api_token = get_option( 'ebridge_sync_api_token', '' );
 		add_action( 'http_api_curl', array( $this, 'sar_custom_curl_timeout' ), 9999, 1 );
+
+		$categories_sync      = new Wdm_Ebridge_Woocommerce_Sync_Categories();
+		$added_web_categories = $categories_sync->add_webcategories();
+		$added_brands         = $categories_sync->add_brands();
+
+		$products_sync  = new Wdm_Ebridge_Woocommerce_Sync_Products();
+		$added_products = $products_sync->update_products();
+
+		echo __( $added_web_categories['success_count'] . ' WebCategories added.<br />', 'wdm-ebridge-woocommerce-sync' );
+		echo __( $added_brands['success_count'] . ' Brands added.<br />', 'wdm-ebridge-woocommerce-sync' );
+		echo __( $added_products['success_count'] . ' Products updated.<br />', 'wdm-ebridge-woocommerce-sync' );
+		echo '<pre>';
+		print_r( $added_products );
+		echo '</pre>';
 	}
 
 	/**

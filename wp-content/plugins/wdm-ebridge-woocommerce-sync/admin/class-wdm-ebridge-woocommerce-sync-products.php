@@ -70,13 +70,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 	public function __construct() {
 		$this->api_url   = get_option( 'ebridge_sync_api_url', '' );
 		$this->api_token = get_option( 'ebridge_sync_api_token', '' );
-
-		$added_products = $this->update_products();
-
-		echo __( $added_products['success_count'] . ' Products updated.<br />', 'wdm-ebridge-woocommerce-sync' );
-		echo '<pre>';
-		print_r( $added_products );
-		echo '</pre>';
 	}
 
 
@@ -95,27 +88,28 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$last_updated_time           = get_option( 'ebridge_sync_last_updated_time', '00:00' );
 			$web_server_time_zone_offset = get_option( 'ebridge_sync_web_server_time_zone_offset', '0' );
 
-			if ( $last_updated_date ) {
-				$args     = array(
-					'beginDate'               => $last_updated_date,
-					'beginTime'               => $last_updated_time,
-					'webServerTimeZoneOffset' => $web_server_time_zone_offset,
-				);
-				$response = wp_remote_get(
-					'https://ebridge.storis.com/lrelease/2.0.26.26UNDERPRICED/storisapiv3.svc/restssl/gF-2FGRXhkmMCmn9nU49-2FI-2FJixjoQ9ixf-2BIlwmdklJpPY-3D/productsync?beginDate=' . $last_updated_date . '&beginTime=' . $last_updated_time . '&webServerTimeZoneOffset=' . $web_server_time_zone_offset
-				);
-			} else {
-				$response = wp_remote_get( $this->api_url . '/' . $this->api_token . '/productsync?returnMode=2' );
-			}
+			// if ( $last_updated_date ) {
+			// $args = array(
+			// 'beginDate'               => $last_updated_date,
+			// 'beginTime'               => $last_updated_time,
+			// 'webServerTimeZoneOffset' => $web_server_time_zone_offset,
+			// );
+			// $url  = 'https://ebridge.storis.com/lrelease/2.0.26.26UNDERPRICED/storisapiv3.svc/restssl/gF-2FGRXhkmMCmn9nU49-2FI-2FJixjoQ9ixf-2BIlwmdklJpPY-3D/productsync?beginDate=' . $last_updated_date . '&beginTime=' . $last_updated_time . '&webServerTimeZoneOffset=' . $web_server_time_zone_offset;
+			// } else {
+			// $url = $this->api_url . '/' . $this->api_token . '/productsync?returnMode=2';
+			// }
 
+			$url = $this->api_url . '/' . $this->api_token . '/productsync?returnMode=2';
+			echo $url;
+			$response = wp_remote_get( $url );
 			$products = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
 				$update_product_ids = $products->updatedProductIds ? $products->updatedProductIds : array();
 
 				$no_updated_products = count( $update_product_ids );
-				for ( $index = 0; $index < $no_updated_products; $index++ ) {
-					// for ( $index = 100; $index < 110; $index++ ) {
+				// for ( $index = 0; $index < $no_updated_products; $index++ ) {
+				for ( $index = 100; $index < 110; $index++ ) {
 					$success = $this->create_product( $update_product_ids[ $index ] );
 					$updated_products[ $update_product_ids[ $index ] ]       = $success;
 					$this->updated_products[ $update_product_ids[ $index ] ] = $success;
@@ -130,8 +124,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				$delete_product_ids = $products->deletedProductIds ? $products->deletedProductIds : array();
 
 				$no_deleted_products = count( $delete_product_ids );
-				for ( $index = 0; $index < $no_deleted_products; $index++ ) {
-					// for ( $index = 100; $index < 110; $index++ ) {
+				// for ( $index = 0; $index < $no_deleted_products; $index++ ) {
+				for ( $index = 100; $index < 110; $index++ ) {
 					$success = $this->delete_product( $delete_product_ids[ $index ] );
 					$updated_products[ $delete_product_ids[ $index ] ]       = $success;
 					$this->updated_products[ $delete_product_ids[ $index ] ] = $success;
@@ -209,14 +203,51 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		} else {
 			$product = new WC_Product_Grouped( $product_id );
 		}
+
 		$product->set_name( $product_obj->description );
-		$product->set_slug( sanitize_title( $product_obj->description ) );
-		$product->set_description( $product_obj->originalDescription );
-		$product->set_children( $child_products );
+		$product->set_description( $product_obj->benefits );
+		$product->set_sku( $product_obj->id );
 		$product->set_regular_price( $product_obj->msrp );
+		$product->set_sale_price( $product_obj->promoPrice );
+		$product->set_weight( $product_obj->weight );
+
+		if ( $product_obj->showAvailability ) {
+			$product->set_stock_status( 'instock' );
+		} else {
+			$product->set_stock_status( 'outofstock' );
+		}
+
+		if ( isset( $product_obj->dimension ) ) {
+			$product->set_length( $product_obj->dimension->depth );
+			$product->set_width( $product_obj->dimension->width );
+			$product->set_height( $product_obj->dimension->height );
+		}
+
+		$product->set_category_ids( $this->categories_to_set( $product_obj->webCategories ) );
+		// $product->set_slug( sanitize_title( $product_obj->description ) );
 		$product->save();
 		$product_id = $product->get_id();
+
+		wp_set_post_terms( $product_id, $this->brand_to_set( $product_obj->brandId, $product_obj->brandDescription ), 'brand' );
+
+		if ( $product_obj->availableOnWeb ) {
+			wp_update_post(
+				array(
+					'ID'          => $product_id,
+					'post_status' => 'public',
+				)
+			);
+		} else {
+			wp_update_post(
+				array(
+					'ID'          => $product_id,
+					'post_status' => 'private',
+				)
+			);
+		}
+
 		update_option( 'product_' . $product_obj->id, $product_id );
+
 		return $product_id;
 	}
 
@@ -237,11 +268,46 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		}
 
 		$product->set_name( $product_obj->description );
-		$product->set_slug( sanitize_title( $product_obj->description ) );
-		$product->set_description( $product_obj->originalDescription );
+		$product->set_description( $product_obj->benefits );
+		$product->set_sku( $product_obj->id );
 		$product->set_regular_price( $product_obj->msrp );
+		$product->set_sale_price( $product_obj->promoPrice );
+		$product->set_weight( $product_obj->weight );
+
+		if ( $product_obj->showAvailability ) {
+			$product->set_stock_status( 'instock' );
+		} else {
+			$product->set_stock_status( 'outofstock' );
+		}
+
+		if ( isset( $product_obj->dimension ) ) {
+			$product->set_length( $product_obj->dimension->depth );
+			$product->set_width( $product_obj->dimension->width );
+			$product->set_height( $product_obj->dimension->height );
+		}
+
+		$product->set_category_ids( $this->categories_to_set( $product_obj->webCategories ) );
+		// $product->set_slug( sanitize_title( $product_obj->description ) );
 		$product->save();
 		$product_id = $product->get_id();
+
+		wp_set_post_terms( $product_id, $this->brand_to_set( $product_obj->brandId, $product_obj->brandDescription ), 'brand' );
+
+		if ( $product_obj->availableOnWeb ) {
+			wp_update_post(
+				array(
+					'ID'          => $product_id,
+					'post_status' => 'public',
+				)
+			);
+		} else {
+			wp_update_post(
+				array(
+					'ID'          => $product_id,
+					'post_status' => 'private',
+				)
+			);
+		}
 
 		update_option( 'product_' . $product_obj->id, $product_id );
 
@@ -257,17 +323,73 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 	 */
 	public function delete_product( $product_id ) {
 		$product_id = get_option( 'product_' . $product_id, '' );
-        
+
 		if ( $product_id ) {
 			$product = wc_get_product( $product_id );
-            $product->set_status( 'trash' );
-            delete_option( 'product_' . $product_id );
-            
-            return $product_id;
+			$product->set_status( 'trash' );
+			delete_option( 'product_' . $product_id );
+
+			return $product_id;
 		}
 
 		return $product_id;
 	}
+
+
+	public function categories_to_set( $ebridge_web_categories ) {
+		$categories = array();
+
+		if ( isset( $ebridge_web_categories ) ) {
+			foreach ( $ebridge_web_categories as $key => $value ) {
+				$category = get_term_by(
+					'slug',
+					sanitize_title( $value->id ),
+					'product_cat'
+				);
+
+				if ( ! $category ) {
+					include_once plugin_dir_path( __DIR__ ) . 'class-wdm-ebridge-woocommerce-sync-categories.php';
+					Wdm_Ebridge_Woocommerce_Sync_Categories::create_custom_category( $value, 'product_cat' );
+
+					$category = get_term_by(
+						'slug',
+						sanitize_title( $value->id ),
+						'product_cat'
+					);
+				}
+				$categories[] = $category->term_id;
+			}
+		}
+
+		return $categories;
+	}
+
+	public function brand_to_set( $brand_id, $brand_description ) {
+		$brand = get_term_by(
+			'slug',
+			sanitize_title( $brand_id ),
+			'brand'
+		);
+
+		if ( ! $brand ) {
+			wp_insert_term(
+				sanitize_text_field( str_replace( '"', '', $brand_description ) ),
+				'brand',
+				array(
+					'description' => $brand_id,
+					'slug'        => sanitize_title( $brand_id ),
+				)
+			);
+
+			$brand = get_term_by(
+				'slug',
+				sanitize_title( $brand_id ),
+				'brand'
+			);
+		}
+
+		return array( $brand->term_id );
+	}
 }
 
-new Wdm_Ebridge_Woocommerce_Sync_Products();
+// new Wdm_Ebridge_Woocommerce_Sync_Products();
