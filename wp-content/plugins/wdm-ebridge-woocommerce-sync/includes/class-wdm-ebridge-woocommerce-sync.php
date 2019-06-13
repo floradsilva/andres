@@ -169,6 +169,9 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		$this->loader->add_action( 'admin_menu', $plugin_admin_settings, 'menu_page', 10 );
 		$this->loader->add_action( 'admin_init', $plugin_admin_settings, 'setup_sections' );
 		$this->loader->add_action( 'init', $plugin_admin, 'create_taxonomy_brand' );
+		$this->loader->add_action( 'woocommerce_product_data_tabs', $plugin_admin, 'display_product_meta_tabs' );
+		$this->loader->add_action( 'woocommerce_product_data_panels', $plugin_admin, 'add_additional_product_attributes' );
+
 	}
 
 	/**

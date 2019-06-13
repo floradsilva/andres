@@ -133,4 +133,21 @@ class Wdm_Ebridge_Woocommerce_Sync_Admin {
 
 		register_taxonomy( 'brand', 'product', $args );
 	}
+
+	
+	public function display_product_meta_tabs( $default_tabs ) {
+		$default_tabs['additional_product_attributes'] = array(
+			'label'    => __( 'Additional Product Attributes', 'wdm-ebridge-woocommerce-sync' ),
+			'target'   => 'add_additional_product_attributes',
+			'priority' => 60,
+			'class'    => array(),
+		);
+
+		return $default_tabs;
+	}
+
+
+	public function add_additional_product_attributes() {
+		include_once plugin_dir_path( __FILE__ ) . "/partials/wdm-ebridge-woocommerce-sync-admin-additional-product-attributes-tab.php";
+	}
 }

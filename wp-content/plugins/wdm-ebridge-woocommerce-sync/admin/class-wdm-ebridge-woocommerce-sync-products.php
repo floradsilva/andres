@@ -109,7 +109,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 				$no_updated_products = count( $update_product_ids );
 				// for ( $index = 0; $index < $no_updated_products; $index++ ) {
-				for ( $index = 100; $index < 110; $index++ ) {
+				for ( $index = 110; $index < 120; $index++ ) {
 					$success = $this->create_product( $update_product_ids[ $index ] );
 					$updated_products[ $update_product_ids[ $index ] ]       = $success;
 					$this->updated_products[ $update_product_ids[ $index ] ] = $success;
@@ -224,6 +224,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		}
 
 		$product->set_category_ids( $this->categories_to_set( $product_obj->webCategories ) );
+
 		// $product->set_slug( sanitize_title( $product_obj->description ) );
 		$product->save();
 		$product_id = $product->get_id();
