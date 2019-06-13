@@ -235,7 +235,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			wp_update_post(
 				array(
 					'ID'          => $product_id,
-					'post_status' => 'public',
+					'post_status' => 'publish',
 				)
 			);
 		} else {
