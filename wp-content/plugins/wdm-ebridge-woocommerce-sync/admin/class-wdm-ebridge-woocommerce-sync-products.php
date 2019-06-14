@@ -60,12 +60,21 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 	private $updated_products;
 
 
+
+	/**
+	 * .
+	 *
+	 * @since    1.0.0
+	 * @access   public
+	 * @var      array    $default_attributes    The Array of default product attributes.
+	 */
+
+	private $default_attributes = array( 'replacementCost', 'seo', 'images', 'kitComponents', 'description', 'benefits', 'id', 'msrp', 'promoPrice', 'weight', 'showAvailability', 'dimension', 'webCategories', 'brandId', 'brandDescription', 'availableOnWeb', 'webCategoryIds' );
+
 	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
-	 * @param      string $plugin_name       The name of this plugin.
-	 * @param      string $version    The version of this plugin.
 	 */
 	public function __construct() {
 		$this->api_url   = get_option( 'ebridge_sync_api_url', '' );
@@ -88,16 +97,16 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$last_updated_time           = get_option( 'ebridge_sync_last_updated_time', '00:00' );
 			$web_server_time_zone_offset = get_option( 'ebridge_sync_web_server_time_zone_offset', '0' );
 
-			// if ( $last_updated_date ) {
-			// $args = array(
-			// 'beginDate'               => $last_updated_date,
-			// 'beginTime'               => $last_updated_time,
-			// 'webServerTimeZoneOffset' => $web_server_time_zone_offset,
-			// );
-			// $url  = 'https://ebridge.storis.com/lrelease/2.0.26.26UNDERPRICED/storisapiv3.svc/restssl/gF-2FGRXhkmMCmn9nU49-2FI-2FJixjoQ9ixf-2BIlwmdklJpPY-3D/productsync?beginDate=' . $last_updated_date . '&beginTime=' . $last_updated_time . '&webServerTimeZoneOffset=' . $web_server_time_zone_offset;
-			// } else {
-			// $url = $this->api_url . '/' . $this->api_token . '/productsync?returnMode=2';
-			// }
+			if ( $last_updated_date ) {
+				$args = array(
+					'beginDate'               => $last_updated_date,
+					'beginTime'               => $last_updated_time,
+					'webServerTimeZoneOffset' => $web_server_time_zone_offset,
+				);
+				$url  = 'https://ebridge.storis.com/lrelease/2.0.26.26UNDERPRICED/storisapiv3.svc/restssl/gF-2FGRXhkmMCmn9nU49-2FI-2FJixjoQ9ixf-2BIlwmdklJpPY-3D/productsync?beginDate=' . $last_updated_date . '&beginTime=' . $last_updated_time . '&webServerTimeZoneOffset=' . $web_server_time_zone_offset;
+			} else {
+				$url = $this->api_url . '/' . $this->api_token . '/productsync?returnMode=2';
+			}
 
 			$url = $this->api_url . '/' . $this->api_token . '/productsync?returnMode=2';
 			echo $url;
@@ -108,8 +117,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				$update_product_ids = $products->updatedProductIds ? $products->updatedProductIds : array();
 
 				$no_updated_products = count( $update_product_ids );
-				// for ( $index = 0; $index < $no_updated_products; $index++ ) {
-				for ( $index = 0; $index < 50; $index++ ) {
+				for ( $index = 0; $index < $no_updated_products; $index++ ) {
+				// for ( $index = 100; $index < 110; $index++ ) {
 					$success = $this->create_product( $update_product_ids[ $index ] );
 					$updated_products[ $update_product_ids[ $index ] ]       = $success;
 					$this->updated_products[ $update_product_ids[ $index ] ] = $success;
@@ -124,8 +133,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				$delete_product_ids = $products->deletedProductIds ? $products->deletedProductIds : array();
 
 				$no_deleted_products = count( $delete_product_ids );
-				// for ( $index = 0; $index < $no_deleted_products; $index++ ) {
-				for ( $index = 110; $index < 120; $index++ ) {
+				for ( $index = 0; $index < $no_deleted_products; $index++ ) {
+				// for ( $index = 120; $index < 130; $index++ ) {
 					$success = $this->delete_product( $delete_product_ids[ $index ] );
 					$updated_products[ $delete_product_ids[ $index ] ]       = $success;
 					$this->updated_products[ $delete_product_ids[ $index ] ] = $success;
@@ -173,6 +182,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 	}
 
 
+
 	/**
 	 * Creates/Updates a WooCommerce Grouped Product.
 	 *
@@ -204,52 +214,10 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$product = new WC_Product_Grouped( $product_id );
 		}
 
-		$product->set_name( $product_obj->description );
-		$product->set_description( $product_obj->benefits );
-		$product->set_sku( $product_obj->id );
-		$product->set_regular_price( $product_obj->msrp );
-		$product->set_sale_price( $product_obj->promoPrice );
-		$product->set_weight( $product_obj->weight );
+		$product->set_children( $child_products );
+		$product = $this->set_product_common_data( $product, $product_obj );
 
-		if ( $product_obj->showAvailability ) {
-			$product->set_stock_status( 'instock' );
-		} else {
-			$product->set_stock_status( 'outofstock' );
-		}
-
-		if ( isset( $product_obj->dimension ) ) {
-			$product->set_length( $product_obj->dimension->depth );
-			$product->set_width( $product_obj->dimension->width );
-			$product->set_height( $product_obj->dimension->height );
-		}
-
-		$product->set_category_ids( $this->categories_to_set( $product_obj->webCategories ) );
-
-		// $product->set_slug( sanitize_title( $product_obj->description ) );
-		$product->save();
-		$product_id = $product->get_id();
-
-		wp_set_post_terms( $product_id, $this->brand_to_set( $product_obj->brandId, $product_obj->brandDescription ), 'brand' );
-
-		if ( $product_obj->availableOnWeb ) {
-			wp_update_post(
-				array(
-					'ID'          => $product_id,
-					'post_status' => 'publish',
-				)
-			);
-		} else {
-			wp_update_post(
-				array(
-					'ID'          => $product_id,
-					'post_status' => 'private',
-				)
-			);
-		}
-
-		update_option( 'product_' . $product_obj->id, $product_id );
-
-		return $product_id;
+		return $product->get_id();
 	}
 
 
@@ -268,51 +236,9 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$product = new WC_Product_Simple( $product_id );
 		}
 
-		$product->set_name( $product_obj->description );
-		$product->set_description( $product_obj->benefits );
-		$product->set_sku( $product_obj->id );
-		$product->set_regular_price( $product_obj->msrp );
-		$product->set_sale_price( $product_obj->promoPrice );
-		$product->set_weight( $product_obj->weight );
+		$product = $this->set_product_common_data( $product, $product_obj );
 
-		if ( $product_obj->showAvailability ) {
-			$product->set_stock_status( 'instock' );
-		} else {
-			$product->set_stock_status( 'outofstock' );
-		}
-
-		if ( isset( $product_obj->dimension ) ) {
-			$product->set_length( $product_obj->dimension->depth );
-			$product->set_width( $product_obj->dimension->width );
-			$product->set_height( $product_obj->dimension->height );
-		}
-
-		$product->set_category_ids( $this->categories_to_set( $product_obj->webCategories ) );
-		// $product->set_slug( sanitize_title( $product_obj->description ) );
-		$product->save();
-		$product_id = $product->get_id();
-
-		wp_set_post_terms( $product_id, $this->brand_to_set( $product_obj->brandId, $product_obj->brandDescription ), 'brand' );
-
-		if ( $product_obj->availableOnWeb ) {
-			wp_update_post(
-				array(
-					'ID'          => $product_id,
-					'post_status' => 'publish',
-				)
-			);
-		} else {
-			wp_update_post(
-				array(
-					'ID'          => $product_id,
-					'post_status' => 'private',
-				)
-			);
-		}
-
-		update_option( 'product_' . $product_obj->id, $product_id );
-
-		return $product_id;
+		return $product->get_id();
 	}
 
 
@@ -349,7 +275,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				);
 
 				if ( ! $category ) {
-					include_once plugin_dir_path( __DIR__ ) . 'class-wdm-ebridge-woocommerce-sync-categories.php';
+					include_once plugin_dir_path( __FILE__ ) . 'class-wdm-ebridge-woocommerce-sync-categories.php';
+					echo plugin_dir_path( __FILE__ ) . 'class-wdm-ebridge-woocommerce-sync-categories.php';
 					Wdm_Ebridge_Woocommerce_Sync_Categories::create_custom_category( $value, 'product_cat' );
 
 					$category = get_term_by(
@@ -390,6 +317,87 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		}
 
 		return array( $brand->term_id );
+	}
+
+	public function meta_to_add( $product, $product_obj ) {
+		$product_attributes_checked = get_option( 'product_attributes_checked', array() );
+
+		foreach ( $product_obj as $key => $value ) {
+			if ( $product->get_meta( $key ) ) {
+				$product->delete_meta_data( $key );
+			}
+
+			if ( in_array( $key, $product_attributes_checked ) && ( ! in_array( $key, $this->default_attributes ) ) ) {
+				$product->update_meta_data( $key, maybe_serialize( $value ) );
+			}
+		}
+
+		return $product;
+	}
+
+
+	public function set_product_common_data($product, $product_obj)
+	{
+		$product->set_name( $product_obj->description );
+		$product->set_description( $product_obj->benefits );
+		$product->set_sku( $product_obj->id );
+		$product->set_regular_price( $product_obj->msrp );
+		$product->set_sale_price( $product_obj->promoPrice );
+		$product->set_weight( $product_obj->weight );
+
+		if ( $product_obj->showAvailability ) {
+			$product->set_stock_status( 'instock' );
+		} else {
+			$product->set_stock_status( 'outofstock' );
+		}
+
+		if ( isset( $product_obj->dimension ) ) {
+			$product->set_length( $product_obj->dimension->depth );
+			$product->set_width( $product_obj->dimension->width );
+			$product->set_height( $product_obj->dimension->height );
+		}
+
+		$product->set_category_ids( $this->categories_to_set( $product_obj->webCategories ) );
+
+		$this->meta_to_add( $product, $product_obj );
+
+		// $product->set_slug( sanitize_title( $product_obj->description ) );
+		$product->save();
+		$product_id = $product->get_id();
+
+		wp_set_post_terms( $product_id, $this->brand_to_set( $product_obj->brandId, $product_obj->brandDescription ), 'brand' );
+
+		if ( $product_obj->availableOnWeb ) {
+			wp_update_post(
+				array(
+					'ID'          => $product_id,
+					'post_status' => 'publish',
+				)
+			);
+		} else {
+			wp_update_post(
+				array(
+					'ID'          => $product_id,
+					'post_status' => 'private',
+				)
+			);
+		}
+
+		// Meta data for Yoast Plugin.
+		if ( isset( $product_obj->seo ) ) {
+			$keywords = str_replace(',', ' ', $product_obj->seo->keywords);
+
+			update_post_meta( $product_id, '_yoast_wpseo_title', $product_obj->seo->pageTitle );
+			update_post_meta( $product_id, '_yoast_wpseo_focuskw', $keywords );
+			update_post_meta( $product_id, '_yoast_wpseo_metadesc', $product_obj->seo->metaDescription );
+		}
+
+		// Meta data for Cost of Goods Plugin.
+		update_post_meta( $product_id, '_wc_cog_cost', $product_obj->replacementCost );
+
+		update_option( 'product_' . $product_obj->id, $product_id );
+
+		return $product;
 	}
 }
 

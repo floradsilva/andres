@@ -242,7 +242,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 	public function customer_sync() {
 		?>
 			<h2><?php echo __( 'Sync Customers with Woocommerce', 'wdm-ebridge-woocommerce-sync' ); ?></h2>
-			<p><?php echo __( 'Add a .csv file with each row having data as email id, username, password.', 'wdm-ebridge-woocommerce-sync' ); ?></p>
+			<p><?php echo __( 'Add a .csv file with each row having data as email, username, password. The first row is reserved for headings.', 'wdm-ebridge-woocommerce-sync' ); ?></p>
 			<p><?php echo __( 'Please click', 'wdm-ebridge-woocommerce-sync' ); ?>
 				<a href="<?php echo plugin_dir_url( dirname( __FILE__ ) ) . 'example.csv'; ?>"><?php echo __( 'here', 'wdm-ebridge-woocommerce-sync' ); ?></a>
 				<?php echo __( 'to download the reference file.', 'wdm-ebridge-woocommerce-sync' ); ?>
@@ -289,17 +289,30 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 			$attachment_path = $this->upload_attachment( $file );
 
 			$row = 1;
+			$keys = array();
 			if ( ( $handle = fopen( $attachment_path, 'r' ) ) !== false ) {
 				while ( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
-					$file_data[] = $data;
+					if ( $row === 1) {
+						$keys = $data;
+						$row++;
+						continue;
+					}
+
+					$no_of_cols = count( $data );
+					$data_key_vals = array();
+					for ($i=0; $i < $no_of_cols; $i++) { 
+						$data_key_vals[$keys[$i]] = $data[$i];
+					}
+					$file_data[] = $data_key_vals;
 					$row++;
 				}
 				fclose( $handle );
 			}
+
 			wp_delete_file( $attachment_path );
 
 			foreach ( $file_data as $key => $data ) {
-				$success = wc_create_new_customer( $data[0], $data[1], $data[2] );
+				$success = wc_create_new_customer( $data["email"], $data["username"], $data["password"] );
 
 				if ( is_wp_error( $success ) ) {
 					$error_str .= "Row $key: " . $success->get_error_message() . '<br />';

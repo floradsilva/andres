@@ -59,7 +59,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Cron {
 	 */
 	private $updated_products;
 
-
 	/**
 	 * Initialize the class and set its properties.
 	 *
