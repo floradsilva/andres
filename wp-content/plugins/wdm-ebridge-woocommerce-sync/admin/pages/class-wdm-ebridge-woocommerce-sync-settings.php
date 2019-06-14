@@ -49,9 +49,9 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 	 * @access   public
 	 */
 	public function menu_page() {
-
-		add_menu_page( __( 'Ebridge Sync', 'wdm-ebridge-woocommerce-sync' ), __( 'Ebridge Sync', 'wdm-ebridge-woocommerce-sync' ), 'administrator', 'ebridge_sync', array( $this, 'render_settings_page' ) );
-		// add_submenu_page('ebridge_sync', esc_html__('Settings','wdm-ebridge-woocommerce-sync'), esc_html__('Settings','wdm-ebridge-woocommerce-sync'), 'administrator', 'ebridge_sync_settings', array(&$this, 'render_settings_page'));
+		add_menu_page( __( 'Ebridge Sync', 'wdm-ebridge-woocommerce-sync' ), __( 'Ebridge Sync', 'wdm-ebridge-woocommerce-sync' ), 'manage_options', 'ebridge_sync', array( $this, 'render_settings_page' ) );
+		add_submenu_page( 'ebridge_sync', esc_html__( 'Settings', 'wdm-ebridge-woocommerce-sync' ), esc_html__( 'Settings', 'wdm-ebridge-woocommerce-sync' ), 'manage_options', 'ebridge_sync_settings', array( &$this, 'render_settings_page' ) );
+		remove_submenu_page( 'ebridge_sync', 'ebridge_sync' );
 	}
 
 	/**
@@ -288,20 +288,20 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 
 			$attachment_path = $this->upload_attachment( $file );
 
-			$row = 1;
+			$row  = 1;
 			$keys = array();
 			if ( ( $handle = fopen( $attachment_path, 'r' ) ) !== false ) {
 				while ( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
-					if ( $row === 1) {
+					if ( $row === 1 ) {
 						$keys = $data;
 						$row++;
 						continue;
 					}
 
-					$no_of_cols = count( $data );
+					$no_of_cols    = count( $data );
 					$data_key_vals = array();
-					for ($i=0; $i < $no_of_cols; $i++) { 
-						$data_key_vals[$keys[$i]] = $data[$i];
+					for ( $i = 0; $i < $no_of_cols; $i++ ) {
+						$data_key_vals[ $keys[ $i ] ] = $data[ $i ];
 					}
 					$file_data[] = $data_key_vals;
 					$row++;
@@ -312,7 +312,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 			wp_delete_file( $attachment_path );
 
 			foreach ( $file_data as $key => $data ) {
-				$success = wc_create_new_customer( $data["email"], $data["username"], $data["password"] );
+				$success = wc_create_new_customer( $data['email'], $data['username'], $data['password'] );
 
 				if ( is_wp_error( $success ) ) {
 					$error_str .= "Row $key: " . $success->get_error_message() . '<br />';

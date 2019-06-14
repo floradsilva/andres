@@ -98,7 +98,7 @@ class Wdm_Ebridge_Woocommerce_Sync {
 	 * @access   private
 	 */
 	private function load_dependencies() {
-		
+
 		/**
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
@@ -158,8 +158,8 @@ class Wdm_Ebridge_Woocommerce_Sync {
 	 */
 	private function define_admin_hooks() {
 
-		$plugin_admin          = new Wdm_Ebridge_Woocommerce_Sync_Admin( $this->get_plugin_name(), $this->get_version() );
-		$plugin_admin_settings = new Wdm_Ebridge_Woocommerce_Sync_Settings( $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin              = new Wdm_Ebridge_Woocommerce_Sync_Admin( $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin_settings     = new Wdm_Ebridge_Woocommerce_Sync_Settings( $this->get_plugin_name(), $this->get_version() );
 		$plugin_admin_product_sync = new Wdm_Ebridge_Woocommerce_Sync_Product_Sync( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
@@ -173,8 +173,8 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		$this->loader->add_action( 'init', $plugin_admin, 'create_taxonomy_brand' );
 		// $this->loader->add_action( 'woocommerce_product_data_tabs', $plugin_admin, 'display_product_meta_tabs' );
 		// $this->loader->add_action( 'woocommerce_product_data_panels', $plugin_admin, 'add_additional_product_attributes' );
-		// $this->loader->add_action( 'admin_menu', $plugin_admin_product_sync, 'menu_page', 10 );
-		// $this->loader->add_action( 'admin_init', $plugin_admin_product_sync, 'setup_sections' );
+		$this->loader->add_action( 'admin_menu', $plugin_admin_product_sync, 'menu_page', 10 );
+		$this->loader->add_action( 'admin_init', $plugin_admin_product_sync, 'setup_sections' );
 	}
 
 	/**

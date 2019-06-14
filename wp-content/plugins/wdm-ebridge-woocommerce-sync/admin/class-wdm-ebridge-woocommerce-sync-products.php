@@ -118,7 +118,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 				$no_updated_products = count( $update_product_ids );
 				for ( $index = 0; $index < $no_updated_products; $index++ ) {
-				// for ( $index = 100; $index < 110; $index++ ) {
+					// for ( $index = 100; $index < 110; $index++ ) {
 					$success = $this->create_product( $update_product_ids[ $index ] );
 					$updated_products[ $update_product_ids[ $index ] ]       = $success;
 					$this->updated_products[ $update_product_ids[ $index ] ] = $success;
@@ -134,7 +134,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 				$no_deleted_products = count( $delete_product_ids );
 				for ( $index = 0; $index < $no_deleted_products; $index++ ) {
-				// for ( $index = 120; $index < 130; $index++ ) {
+					// for ( $index = 120; $index < 130; $index++ ) {
 					$success = $this->delete_product( $delete_product_ids[ $index ] );
 					$updated_products[ $delete_product_ids[ $index ] ]       = $success;
 					$this->updated_products[ $delete_product_ids[ $index ] ] = $success;
@@ -336,8 +336,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 	}
 
 
-	public function set_product_common_data($product, $product_obj)
-	{
+	public function set_product_common_data( $product, $product_obj ) {
 		$product->set_name( $product_obj->description );
 		$product->set_description( $product_obj->benefits );
 		$product->set_sku( $product_obj->id );
@@ -385,7 +384,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 		// Meta data for Yoast Plugin.
 		if ( isset( $product_obj->seo ) ) {
-			$keywords = str_replace(',', ' ', $product_obj->seo->keywords);
+			$keywords = str_replace( ',', ' ', $product_obj->seo->keywords );
 
 			update_post_meta( $product_id, '_yoast_wpseo_title', $product_obj->seo->pageTitle );
 			update_post_meta( $product_id, '_yoast_wpseo_focuskw', $keywords );
