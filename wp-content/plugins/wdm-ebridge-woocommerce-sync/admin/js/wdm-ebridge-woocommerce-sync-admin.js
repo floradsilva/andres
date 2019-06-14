@@ -146,6 +146,32 @@
 					}
 				}
 			);
+
+			$( '#product_sync_form' ).validate(
+				{
+					submitHandler: function (form) {
+						event.preventDefault();
+						$( "#message-wrap" ).remove();
+						$.ajax(
+							{
+								url: customer_sync.customer_sync_url,
+								type: 'post',
+								dataType: 'json',
+								data:  {},
+								success: function (response) {
+									console.log( response );
+									if (response.success) {
+										$( '<div id="message-wrap"><h3>Logs:</h3><p id="message">' + response.data.message + '</p></div>' ).insertAfter( '#customer_sync_form' );
+									} else {
+										alert( "Error uploading customer data." );
+									}
+								}
+							}
+						);
+					}
+				}
+			);
+
 		}
 	);
 

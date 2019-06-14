@@ -68,6 +68,12 @@ class Wdm_Ebridge_Woocommerce_Sync_Product_Sync {
 					<input type="submit" id="product_sync_submit" name="product_sync_submit" class="button button-primary" value="<?php _e( 'Sync Products', 'wdm-ebridge-woocommerce-sync' ); ?>">
 				</div>
 			</form>
+
+			<div id="message-wrap">
+				<h3>Logs:</h3>
+				<p id="message"><?php echo __('Logs', 'wdm-ebridge-woocommerce-sync'); ?></p>
+			</div>
+
 		<?php
 	}
 

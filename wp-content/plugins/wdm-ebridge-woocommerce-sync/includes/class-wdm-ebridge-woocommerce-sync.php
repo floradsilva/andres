@@ -175,6 +175,7 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		// $this->loader->add_action( 'woocommerce_product_data_panels', $plugin_admin, 'add_additional_product_attributes' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin_product_sync, 'menu_page', 10 );
 		$this->loader->add_action( 'admin_init', $plugin_admin_product_sync, 'setup_sections' );
+		$this->loader->add_action( 'wp_ajax_product_sync', $plugin_admin_product_sync, 'product_sync' );
 	}
 
 	/**
