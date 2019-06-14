@@ -67,8 +67,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Cron {
 	 * @param      string $version    The version of this plugin.
 	 */
 	public function __construct() {
-		include_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
-		// include_once $_SERVER['PWD'] . '/wp-load.php';
+		// include_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
+		include_once $_SERVER['PWD'] . '/wp-load.php';
 		include_once plugin_dir_path( __DIR__ ) . 'class-wdm-ebridge-woocommerce-sync-categories.php';
 		include_once plugin_dir_path( __DIR__ ) . 'class-wdm-ebridge-woocommerce-sync-products.php';
 
@@ -87,6 +87,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Cron {
 		echo __( $added_brands['success_count'] . ' Brands added.<br />', 'wdm-ebridge-woocommerce-sync' );
 		echo __( $added_products['success_count'] . ' Products updated.<br />', 'wdm-ebridge-woocommerce-sync' );
 		echo '<pre>';
+		print_r( $added_web_categories );
+		print_r( $added_brands );
 		print_r( $added_products );
 		echo '</pre>';
 	}

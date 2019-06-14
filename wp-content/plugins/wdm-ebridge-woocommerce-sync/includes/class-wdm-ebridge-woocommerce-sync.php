@@ -119,7 +119,7 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wdm-ebridge-woocommerce-sync-settings.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/pages/class-wdm-ebridge-woocommerce-sync-settings.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
