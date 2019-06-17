@@ -42,6 +42,11 @@ if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins',
  */
 define( 'WDM_EBRIDGE_WOOCOMMERCE_SYNC_VERSION', '1.0.0' );
 
+// Define WC_PLUGIN_FILE.
+if ( ! defined( 'WEWS_PLUGIN_PATH' ) ) {
+	define( 'WEWS_PLUGIN_PATH', plugin_dir_url( __FILE__ ) );
+}
+
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-wdm-ebridge-woocommerce-sync-activator.php

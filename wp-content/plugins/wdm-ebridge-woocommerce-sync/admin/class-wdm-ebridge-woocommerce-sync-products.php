@@ -398,6 +398,67 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 		return $product;
 	}
+
+	public function get_all_product_ids() {
+		$api_url      = get_option( 'ebridge_sync_api_url', '' );
+		$api_token    = get_option( 'ebridge_sync_api_token', '' );
+		$all_products = array(
+			'update_ids'       => array(),
+			'delete_ids'       => array(),
+			'update_ids_count' => 0,
+			'delete_ids_count' => 0,
+		);
+
+		if ( $api_url && $api_token ) {
+			$url      = $api_url . '/' . $api_token . '/productsync?returnMode=2';
+			$response = wp_remote_get( $url );
+			$products = json_decode( wp_remote_retrieve_body( $response ) );
+
+			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
+				$all_products['update_ids']       = $products->updatedProductIds ? $products->updatedProductIds : array();
+				$all_products['update_ids_count'] = count( $all_products['update_ids'] );
+				$$all_products['delete_ids']      = $products->deletedProductIds ? $products->deletedProductIds : array();
+				$all_products['delete_ids_count'] = count( $all_products['delete_ids'] );
+			}
+		}
+
+		return $all_products;
+	}
+
+	public function get_last_updated_product_ids() {
+		$api_url          = get_option( 'ebridge_sync_api_url', '' );
+		$api_token        = get_option( 'ebridge_sync_api_token', '' );
+		$updated_products = array(
+			'update_ids'       => array(),
+			'delete_ids'       => array(),
+			'update_ids_count' => 0,
+			'delete_ids_count' => 0,
+		);
+
+		if ( $api_url && $api_token ) {
+			$last_updated_date           = get_option( 'ebridge_sync_last_updated_date', '' );
+			$last_updated_time           = get_option( 'ebridge_sync_last_updated_time', '00:00' );
+			$web_server_time_zone_offset = get_option( 'ebridge_sync_web_server_time_zone_offset', '0' );
+
+			if ( $last_updated_date ) {
+				$url = 'https://ebridge.storis.com/lrelease/2.0.26.26UNDERPRICED/storisapiv3.svc/restssl/gF-2FGRXhkmMCmn9nU49-2FI-2FJixjoQ9ixf-2BIlwmdklJpPY-3D/productsync?beginDate=' . $last_updated_date . '&beginTime=' . $last_updated_time . '&webServerTimeZoneOffset=' . $web_server_time_zone_offset;
+			} else {
+				$url = $api_url . '/' . $api_token . '/productsync?returnMode=2';
+			}
+
+			$response = wp_remote_get( $url );
+			$products = json_decode( wp_remote_retrieve_body( $response ) );
+
+			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
+				$updated_products['update_ids']       = $products->updatedProductIds ? $products->updatedProductIds : array();
+				$updated_products['update_ids_count'] = count( $updated_products['update_ids'] );
+				$$updated_products['delete_ids']      = $products->deletedProductIds ? $products->deletedProductIds : array();
+				$updated_products['delete_ids_count'] = count( $updated_products['delete_ids'] );
+			}
+		}
+
+		return $updated_products;
+	}
 }
 
 // new Wdm_Ebridge_Woocommerce_Sync_Products();

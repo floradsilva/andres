@@ -244,7 +244,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 			<h2><?php echo __( 'Sync Customers with Woocommerce', 'wdm-ebridge-woocommerce-sync' ); ?></h2>
 			<p><?php echo __( 'Add a .csv file with each row having data as email, username, password. The first row is reserved for headings.', 'wdm-ebridge-woocommerce-sync' ); ?></p>
 			<p><?php echo __( 'Please click', 'wdm-ebridge-woocommerce-sync' ); ?>
-				<a href="<?php echo plugin_dir_url( dirname( __FILE__ ) ) . 'example.csv'; ?>"><?php echo __( 'here', 'wdm-ebridge-woocommerce-sync' ); ?></a>
+				<a href="<?php echo WEWS_PLUGIN_PATH . 'example.csv'; ?>"><?php echo __( 'here', 'wdm-ebridge-woocommerce-sync' ); ?></a>
 				<?php echo __( 'to download the reference file.', 'wdm-ebridge-woocommerce-sync' ); ?>
 			</p>
 
@@ -259,12 +259,12 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 
 	public function add_localize_script() {
 		 $args = $this->fetch_localized_script_data();
-		wp_localize_script( $this->plugin_name, 'customer_sync', $args );
+		wp_localize_script( $this->plugin_name, 'wews', $args );
 	}
 
 	public function fetch_localized_script_data() {
 		 $args = array(
-			 'customer_sync_url' => admin_url( 'admin-ajax.php' ),
+			 'wews_url' => admin_url( 'admin-ajax.php' ),
 		 );
 		return $args;
 	}

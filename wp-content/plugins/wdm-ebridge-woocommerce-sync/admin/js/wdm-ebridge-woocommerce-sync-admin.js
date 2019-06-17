@@ -49,7 +49,7 @@
 						formData.append( "action", "upload_csv" );
 						$.ajax(
 							{
-								url: customer_sync.customer_sync_url,
+								url: wews.wews_url,
 								type: 'post',
 								dataType: 'json',
 								data:  formData,
@@ -81,7 +81,7 @@
 				function() {
 					$.ajax(
 						{
-							url: customer_sync.customer_sync_url,
+							url: wews.wews_url,
 							type: 'get',
 							dataType: 'json',
 							data: {
@@ -123,7 +123,7 @@
 						formData.append( "action", "add_connection_settings" );
 						$.ajax(
 							{
-								url: customer_sync.customer_sync_url,
+								url: wews.wews_url,
 								type: 'post',
 								dataType: 'json',
 								data:  formData,
@@ -149,21 +149,87 @@
 
 			$( '#product_sync_form' ).validate(
 				{
+					rules: {
+						selected_product_sync: {
+							required: true,
+						}
+					},
 					submitHandler: function (form) {
 						event.preventDefault();
 						$( "#message-wrap" ).remove();
+						var formData = new FormData( document.getElementById( 'product_sync_form' ) );
+						formData.append( "action", "fetch_products_to_sync" );
 						$.ajax(
 							{
-								url: customer_sync.customer_sync_url,
+								url: wews.wews_url,
 								type: 'post',
 								dataType: 'json',
-								data:  {},
+								data:  formData,
+								contentType: false,
+								cache: false,
+								processData: false,
 								success: function (response) {
 									console.log( response );
 									if (response.success) {
-										$( '<div id="message-wrap"><h3>Logs:</h3><p id="message">' + response.data.message + '</p></div>' ).insertAfter( '#customer_sync_form' );
+										$( '<div id="message-wrap"><h3>Logs:</h3><p id="message">' + response.data.message + '</p></div>' ).insertAfter( '#product_sync_form' );
+										var update_ids    = response.data.update_ids;
+										var delete_ids    = response.data.delete_ids;
+										var total_updated = 0;
+										var total_deleted = 0;
+
+										update_ids.forEach(
+											id_to_update => {
+                                            // $('#message').append('Syncing product ' + id_to_update + '.<br />');
+												$.ajax(
+													{
+														url: wews.wews_url,
+														type: 'post',
+														dataType: 'json',
+														data:  {
+															'action': 'update_product',
+															'product_id' : id_to_update,
+														},
+														success: function (response) {
+															if (response.data.success) {
+																$( '#message' ).append( 'Updated product ' + id_to_update + '.<br />' );
+															} else {
+																$( '#message' ).append( response.data.message + '<br />' );
+															}
+														}
+													}
+												);
+											}
+										);
+
+										delete_ids.forEach(
+											id_to_delete => {
+                                            // $('#message').append('Syncing product ' + id_to_update + '.<br />');
+												$.ajax(
+													{
+														url: wews.wews_url,
+														type: 'post',
+														dataType: 'json',
+														data:  {
+															'action': 'delete_product',
+															'product_id' : id_to_delete,
+														},
+														success: function (response) {
+															if (response.data.success) {
+																$( '#message' ).append( 'Deleted product ' + id_to_delete + '.<br />' );
+															} else {
+																$( '#message' ).append( response.data.message + '<br />' );
+															}
+														}
+													}
+												);
+											}
+										);
+
+										$( '#message' ).append( 'Total products fetched: ' + (response.data.update_ids_count + response.data.delete_ids_count) + '.<br />' );
+										$( '#message' ).append( 'Total products updated: ' + total_updated + '.<br />' );
+										$( '#message' ).append( 'Total products deleted: ' + total_deleted + '.<br />' );
 									} else {
-										alert( "Error uploading customer data." );
+										$( '<div id="message-wrap"><h3>Logs:</h3><p id="message">' + response.data.message + '</p></div>' ).insertAfter( '#product_sync_form' );
 									}
 								}
 							}
@@ -171,6 +237,51 @@
 					}
 				}
 			);
+
+			var url_string = window.location.href
+			var url = new URL(url_string);
+			var selected_products_count = url.searchParams.get("product_id_count");
+			
+			if (selected_products_count) {
+				var update_ids = [];
+				var total_updated = 0;
+				var total_deleted = 0;
+
+				for (let index = 0; index < selected_products_count; index++) {
+					update_ids[index] = url.searchParams.get("product_ids["+index+"]");
+				}
+
+				if (update_ids.length) {
+					$( '<div id="message-wrap"><h3>Logs:</h3><p id="message"></p></div>' ).insertAfter( '#product_sync_form' );
+					update_ids.forEach(
+						id_to_update => {
+						// $('#message').append('Syncing product ' + id_to_update + '.<br />');
+							$.ajax(
+								{
+									url: wews.wews_url,
+									type: 'post',
+									dataType: 'json',
+									data:  {
+										'action': 'update_product',
+										'product_id' : id_to_update,
+									},
+									success: function (response) {
+										if (response.data.success) {
+											$( '#message' ).append( 'Updated product ' + id_to_update + '.<br />' );
+										} else {
+											$( '#message' ).append( response.data.message + '<br />' );
+										}
+									}
+								}
+							);
+						}
+					);
+
+					$( '#message' ).append( 'Total products fetched: ' + (selected_products_count) + '.<br />' );
+					$( '#message' ).append( 'Total products updated: ' + total_updated + '.<br />' );
+					$( '#message' ).append( 'Total products deleted: ' + total_deleted + '.<br />' );
+				}
+			}		
 
 		}
 	);

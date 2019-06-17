@@ -121,6 +121,7 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/pages/class-wdm-ebridge-woocommerce-sync-settings.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/pages/class-wdm-ebridge-woocommerce-sync-product-sync.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wdm-ebridge-woocommerce-sync-products.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
@@ -175,7 +176,11 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		// $this->loader->add_action( 'woocommerce_product_data_panels', $plugin_admin, 'add_additional_product_attributes' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin_product_sync, 'menu_page', 10 );
 		$this->loader->add_action( 'admin_init', $plugin_admin_product_sync, 'setup_sections' );
-		$this->loader->add_action( 'wp_ajax_product_sync', $plugin_admin_product_sync, 'product_sync' );
+		$this->loader->add_action( 'wp_ajax_fetch_products_to_sync', $plugin_admin_product_sync, 'fetch_products_to_sync' );
+		$this->loader->add_action( 'wp_ajax_update_product', $plugin_admin_product_sync, 'update_product' );
+		$this->loader->add_action( 'wp_ajax_delete_product', $plugin_admin_product_sync, 'delete_product' );
+		$this->loader->add_filter( 'bulk_actions-edit-product', $plugin_admin_product_sync, 'register_sync_products_bulk_action' );
+		$this->loader->add_filter( 'handle_bulk_actions-edit-product', $plugin_admin_product_sync, 'sync_products_bulk_action_handler', 10, 3 );
 	}
 
 	/**
