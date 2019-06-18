@@ -74,6 +74,11 @@ register_deactivation_hook( __FILE__, 'deactivate_wdm_ebridge_woocommerce_sync' 
  */
 require plugin_dir_path( __FILE__ ) . 'includes/class-wdm-ebridge-woocommerce-sync.php';
 
+// Define WC_PLUGIN_FILE.
+if ( ! defined( 'WEWS_FETCH_SIZE' ) ) {
+	define( 'WEWS_FETCH_SIZE', 25 );
+}
+
 /**
  * Begins execution of the plugin.
  *

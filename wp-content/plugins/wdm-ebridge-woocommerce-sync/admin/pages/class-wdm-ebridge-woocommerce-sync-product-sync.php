@@ -67,7 +67,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Product_Sync {
 					<select name="selected_product_sync" id="selected_product_sync">
 						<option value="sync_all"><?php echo __( 'Sync All Products', 'wdm-ebridge-woocommerce-sync' ); ?></option>
 						<option value="sync_updated"><?php echo __( 'Sync Recently Updated Products', 'wdm-ebridge-woocommerce-sync' ); ?></option>
-						<!-- <option value="sync_selected"><?php// echo __( 'Sync Selected Products', 'wdm-ebridge-woocommerce-sync' ); ?></option> -->
+						<!-- <option value="sync_batched"><?php// echo __( 'Sync Products in Batches', 'wdm-ebridge-woocommerce-sync' ); ?></option> -->
 					</select>
 					<input type="submit" id="product_sync_submit" name="product_sync_submit" class="button button-primary" value="<?php _e( 'Sync Products', 'wdm-ebridge-woocommerce-sync' ); ?>">
 				</div>
@@ -94,7 +94,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Product_Sync {
 			$selected_sync_type = $_POST['selected_product_sync'];
 
 			if ( $selected_sync_type === 'sync_all' ) {
-				$all_products        = $this->products->get_all_product_ids();
+				$all_products        = $this->products->get_batched_product_ids();
 				$response            = $all_products;
 				$response['message'] = __( 'Total items found: ' . ( $all_products['update_ids_count'] + $all_products['delete_ids_count'] ) . '<br />Total items to update: ' . $all_products['update_ids_count'] . '<br /> Total items to delete: ' . $all_products['delete_ids_count'], 'wdm-ebridge-woocommerce-sync' );
 
@@ -105,10 +105,11 @@ class Wdm_Ebridge_Woocommerce_Sync_Product_Sync {
 				$response['message']   = __( 'Total items found: ' . ( $last_updated_products['update_ids_count'] + $last_updated_products['delete_ids_count'] ) . '<br />Total items to update: ' . $last_updated_products['update_ids_count'] . '<br /> Total items to delete: ' . $last_updated_products['delete_ids_count'] . '<br />', 'wdm-ebridge-woocommerce-sync' );
 
 				wp_send_json_success( $response );
-			}
-			// elseif ( $selected_sync_type === 'sync_selected' ) {
-			// $response['message'] = __( "Selected option: $selected_sync_type", 'wdm-ebridge-woocommerce-sync' );
-			// wp_send_json_success( $response );
+			 } //elseif ( $selected_sync_type === 'sync_batched' ) {
+			// 	$updated_products    = $this->products->get_batched_product_ids();
+			// 	$response            = $updated_products;
+			// 	$response['message'] = __( 'Total items found: ' . ( $updated_products['update_ids_count'] + $updated_products['delete_ids_count'] ) . '<br />Total items to update: ' . $updated_products['update_ids_count'] . '<br /> Total items to delete: ' . $updated_products['delete_ids_count'] . '<br />', 'wdm-ebridge-woocommerce-sync' );
+			// 	wp_send_json_success( $response );
 			// }
 		}
 
@@ -139,6 +140,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Product_Sync {
 		wp_send_json_error( $response );
 	}
 
+
 	public function delete_product() {
 		$response = array();
 
@@ -163,20 +165,26 @@ class Wdm_Ebridge_Woocommerce_Sync_Product_Sync {
 
 
 	public function register_sync_products_bulk_action( $bulk_actions ) {
-		$bulk_actions['sync'] = __( 'Sync', 'wdm-ebridge-woocommerce-sync' );
+		$bulk_actions['wews_sync'] = __( 'Sync', 'wdm-ebridge-woocommerce-sync' );
 		return $bulk_actions;
 	}
 
 
 	public function sync_products_bulk_action_handler( $redirect_to, $doaction, $product_ids ) {
-		if ( $doaction !== 'sync' ) {
+		if ( $doaction !== 'wews_sync' ) {
 			return $redirect_to;
 		}
 
+		$skus = array();
+
+		foreach ( $product_ids as $key => $product_id ) {
+			$product = new WC_Product( $product_id );
+			$skus[]  = $product->get_sku();
+		}
 		$redirect_to = admin_url() . 'admin.php?page=ebridge_sync_product_sync';
 
-		$redirect_to = add_query_arg( 'product_ids', $product_ids, $redirect_to );
-		$redirect_to = add_query_arg( 'product_id_count', count( $product_ids ), $redirect_to );
+		$redirect_to = add_query_arg( 'product_ids', $skus, $redirect_to );
+		$redirect_to = add_query_arg( 'product_id_count', count( $skus ), $redirect_to );
 
 		return $redirect_to;
 	}

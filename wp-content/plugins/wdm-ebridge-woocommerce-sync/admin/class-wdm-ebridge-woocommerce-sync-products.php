@@ -176,6 +176,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			} else {
 				return $this->create_simple_product( $product );
 			}
+		} elseif ( ( wp_remote_retrieve_response_code( $response ) == 200 ) && isset( $product->message ) && ( strpos( $product->message, 'Cannot locate' ) !== false ) ) {
+			return $this->delete_product( $id );
 		}
 
 		return false;
@@ -254,8 +256,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		if ( $product_id ) {
 			$product = wc_get_product( $product_id );
 			$product->set_status( 'trash' );
+			$product->save();
 			delete_option( 'product_' . $product_id );
-
 			return $product_id;
 		}
 
@@ -441,7 +443,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$web_server_time_zone_offset = get_option( 'ebridge_sync_web_server_time_zone_offset', '0' );
 
 			if ( $last_updated_date ) {
-				$url = 'https://ebridge.storis.com/lrelease/2.0.26.26UNDERPRICED/storisapiv3.svc/restssl/gF-2FGRXhkmMCmn9nU49-2FI-2FJixjoQ9ixf-2BIlwmdklJpPY-3D/productsync?beginDate=' . $last_updated_date . '&beginTime=' . $last_updated_time . '&webServerTimeZoneOffset=' . $web_server_time_zone_offset;
+				$url = $api_url . '/' . $api_token . '/productsync?beginDate=' . $last_updated_date . '&beginTime=' . $last_updated_time . '&webServerTimeZoneOffset=' . $web_server_time_zone_offset;
 			} else {
 				$url = $api_url . '/' . $api_token . '/productsync?returnMode=2';
 			}
@@ -455,9 +457,73 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				$$updated_products['delete_ids']      = $products->deletedProductIds ? $products->deletedProductIds : array();
 				$updated_products['delete_ids_count'] = count( $updated_products['delete_ids'] );
 			}
+
+			$this->update_last_sync_date();
 		}
 
 		return $updated_products;
+	}
+
+	public function get_batched_product_ids() {
+		$api_url      = get_option( 'ebridge_sync_api_url', '' );
+		$api_token    = get_option( 'ebridge_sync_api_token', '' );
+		$all_products = array(
+			'update_ids'       => array(),
+			'delete_ids'       => array(),
+			'update_ids_count' => 0,
+			'delete_ids_count' => 0,
+		);
+
+		if ( $api_url && $api_token ) {
+			$url         = $api_url . '/' . $api_token . '/productsync?returnMode=2';
+			$response    = wp_remote_get( $url );
+			$product_ids = json_decode( wp_remote_retrieve_body( $response ) );
+
+			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
+				$products                         = $product_ids->updatedProductIds ? $product_ids->updatedProductIds : array();
+				$product_ids                      = $this->get_batched_products( 'wews_product_update_start', $products );
+				$all_products['update_ids_count'] = count( $product_ids );
+				$all_products['update_ids']       = $product_ids;
+
+				$products                         = $product_ids->deletedProductIds ? $product_ids->deletedProductIds : array();
+				$product_ids                      = $this->get_batched_products( 'wews_product_delete_start', $products );
+				$all_products['delete_ids_count'] = count( $product_ids );
+				$all_products['delete_ids']       = $product_ids;
+
+				$this->update_last_sync_date();
+			}
+		}
+
+		return $all_products;
+	}
+
+	public function get_batched_products( $option, $products ) {
+		$start         = get_option( $option, 0 );
+		$product_count = ( count( $products ) > ( $start + WEWS_FETCH_SIZE ) ) ? ( $start + WEWS_FETCH_SIZE ) : count( $products );
+		$product_ids   = array();
+
+		for ( $i = $start; $i < $product_count; $i++ ) {
+			$product_ids[] = $products[ $i ];
+		}
+
+		if ( $i < count( $products ) ) {
+			update_option( $option, $product_count );
+		} else {
+			update_option( $option, 0 );
+		}
+
+		return $product_ids;
+	}
+
+
+	public function update_last_sync_date() {
+		$updated = get_option( 'wews_product_update_start', 0 );
+		$deleted = get_option( 'wews_product_delete_start', 0 );
+
+		if ( ( $updated === 0 ) && ( $deleted === 0 ) ) {
+			update_option( 'ebridge_sync_last_updated_date', date( 'm-d-Y' ) );
+			update_option( 'ebridge_sync_last_updated_time', date( 'H:i' ) );
+		}
 	}
 }
 
