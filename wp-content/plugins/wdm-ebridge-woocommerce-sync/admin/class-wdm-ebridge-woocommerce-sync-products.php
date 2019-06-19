@@ -69,7 +69,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 	 * @var      array    $default_attributes    The Array of default product attributes.
 	 */
 
-	private $default_attributes = array( 'replacementCost', 'seo', 'images', 'kitComponents', 'description', 'benefits', 'id', 'msrp', 'promoPrice', 'weight', 'showAvailability', 'dimension', 'webCategories', 'brandId', 'brandDescription', 'availableOnWeb', 'webCategoryIds' );
+	private $default_attributes = array( 'beginningPromoDate', 'endingPromoDate', 'netQuantityAvailable', 'normalPrice', 'webMasterDescription', 'webMasterId', 'vendor', 'replacementCost', 'seo', 'images', 'kitComponents', 'description', 'benefits', 'id', 'msrp', 'weight', 'showAvailability', 'dimension', 'webCategories', 'brandId', 'brandDescription', 'availableOnWeb', 'webCategoryIds' );
 
 	/**
 	 * Initialize the class and set its properties.
@@ -367,7 +367,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$product->set_date_on_sale_to( $end_date );
 		}
 
-		if ( isset( $product_obj->inventory->netQuantityAvailable ) ) {
+		if ( isset( $product_obj->inventory ) ) {
 			$product->set_manage_stock( true );
 			$product->set_stock_quantity( $product_obj->netQuantityAvailable );
 		}
@@ -379,6 +379,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		$this->meta_to_add( $product, $product_obj );
 
 		$product->set_image_id( $this->get_image_id( $product_obj->images ) );
+
+		$product->set_tag_ids( $this->get_tag_ids( $product_obj ) );
 
 		// $product->set_slug( sanitize_title( $product_obj->description ) );
 		$product->save();
@@ -612,6 +614,64 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		}
 
 		return null;
+	}
+
+
+	public function tag_to_set( $tag_id, $tag_name ) {
+
+		$tag = get_term_by(
+			'slug',
+			sanitize_title( $tag_id ),
+			'product_tag'
+		);
+
+		if ( ! $tag ) {
+			wp_insert_term(
+				sanitize_text_field( str_replace( '"', '', $tag_name ) ),
+				'product_tag',
+				array(
+					'description' => $tag_id,
+					'slug'        => sanitize_title( $tag_id ),
+				)
+			);
+
+			$tag = get_term_by(
+				'slug',
+				sanitize_title( $tag_id ),
+				'product_tag'
+			);
+		}
+
+		return $tag->term_id;
+	}
+
+
+	public function get_tag_ids( $product_obj ) {
+		$tags = array();
+
+		if ( isset( $product_obj->seo->keywords ) ) {
+			$keywords = $product_obj->seo->keywords;
+			$keywords = str_replace( ' ', '', $keywords );
+			$keywords = explode( ',', $keywords );
+
+			foreach ( $keywords as $key => $keyword ) {
+				$tags[] = $this->tag_to_set( $keyword, $keyword );
+			}
+		}
+
+		if ( isset( $product_obj->webMasterId ) ) {
+			$tags[] = $this->tag_to_set( $product_obj->webMasterId, $product_obj->webMasterDescription );
+		}
+
+		if ( isset( $product_obj->vendor ) ) {
+			$tags[] = $this->tag_to_set( $product_obj->vendor->id, $product_obj->vendor->name );
+		}
+
+		if ( isset( $product_obj->description2 ) && ( $product_obj->description2 !== '' ) ) {
+			$tags[] = $this->tag_to_set( $product_obj->description2, $product_obj->description2 );
+		}
+
+		return $tags;
 	}
 }
 
