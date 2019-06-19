@@ -362,6 +362,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 		$this->meta_to_add( $product, $product_obj );
 
+		$product->set_image_id( $this->get_image_id( $product_obj->images ) );
+
 		// $product->set_slug( sanitize_title( $product_obj->description ) );
 		$product->save();
 		$product_id = $product->get_id();
@@ -548,17 +550,17 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				$url = $api_url . '/' . $api_token . '/productsync?returnMode=2';
 			}
 
-			$response = wp_remote_get( $url );
+			$response    = wp_remote_get( $url );
 			$product_ids = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
-				$products                         = $product_ids->updatedProductIds ? $product_ids->updatedProductIds : array();
-				$product_ids                      = $this->get_batched_products( 'wews_product_update_start', $products );
+				$products                             = $product_ids->updatedProductIds ? $product_ids->updatedProductIds : array();
+				$product_ids                          = $this->get_batched_products( 'wews_product_update_start', $products );
 				$updated_products['update_ids_count'] = count( $product_ids );
 				$updated_products['update_ids']       = $product_ids;
 
-				$products                         = $product_ids->deletedProductIds ? $product_ids->deletedProductIds : array();
-				$product_ids                      = $this->get_batched_products( 'wews_product_delete_start', $products );
+				$products                             = $product_ids->deletedProductIds ? $product_ids->deletedProductIds : array();
+				$product_ids                          = $this->get_batched_products( 'wews_product_delete_start', $products );
 				$updated_products['delete_ids_count'] = count( $product_ids );
 				$updated_products['delete_ids']       = $product_ids;
 
@@ -567,6 +569,19 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		}
 
 		return $updated_products;
+	}
+
+	public function get_image_id( $images ) {
+		if ( $images ) {
+			$image_file_name = basename( $images[0]->url );
+			global $wpdb;
+			$results = $wpdb->get_results( "SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_value like '%$image_file_name%'", OBJECT );
+			if ( $results[0] ) {
+				return $results[0]->post_id;
+			}
+		}
+
+		return null;
 	}
 }
 

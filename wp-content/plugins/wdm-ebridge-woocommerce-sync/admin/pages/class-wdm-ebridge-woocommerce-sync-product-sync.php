@@ -100,16 +100,16 @@ class Wdm_Ebridge_Woocommerce_Sync_Product_Sync {
 
 				wp_send_json_success( $response );
 			} elseif ( $selected_sync_type === 'sync_updated' ) {
-				$last_updated_products = $this->products->get_last_updated_product_ids();
+				$last_updated_products = $this->products->get_last_updated_batched_product_ids();
 				$response              = $last_updated_products;
 				$response['message']   = __( 'Total items found: ' . ( $last_updated_products['update_ids_count'] + $last_updated_products['delete_ids_count'] ) . '<br />Total items to update: ' . $last_updated_products['update_ids_count'] . '<br /> Total items to delete: ' . $last_updated_products['delete_ids_count'] . '<br />', 'wdm-ebridge-woocommerce-sync' );
 
 				wp_send_json_success( $response );
-			 } //elseif ( $selected_sync_type === 'sync_batched' ) {
-			// 	$updated_products    = $this->products->get_batched_product_ids();
-			// 	$response            = $updated_products;
-			// 	$response['message'] = __( 'Total items found: ' . ( $updated_products['update_ids_count'] + $updated_products['delete_ids_count'] ) . '<br />Total items to update: ' . $updated_products['update_ids_count'] . '<br /> Total items to delete: ' . $updated_products['delete_ids_count'] . '<br />', 'wdm-ebridge-woocommerce-sync' );
-			// 	wp_send_json_success( $response );
+			} //elseif ( $selected_sync_type === 'sync_batched' ) {
+			// $updated_products    = $this->products->get_batched_product_ids();
+			// $response            = $updated_products;
+			// $response['message'] = __( 'Total items found: ' . ( $updated_products['update_ids_count'] + $updated_products['delete_ids_count'] ) . '<br />Total items to update: ' . $updated_products['update_ids_count'] . '<br /> Total items to delete: ' . $updated_products['delete_ids_count'] . '<br />', 'wdm-ebridge-woocommerce-sync' );
+			// wp_send_json_success( $response );
 			// }
 		}
 
