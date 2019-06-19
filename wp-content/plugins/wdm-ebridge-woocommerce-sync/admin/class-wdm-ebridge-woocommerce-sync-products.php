@@ -526,7 +526,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$product_ids[] = $products[ $i ];
 		}
 
-		if ( $i < count( $products ) ) {
+		if ( $product_count < count( $products ) ) {
 			update_option( $option, $product_count );
 		} else {
 			update_option( $option, 0 );
