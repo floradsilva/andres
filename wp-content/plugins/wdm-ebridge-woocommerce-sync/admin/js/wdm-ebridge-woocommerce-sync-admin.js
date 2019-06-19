@@ -277,7 +277,7 @@
 									},
 									success: function (response) {
 										if (response.success) {
-											$( '#message' ).append( response.data.message + '.<br />' );
+											$( '#message' ).append( response.data.message + '<br />' );
 											total_updated++;
 										} else {
 											$( '#message' ).append( response.data.message + '<br />' );

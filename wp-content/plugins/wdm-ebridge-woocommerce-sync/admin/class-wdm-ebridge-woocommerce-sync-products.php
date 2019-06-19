@@ -343,7 +343,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		$product->set_description( $product_obj->benefits );
 		$product->set_sku( $product_obj->id );
 		$product->set_regular_price( $product_obj->msrp );
-		$product->set_sale_price( $product_obj->promoPrice );
 		$product->set_weight( $product_obj->weight );
 
 		if ( $product_obj->showAvailability ) {
@@ -357,6 +356,23 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$product->set_width( $product_obj->dimension->width );
 			$product->set_height( $product_obj->dimension->height );
 		}
+
+		if ( isset( $product_obj->beginningPromoDate ) ) {
+			$start_date = $this->get_date_time_object( $product_obj->beginningPromoDate );
+			$product->set_date_on_sale_from( $start_date );
+		}
+
+		if ( isset( $product_obj->endingPromoDate ) ) {
+			$end_date = $this->get_date_time_object( $product_obj->endingPromoDate );
+			$product->set_date_on_sale_to( $end_date );
+		}
+
+		if ( isset( $product_obj->inventory->netQuantityAvailable ) ) {
+			$product->set_manage_stock( true );
+			$product->set_stock_quantity( $product_obj->netQuantityAvailable );
+		}
+
+		$product->set_sale_price( $product_obj->normalPrice );
 
 		$product->set_category_ids( $this->categories_to_set( $product_obj->webCategories ) );
 
@@ -522,7 +538,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		$updated = get_option( 'wews_product_update_start', 0 );
 		$deleted = get_option( 'wews_product_delete_start', 0 );
 
-		if ( ( $updated === 0 ) && ( $deleted === 0 ) ) {
+		if ( ( $updated == 0 ) && ( $deleted == 0 ) ) {
 			update_option( 'ebridge_sync_last_updated_date', date( 'm-d-Y' ) );
 			update_option( 'ebridge_sync_last_updated_time', date( 'H:i' ) );
 		}
@@ -574,7 +590,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 	public function get_image_id( $images ) {
 		if ( $images ) {
 			$image_file_name = basename( $images[0]->url );
-			
+
 			// $info            = pathinfo( basename( $images[0]->url ) );
 			// $image_file_name = $info['filename'];
 
@@ -583,6 +599,16 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			if ( $results[0] ) {
 				return $results[0]->post_id;
 			}
+		}
+
+		return null;
+	}
+
+
+	public function get_date_time_object( $date_str ) {
+		if ( $date_str ) {
+			preg_match( '#/Date\((\d{10})\d{3}(.*?)\)/#', $date_str, $date_obj );
+			return $date_obj[1];
 		}
 
 		return null;
