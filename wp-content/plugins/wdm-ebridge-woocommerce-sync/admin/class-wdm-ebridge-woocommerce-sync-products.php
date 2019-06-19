@@ -574,6 +574,10 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 	public function get_image_id( $images ) {
 		if ( $images ) {
 			$image_file_name = basename( $images[0]->url );
+			
+			// $info            = pathinfo( basename( $images[0]->url ) );
+			// $image_file_name = $info['filename'];
+
 			global $wpdb;
 			$results = $wpdb->get_results( "SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_value like '%$image_file_name%'", OBJECT );
 			if ( $results[0] ) {
