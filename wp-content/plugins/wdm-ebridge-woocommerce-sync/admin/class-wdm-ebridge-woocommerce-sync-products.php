@@ -108,8 +108,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				$url = $this->api_url . '/' . $this->api_token . '/productsync?returnMode=2';
 			}
 
-			$url = $this->api_url . '/' . $this->api_token . '/productsync?returnMode=2';
-			echo $url;
+			// $url = $this->api_url . '/' . $this->api_token . '/productsync?returnMode=2';
+			// echo $url;
 			$response = wp_remote_get( $url );
 			$products = json_decode( wp_remote_retrieve_body( $response ) );
 
@@ -278,7 +278,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 				if ( ! $category ) {
 					include_once plugin_dir_path( __FILE__ ) . 'class-wdm-ebridge-woocommerce-sync-categories.php';
-					echo plugin_dir_path( __FILE__ ) . 'class-wdm-ebridge-woocommerce-sync-categories.php';
+					// echo plugin_dir_path( __FILE__ ) . 'class-wdm-ebridge-woocommerce-sync-categories.php';
 					Wdm_Ebridge_Woocommerce_Sync_Categories::create_custom_category( $value, 'product_cat' );
 
 					$category = get_term_by(
