@@ -168,26 +168,18 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 	public function create_product( $id ) {
 		$response = wp_remote_get( $this->api_url . '/' . $this->api_token . '/products/' . $id );
 		$product  = json_decode( wp_remote_retrieve_body( $response ) );
-		echo "<pre>";
-		print_r($response);
-		echo "----------------------------------";
-		print_r($product);
-		echo "</pre>";
+		
 		if ( ( wp_remote_retrieve_response_code( $response ) == 200 ) && isset( $product->product ) ) {
-			echo "<br>11111111111 {$product->product->id}";
 			$product = $product->product;
 			if ( ! empty( $product->kitComponents ) ) {
-				echo "<br>2222222222222{$product->product->id}";
 				return $this->create_grouped_product( $product );
 			} else {
-				echo "<br>3333333333{$product->product->id}";
 				return $this->create_simple_product( $product );
 			}
 		} elseif ( ( wp_remote_retrieve_response_code( $response ) == 200 ) && isset( $product->message ) && ( strpos( $product->message, 'Cannot locate' ) !== false ) ) {
-			echo "<br>44444444";
 			return $this->delete_product( $id );
 		}
-		echo "<br>5555555";
+
 		return false;
 	}
 
@@ -203,29 +195,31 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		$product_id     = get_option( 'product_' . $product_obj->id, '' );
 		$child_products = array();
 
-		foreach ( $product_obj->kitComponents as $key => $value ) {
-			$child_product_id = get_option( 'product_' . $value->id, '' );
-
-			if ( ! $child_product_id ) {
-				$success                              = $this->create_product( $value->id );
-
-				if ( $success ) {
-					$this->updated_products[ $value->id ] = $success;
-					$child_products[] = $success;
-				}
-			} else {
-				$child_products[] = $child_product_id;
-			}
-		}
-
 		if ( ! $product_id ) {
 			$product = new WC_Product_Grouped();
 		} else {
 			$product = new WC_Product_Grouped( $product_id );
 		}
 
-		$product->set_children( $child_products );
 		$product = $this->set_product_common_data( $product, $product_obj );
+
+		foreach ( $product_obj->kitComponents as $key => $value ) {
+			$child_product_id = get_option( 'product_' . $value->id, '' );
+
+			if ( ! $child_product_id ) {
+				$success = $this->create_product( $value->id );
+
+				if ( $success ) {
+					$this->updated_products[ $value->id ] = $success;
+					$child_products[]                     = $success;
+				}
+			} else {
+				$child_products[] = $child_product_id;
+			}
+		}
+
+		$product->set_children( $child_products );
+		$product->save();
 
 		return $product->get_id();
 	}

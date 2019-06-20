@@ -257,18 +257,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 		<?php
 	}
 
-	public function add_localize_script() {
-		 $args = $this->fetch_localized_script_data();
-		wp_localize_script( $this->plugin_name, 'wews', $args );
-	}
-
-	public function fetch_localized_script_data() {
-		 $args = array(
-			 'wews_url' => admin_url( 'admin-ajax.php' ),
-		 );
-		return $args;
-	}
-
 	public function upload_csv() {
 		$response      = array();
 		$error_count   = 0;

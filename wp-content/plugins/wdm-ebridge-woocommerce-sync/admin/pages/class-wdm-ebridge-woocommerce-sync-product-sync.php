@@ -102,7 +102,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Product_Sync {
 			} elseif ( $selected_sync_type === 'sync_all' ) {
 				$all_products        = $this->products->get_batched_product_ids();
 				$response            = $all_products;
-				$response['message'] = __( 'Total items found: ' . ( $all_products['update_ids_count'] + $all_products['delete_ids_count'] ) . '<br />Total items to update: ' . $all_products['update_ids_count'] . '<br /> Total items to delete: ' . $all_products['delete_ids_count'], 'wdm-ebridge-woocommerce-sync' );
+				$response['message'] = __( 'Total items found: ' . ( $all_products['update_ids_count'] + $all_products['delete_ids_count'] ) . '<br />Total items to update: ' . $all_products['update_ids_count'] . '<br /> Total items to delete: ' . $all_products['delete_ids_count'] . '<br />', 'wdm-ebridge-woocommerce-sync' );
 
 				wp_send_json_success( $response );
 			}//elseif ( $selected_sync_type === 'sync_batched' ) {
@@ -120,9 +120,9 @@ class Wdm_Ebridge_Woocommerce_Sync_Product_Sync {
 
 	public function update_product() {
 
-		ini_set('display_errors', 1);
-		ini_set('display_startup_errors', 1);
-		error_reporting(E_ALL);
+		ini_set( 'display_errors', 1 );
+		ini_set( 'display_startup_errors', 1 );
+		error_reporting( E_ALL );
 
 		$response = array();
 
@@ -131,7 +131,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Product_Sync {
 			$product    = $this->products->create_product( $product_id );
 
 			if ( $product ) {
-				$response['message'] = __("Updated product {$product_id} as {$product}.", 'wdm-ebridge-woocommerce-sync' );
+				$response['message'] = __( "Updated product {$product_id} as {$product}.", 'wdm-ebridge-woocommerce-sync' );
 				wp_send_json_success( $response );
 			}
 

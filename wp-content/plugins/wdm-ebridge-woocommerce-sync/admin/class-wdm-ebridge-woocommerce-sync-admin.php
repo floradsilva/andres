@@ -150,4 +150,19 @@ class Wdm_Ebridge_Woocommerce_Sync_Admin {
 	public function add_additional_product_attributes() {
 		// include_once plugin_dir_path( __FILE__ ) . '/partials/wdm-ebridge-woocommerce-sync-admin-additional-product-attributes-tab.php';
 	}
+
+	public function add_localize_script() {
+		$args = $this->fetch_localized_script_data();
+		wp_localize_script( $this->plugin_name, 'wews', $args );
+	}
+
+	public function fetch_localized_script_data() {
+		$args = array(
+			'wews_url' => admin_url( 'admin-ajax.php' ),
+			'upload_complete' => __( 'Upload Completed.', 'wdm-ebridge-woocommerce-sync' ),
+			'fetched_msg' => __( 'Total products fetched', 'wdm-ebridge-woocommerce-sync' ),
+			'updated_msg' => __( 'Total products updated', 'wdm-ebridge-woocommerce-sync' ),
+		);
+		return $args;
+	}
 }
