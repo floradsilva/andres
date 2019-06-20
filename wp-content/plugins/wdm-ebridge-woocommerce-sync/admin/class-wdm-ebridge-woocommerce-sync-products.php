@@ -169,6 +169,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		$response = wp_remote_get( $this->api_url . '/' . $this->api_token . '/products/' . $id );
 		$product  = json_decode( wp_remote_retrieve_body( $response ) );
 		echo "<pre>";
+		print_r($response);
+		echo "----------------------------------";
 		print_r($product);
 		echo "</pre>";
 		if ( ( wp_remote_retrieve_response_code( $response ) == 200 ) && isset( $product->product ) ) {
