@@ -185,7 +185,7 @@
 										
 										for (index = 0; index < update_ids.length; index++) {
 											const id_to_update = update_ids[index];
-											setTimeout(function () {
+											// setTimeout(function () {
 												$.ajax(
 													{
 														url: wews.wews_url,
@@ -209,7 +209,7 @@
 														}
 													}
 												);
-											}, 10000);
+											// }, 10000);
 										}
 
 										for (i = 0; i < delete_ids.length; i++) {

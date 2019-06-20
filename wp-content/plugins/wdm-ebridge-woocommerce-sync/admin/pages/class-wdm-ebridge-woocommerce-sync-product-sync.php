@@ -119,6 +119,11 @@ class Wdm_Ebridge_Woocommerce_Sync_Product_Sync {
 	}
 
 	public function update_product() {
+
+		ini_set('display_errors', 1);
+		ini_set('display_startup_errors', 1);
+		error_reporting(E_ALL);
+
 		$response = array();
 
 		if ( isset( $_POST['product_id'] ) ) {
@@ -126,11 +131,11 @@ class Wdm_Ebridge_Woocommerce_Sync_Product_Sync {
 			$product    = $this->products->create_product( $product_id );
 
 			if ( $product ) {
-				$response['message'] = __( "Updated product $product_id as $product.", 'wdm-ebridge-woocommerce-sync' );
+				$response['message'] = __("Updated product {$product_id} as {$product}.", 'wdm-ebridge-woocommerce-sync' );
 				wp_send_json_success( $response );
 			}
 
-			$response['message'] = __( "Failed to update product $product_id.", 'wdm-ebridge-woocommerce-sync' );
+			$response['message'] = __( "Failed to update product {$product_id}.", 'wdm-ebridge-woocommerce-sync' );
 			wp_send_json_error( $response );
 
 		}

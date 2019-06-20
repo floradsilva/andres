@@ -168,18 +168,24 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 	public function create_product( $id ) {
 		$response = wp_remote_get( $this->api_url . '/' . $this->api_token . '/products/' . $id );
 		$product  = json_decode( wp_remote_retrieve_body( $response ) );
-
+		echo "<pre>";
+		print_r($product);
+		echo "</pre>";
 		if ( ( wp_remote_retrieve_response_code( $response ) == 200 ) && isset( $product->product ) ) {
+			echo "<br>11111111111";
 			$product = $product->product;
 			if ( ! empty( $product->kitComponents ) ) {
+				echo "<br>2222222222222";
 				return $this->create_grouped_product( $product );
 			} else {
+				echo "<br>3333333333";
 				return $this->create_simple_product( $product );
 			}
 		} elseif ( ( wp_remote_retrieve_response_code( $response ) == 200 ) && isset( $product->message ) && ( strpos( $product->message, 'Cannot locate' ) !== false ) ) {
+			echo "<br>44444444";
 			return $this->delete_product( $id );
 		}
-
+		echo "<br>5555555";
 		return false;
 	}
 
