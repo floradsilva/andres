@@ -172,13 +172,13 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		print_r($product);
 		echo "</pre>";
 		if ( ( wp_remote_retrieve_response_code( $response ) == 200 ) && isset( $product->product ) ) {
-			echo "<br>11111111111";
+			echo "<br>11111111111 {$product->product->id}";
 			$product = $product->product;
 			if ( ! empty( $product->kitComponents ) ) {
-				echo "<br>2222222222222";
+				echo "<br>2222222222222{$product->product->id}";
 				return $this->create_grouped_product( $product );
 			} else {
-				echo "<br>3333333333";
+				echo "<br>3333333333{$product->product->id}";
 				return $this->create_simple_product( $product );
 			}
 		} elseif ( ( wp_remote_retrieve_response_code( $response ) == 200 ) && isset( $product->message ) && ( strpos( $product->message, 'Cannot locate' ) !== false ) ) {
@@ -206,9 +206,9 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 			if ( ! $child_product_id ) {
 				$success                              = $this->create_product( $value->id );
-				$this->updated_products[ $value->id ] = $success;
 
 				if ( $success ) {
+					$this->updated_products[ $value->id ] = $success;
 					$child_products[] = $success;
 				}
 			} else {
@@ -375,7 +375,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 		if ( isset( $product_obj->inventory ) ) {
 			$product->set_manage_stock( true );
-			$product->set_stock_quantity( $product_obj->netQuantityAvailable );
+			$product->set_stock_quantity( $product_obj->inventory->netQuantityAvailable );
 		}
 
 		$product->set_sale_price( $product_obj->normalPrice );
@@ -604,7 +604,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 			global $wpdb;
 			$results = $wpdb->get_results( "SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_value like '%$image_file_name%'", OBJECT );
-			if ( $results[0] ) {
+			if ( isset( $results ) && array_key_exists( 0, $results ) ) {
 				return $results[0]->post_id;
 			}
 		}
