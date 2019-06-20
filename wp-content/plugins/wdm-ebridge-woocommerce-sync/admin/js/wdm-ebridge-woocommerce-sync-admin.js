@@ -269,7 +269,7 @@
 							if (response.success) {
 								$( '#message' ).append( response.data.message + '<br />' );
 								total_updated++;
-								$( '#message-brief' ).html( wews.fetched_msg + (update_ids_count + delete_ids_count) + '<br>' + wews.updated_msg + ': '+ total_updated + '<br>' );
+								$( '#message-brief' ).html( wews.fetched_msg + ': ' + (update_ids_count + delete_ids_count) + '<br>' + wews.updated_msg + ': '+ total_updated + '<br>' );
 							} else {
 								$( '#message' ).append( response.data.message + '<br />' );
 							}
@@ -282,6 +282,7 @@
 								}
 							} else {
 								$( '#message' ).append( '<br /><br />' + wews.upload_complete + '<br />' );
+								$( '.loader-container' ).remove();
 							}
 						}
 					}
