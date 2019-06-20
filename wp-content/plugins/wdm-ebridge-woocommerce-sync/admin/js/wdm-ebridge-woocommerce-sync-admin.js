@@ -182,7 +182,7 @@
 
 										$( '<div id="message-wrap-1"><p id="message-brief"></p></div>' ).insertAfter( '#message-wrap' );
 
-										$( '#message-brief' ).text( wews.fetched_msg + ': ' + (response.data.update_ids_count + response.data.delete_ids_count) );
+										$( '#message-brief' ).text();
 
 										update_ids    = response.data.update_ids;
 										delete_ids    = response.data.delete_ids;
@@ -200,7 +200,7 @@
 									} else {
 										$( '<div id="message-wrap"><h3>Logs:</h3><p id="message">' + response.data.message + '</p></div>' ).insertAfter( '#product_sync_form' );
 									}
-									$( '.loader-container' ).remove();
+									// $( '.loader-container' ).remove();
 								}
 							}
 						);
@@ -269,7 +269,7 @@
 							if (response.success) {
 								$( '#message' ).append( response.data.message + '<br />' );
 								total_updated++;
-								$( '#message-brief' ).html( wews.fetched_msg + ': ' + (update_ids_count + delete_ids_count) + '<br>' + wews.updated_msg + ': '+ total_updated + '<br>' );
+								$( '#message-brief' ).html( wews.updated_msg + ': '+ total_updated + '<br>' );
 							} else {
 								$( '#message' ).append( response.data.message + '<br />' );
 							}
