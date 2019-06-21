@@ -176,8 +176,8 @@
 
 										$( '<div id="message-wrap-1"><p id="message-brief"></p></div>' ).insertAfter( '#message-wrap' );
 
-										$( '#message-brief' ).text( 'Total products fetched: ' + (response.data.update_ids_count + response.data.delete_ids_count) );
-
+										// $( '#message-brief' ).text( 'Total products fetched: ' + (response.data.update_ids_count + response.data.delete_ids_count) );
+										
 										var update_ids    = response.data.update_ids;
 										var delete_ids    = response.data.delete_ids;
 										var total_updated = 0;
@@ -196,13 +196,14 @@
 														},
 														success: function (response_updated) {
 															$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight + 2 );
-															if ( index === update_ids.length ) {
+															if ( total_updated === (update_ids.length - 1) ) {
 																$( '.loader-container' ).remove();
+																$( '#message' ).append( wews.update_complete + '<br />' );
 															}
 															if (response_updated.success) {
 																$( '#message' ).append( response_updated.data.message + '<br />' );
 																total_updated++;
-																$( '#message-brief' ).html( 'Total products fetched: ' + (response.data.update_ids_count + response.data.delete_ids_count) + '<br>Total products updated: ' + total_updated + '<br>' );
+																$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
 															} else {
 																$( '#message' ).append( response_updated.data.message + '<br />' );
 															}
@@ -224,13 +225,14 @@
 													},
 													success: function (response_deleted) {
 														$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight );
-														if ( i === delete_ids.length ) {
+														if ( total_updated === (delete_ids.length - 1) ) {
+															$( '#message' ).append( wews.delete_complete + '<br />' );
 															$( '.loader-container' ).remove();
 														}
 														if (response_deleted.success) {
 															total_updated++;
 															$( '#message' ).append( response_deleted.data.message + '<br />' );
-															$( '#message-brief' ).text( 'Total products fetched: ' + (response.data.update_ids_count + response.data.delete_ids_count) + '<br />Total products updated: ' + total_updated + '.<br />' );
+															$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
 														} else {
 															$( '#message' ).append( response.data.message + '<br />' );
 														}
