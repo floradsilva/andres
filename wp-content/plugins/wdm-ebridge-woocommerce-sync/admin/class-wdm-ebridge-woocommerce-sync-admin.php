@@ -159,7 +159,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Admin {
 	public function fetch_localized_script_data() {
 		$args = array(
 			'wews_url' => admin_url( 'admin-ajax.php' ),
-			'upload_complete' => __( 'Upload Completed.', 'wdm-ebridge-woocommerce-sync' ),
+			'update_complete' => __( 'Completed updating elements.', 'wdm-ebridge-woocommerce-sync' ),
+			'delete_complete' => __( 'Completed deleting elements.', 'wdm-ebridge-woocommerce-sync' ),
 			'fetched_msg' => __( 'Total products fetched', 'wdm-ebridge-woocommerce-sync' ),
 			'updated_msg' => __( 'Total products updated', 'wdm-ebridge-woocommerce-sync' ),
 		);

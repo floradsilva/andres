@@ -166,6 +166,12 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 	 * @param      string $id       The Ebridge Product Id.
 	 */
 	public function create_product( $id ) {
+		if ( get_transient( 'product_' . $id . '_' )) {
+			return true;
+		} else {
+			set_transient( 'product_' . $id . '_', $id, 30 * MINUTE_IN_SECONDS );
+		}
+		
 		$response = wp_remote_get( $this->api_url . '/' . $this->api_token . '/products/' . $id );
 		$product  = json_decode( wp_remote_retrieve_body( $response ) );
 		

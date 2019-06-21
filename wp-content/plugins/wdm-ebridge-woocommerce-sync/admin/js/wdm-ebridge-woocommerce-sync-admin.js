@@ -30,12 +30,6 @@
 	 */
 	$( window ).load(
 		function() {
-			var update_ids    = [];
-			var delete_ids    = [];
-			var total_updated = 0;
-			var update_ids_count;
-			var delete_ids_count;
-
 			$( '#customer_sync_form' ).validate(
 				{
 					rules: {
@@ -182,25 +176,69 @@
 
 										$( '<div id="message-wrap-1"><p id="message-brief"></p></div>' ).insertAfter( '#message-wrap' );
 
-										$( '#message-brief' ).text();
+										$( '#message-brief' ).text( 'Total products fetched: ' + (response.data.update_ids_count + response.data.delete_ids_count) );
 
-										update_ids    = response.data.update_ids;
-										delete_ids    = response.data.delete_ids;
-										update_ids_count = response.data.update_ids_count;
-										delete_ids_count = response.data.delete_ids_count;
-										total_updated = 0;
+										var update_ids    = response.data.update_ids;
+										var delete_ids    = response.data.delete_ids;
+										var total_updated = 0;
+										var index, i;
 										
-										if ( update_ids.length ) {
-											call_ajax_request( update_ids[0], 0, update_ids.length, 'update_product');											
+										for (index = 0; index < update_ids.length; index++) {
+											const id_to_update = update_ids[index];
+												$.ajax(
+													{
+														url: wews.wews_url,
+														type: 'post',
+														dataType: 'json',
+														data:  {
+															'action': 'update_product',
+															'product_id' : id_to_update,
+														},
+														success: function (response_updated) {
+															if ( index === update_ids.length ) {
+																$( '.loader-container' ).remove();
+															}
+															if (response_updated.success) {
+																$( '#message' ).append( response_updated.data.message + '<br />' );
+																total_updated++;
+																$( '#message-brief' ).html( 'Total products fetched: ' + (response.data.update_ids_count + response.data.delete_ids_count) + '<br>Total products updated: ' + total_updated + '<br>' );
+															} else {
+																$( '#message' ).append( response_updated.data.message + '<br />' );
+															}
+														}
+													}
+												);
 										}
 
-										if ( delete_ids.length ) {
-											call_ajax_request( delete_ids[0], 0, delete_ids.length, 'delete_product');
+										for (i = 0; i < delete_ids.length; i++) {
+											const id_to_delete = delete_ids[i];
+											$.ajax(
+												{
+													url: wews.wews_url,
+													type: 'post',
+													dataType: 'json',
+													data:  {
+														'action': 'delete_product',
+														'product_id' : id_to_delete,
+													},
+													success: function (response_deleted) {
+														if ( i === delete_ids.length ) {
+															$( '.loader-container' ).remove();
+														}
+														if (response_deleted.success) {
+															total_updated++;
+															$( '#message' ).append( response_deleted.data.message + '<br />' );
+															$( '#message-brief' ).text( 'Total products fetched: ' + (response.data.update_ids_count + response.data.delete_ids_count) + '<br />Total products updated: ' + total_updated + '.<br />' );
+														} else {
+															$( '#message' ).append( response.data.message + '<br />' );
+														}
+													}
+												}
+											);
 										}
 									} else {
 										$( '<div id="message-wrap"><h3>Logs:</h3><p id="message">' + response.data.message + '</p></div>' ).insertAfter( '#product_sync_form' );
 									}
-									// $( '.loader-container' ).remove();
 								}
 							}
 						);
@@ -213,17 +251,16 @@
 			var selected_products_count = url.searchParams.get( "product_id_count" );
 
 			if (selected_products_count) {
-				var update_ids_get    = [];
-				var total_update = 0;
+				var update_ids    = [];
+				var total_updated = 0;
 
 				for (let index = 0; index < selected_products_count; index++) {
-					update_ids_get[index] = url.searchParams.get( "product_ids[" + index + "]" );
+					update_ids[index] = url.searchParams.get( "product_ids[" + index + "]" );
 				}
 
 				if (update_ids.length) {
 					$( '<div id="message-wrap"><h3>Logs:</h3><p id="message"></p></div>' ).insertAfter( '#product_sync_form' );
-					$("#message").animate({ scrollTop: $("#message")[0].scrollHeight}, 1000);
-					update_ids_get.forEach(
+					update_ids.forEach(
 						id_to_update => {
 							// $( '#message' ).append( 'Syncing product ' + id_to_update + '.<br />' );
 							$.ajax(
@@ -238,7 +275,7 @@
 									success: function (response) {
 										if (response.success) {
 											$( '#message' ).append( response.data.message + '<br />' );
-											total_update++;
+											total_updated++;
 										} else {
 											$( '#message' ).append( response.data.message + '<br />' );
 										}
@@ -249,44 +286,6 @@
 					);
 				}
 
-			}
-
-			function call_ajax_request(id_to_modify, index, array_length, action) {
-				$.ajax(
-					{
-						url: wews.wews_url,
-						type: 'post',
-						dataType: 'json',
-						data:  {
-							'action': action,
-							'product_id' : id_to_modify,
-						},
-						success: function (response) {
-							// if ( index === update_ids.length ) {
-							// 	$( '.loader-container' ).remove();
-							// }
-							console.log(response);
-							if (response.success) {
-								$( '#message' ).append( response.data.message + '<br />' );
-								total_updated++;
-								$( '#message-brief' ).html( wews.updated_msg + ': '+ total_updated + '<br>' );
-							} else {
-								$( '#message' ).append( response.data.message + '<br />' );
-							}
-							index++;
-							if (index < array_length ) {
-								if (action == 'update_product') {
-									call_ajax_request( update_ids[index], index, array_length, action );
-								} else {
-									call_ajax_request( delete_ids[index], index, array_length, action );
-								}
-							} else {
-								$( '#message' ).append( '<br /><br />' + wews.upload_complete + '<br />' );
-								$( '.loader-container' ).remove();
-							}
-						}
-					}
-				);
 			}
 		}
 	);
