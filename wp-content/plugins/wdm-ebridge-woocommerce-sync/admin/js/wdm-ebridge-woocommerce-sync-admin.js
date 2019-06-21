@@ -182,7 +182,7 @@
 										var delete_ids    = response.data.delete_ids;
 										var total_updated = 0;
 										var index, i;
-										
+
 										for (index = 0; index < update_ids.length; index++) {
 											const id_to_update = update_ids[index];
 												$.ajax(
@@ -195,7 +195,7 @@
 															'product_id' : id_to_update,
 														},
 														success: function (response_updated) {
-															$('#message').scrollTop($('#message')[0].scrollHeight+2);
+															$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight + 2 );
 															if ( index === update_ids.length ) {
 																$( '.loader-container' ).remove();
 															}
@@ -223,7 +223,7 @@
 														'product_id' : id_to_delete,
 													},
 													success: function (response_deleted) {
-														$('#message').scrollTop($('#message')[0].scrollHeight);
+														$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight );
 														if ( i === delete_ids.length ) {
 															$( '.loader-container' ).remove();
 														}
@@ -264,7 +264,7 @@
 					$( '<div id="message-wrap"><h3>Logs:</h3><p id="message"></p></div>' ).insertAfter( '#product_sync_form' );
 					update_ids.forEach(
 						id_to_update => {
-							// $( '#message' ).append( 'Syncing product ' + id_to_update + '.<br />' );
+                        // $( '#message' ).append( 'Syncing product ' + id_to_update + '.<br />' );
 							$.ajax(
 								{
 									url: wews.wews_url,

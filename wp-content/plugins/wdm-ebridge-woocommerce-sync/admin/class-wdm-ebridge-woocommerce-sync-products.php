@@ -114,7 +114,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$products = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
-				$update_product_ids = $products->updatedProductIds ? $products->updatedProductIds : array();
+				$update_product_ids = isset( $products->updatedProductIds ) ? $products->updatedProductIds : array();
 
 				$no_updated_products = count( $update_product_ids );
 				for ( $index = 0; $index < $no_updated_products; $index++ ) {
@@ -130,7 +130,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 					}
 				}
 
-				$delete_product_ids = $products->deletedProductIds ? $products->deletedProductIds : array();
+				$delete_product_ids = isset( $products->deletedProductIds ) ? $products->deletedProductIds : array();
 
 				$no_deleted_products = count( $delete_product_ids );
 				for ( $index = 0; $index < $no_deleted_products; $index++ ) {
@@ -166,15 +166,15 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 	 * @param      string $id       The Ebridge Product Id.
 	 */
 	public function create_product( $id ) {
-		if ( get_transient( 'product_' . $id . '_' )) {
+		if ( get_transient( 'product_' . $id . '_' ) ) {
 			return true;
 		} else {
 			set_transient( 'product_' . $id . '_', $id, 30 * MINUTE_IN_SECONDS );
 		}
-		
+
 		$response = wp_remote_get( $this->api_url . '/' . $this->api_token . '/products/' . $id );
 		$product  = json_decode( wp_remote_retrieve_body( $response ) );
-		
+
 		if ( ( wp_remote_retrieve_response_code( $response ) == 200 ) && isset( $product->product ) ) {
 			$product = $product->product;
 			if ( ! empty( $product->kitComponents ) ) {
@@ -206,10 +206,10 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		} else {
 			$product = new WC_Product_Grouped( $product_id );
 
-			$last_sync_time = $product->get_meta( 'product_last_synced', true);
+			$last_sync_time = $product->get_meta( 'product_last_synced', true );
 
-			$current_time = current_time( 'timestamp', true );
-			$fifteen_mins_before = $current_time - (MINUTE_IN_SECONDS * 15);
+			$current_time        = current_time( 'timestamp', true );
+			$fifteen_mins_before = $current_time - ( MINUTE_IN_SECONDS * 15 );
 
 			if ( $last_sync_time > $fifteen_mins_before ) {
 				return $product->get_id();
@@ -252,11 +252,11 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		if ( ! $product_id ) {
 			$product = new WC_Product_Simple();
 		} else {
-			$product = new WC_Product_Simple( $product_id );
-			$last_sync_time = $product->get_meta( 'product_last_synced', true);
+			$product        = new WC_Product_Simple( $product_id );
+			$last_sync_time = $product->get_meta( 'product_last_synced', true );
 
-			$current_time = current_time( 'timestamp', true );
-			$fifteen_mins_before = $current_time - (MINUTE_IN_SECONDS * 15);
+			$current_time        = current_time( 'timestamp', true );
+			$fifteen_mins_before = $current_time - ( MINUTE_IN_SECONDS * 15 );
 
 			if ( $last_sync_time > $fifteen_mins_before ) {
 				return $product->get_id();
@@ -312,6 +312,9 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 						'product_cat'
 					);
 				}
+				echo '<pre>';
+				var_dump($category);
+				echo '</pre>';
 				$categories[] = $category->term_id;
 			}
 		}
@@ -359,7 +362,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			}
 		}
 
-		$product->update_meta_data( 'product_last_synced', current_time('timestamp', true) );
+		$product->update_meta_data( 'product_last_synced', current_time( 'timestamp', true ) );
 
 		return $product;
 	}
@@ -395,8 +398,19 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		}
 
 		if ( isset( $product_obj->inventory ) ) {
+			$net_quantity = $product_obj->inventory->netQuantityAvailable;
 			$product->set_manage_stock( true );
-			$product->set_stock_quantity( $product_obj->inventory->netQuantityAvailable );
+			$product->set_stock_quantity( $net_quantity );
+
+			if ( isset( $product_obj->inventory->locations ) ) {
+				$locations = $product_obj->inventory->locations;
+
+				foreach ( $locations as $key => $location ) {
+					if ( is_numeric( $location->leadDays ) && ( $net_quantity === 0 ) ) {
+						$product->set_backorders( 'notify' );
+					}
+				}
+			}
 		}
 
 		$product->set_sale_price( $product_obj->normalPrice );
@@ -464,9 +478,9 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$products = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
-				$all_products['update_ids']       = $products->updatedProductIds ? $products->updatedProductIds : array();
+				$all_products['update_ids']       = isset( $products->updatedProductIds ) ? $products->updatedProductIds : array();
 				$all_products['update_ids_count'] = count( $all_products['update_ids'] );
-				$$all_products['delete_ids']      = $products->deletedProductIds ? $products->deletedProductIds : array();
+				$$all_products['delete_ids']      = isset( $products->deletedProductIds ) ? $products->deletedProductIds : array();
 				$all_products['delete_ids_count'] = count( $all_products['delete_ids'] );
 			}
 		}
@@ -499,9 +513,9 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$products = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
-				$updated_products['update_ids']       = $products->updatedProductIds ? $products->updatedProductIds : array();
+				$updated_products['update_ids']       = isset( $products->updatedProductIds ) ? $products->updatedProductIds : array();
 				$updated_products['update_ids_count'] = count( $updated_products['update_ids'] );
-				$$updated_products['delete_ids']      = $products->deletedProductIds ? $products->deletedProductIds : array();
+				$$updated_products['delete_ids']      = isset( $products->deletedProductIds ) ? $products->deletedProductIds : array();
 				$updated_products['delete_ids_count'] = count( $updated_products['delete_ids'] );
 			}
 
@@ -527,12 +541,12 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$product_ids = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
-				$products                         = $product_ids->updatedProductIds ? $product_ids->updatedProductIds : array();
+				$products                         = isset( $product_ids->updatedProductIds ) ? $product_ids->updatedProductIds : array();
 				$product_ids                      = $this->get_batched_products( 'wews_product_all_update_start', $products );
 				$all_products['update_ids_count'] = count( $product_ids );
 				$all_products['update_ids']       = $product_ids;
 
-				$products                         = $product_ids->deletedProductIds ? $product_ids->deletedProductIds : array();
+				$products                         = isset( $product_ids->deletedProductIds ) ? $product_ids->deletedProductIds : array();
 				$product_ids                      = $this->get_batched_products( 'wews_product_all_delete_start', $products );
 				$all_products['delete_ids_count'] = count( $product_ids );
 				$all_products['delete_ids']       = $product_ids;
@@ -599,12 +613,12 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$product_ids = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
-				$products                             = $product_ids->updatedProductIds ? $product_ids->updatedProductIds : array();
+				$products                             = isset( $product_ids->updatedProductIds ) ? $product_ids->updatedProductIds : array();
 				$product_ids                          = $this->get_batched_products( 'wews_product_update_start', $products );
 				$updated_products['update_ids_count'] = count( $product_ids );
 				$updated_products['update_ids']       = $product_ids;
 
-				$products                             = $product_ids->deletedProductIds ? $product_ids->deletedProductIds : array();
+				$products                             = isset( $product_ids->deletedProductIds ) ? $product_ids->deletedProductIds : array();
 				$product_ids                          = $this->get_batched_products( 'wews_product_delete_start', $products );
 				$updated_products['delete_ids_count'] = count( $product_ids );
 				$updated_products['delete_ids']       = $product_ids;
