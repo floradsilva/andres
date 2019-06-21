@@ -205,6 +205,15 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$product = new WC_Product_Grouped();
 		} else {
 			$product = new WC_Product_Grouped( $product_id );
+
+			$last_sync_time = $product->get_meta( 'product_last_synced', true);
+
+			$current_time = current_time( 'timestamp', true );
+			$fifteen_mins_before = $current_time - (MINUTE_IN_SECONDS * 15);
+
+			if ( $last_sync_time > $fifteen_mins_before ) {
+				return $product->get_id();
+			}
 		}
 
 		$product = $this->set_product_common_data( $product, $product_obj );
@@ -244,6 +253,14 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$product = new WC_Product_Simple();
 		} else {
 			$product = new WC_Product_Simple( $product_id );
+			$last_sync_time = $product->get_meta( 'product_last_synced', true);
+
+			$current_time = current_time( 'timestamp', true );
+			$fifteen_mins_before = $current_time - (MINUTE_IN_SECONDS * 15);
+
+			if ( $last_sync_time > $fifteen_mins_before ) {
+				return $product->get_id();
+			}
 		}
 
 		$product = $this->set_product_common_data( $product, $product_obj );
@@ -341,6 +358,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				$product->update_meta_data( $key, maybe_serialize( $value ) );
 			}
 		}
+
+		$product->update_meta_data( 'product_last_synced', current_time('timestamp', true) );
 
 		return $product;
 	}
