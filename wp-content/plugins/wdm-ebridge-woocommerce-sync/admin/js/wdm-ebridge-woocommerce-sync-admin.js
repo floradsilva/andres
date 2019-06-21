@@ -195,6 +195,7 @@
 															'product_id' : id_to_update,
 														},
 														success: function (response_updated) {
+															$('#message').scrollTop($('#message')[0].scrollHeight+2);
 															if ( index === update_ids.length ) {
 																$( '.loader-container' ).remove();
 															}
@@ -222,6 +223,7 @@
 														'product_id' : id_to_delete,
 													},
 													success: function (response_deleted) {
+														$('#message').scrollTop($('#message')[0].scrollHeight);
 														if ( i === delete_ids.length ) {
 															$( '.loader-container' ).remove();
 														}

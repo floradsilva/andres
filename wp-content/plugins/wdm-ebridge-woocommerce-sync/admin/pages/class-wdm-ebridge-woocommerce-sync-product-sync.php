@@ -135,8 +135,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Product_Sync {
 					$response['message'] = __( "Updating product {$product_id}.", 'wdm-ebridge-woocommerce-sync' );
 					wp_send_json_success( $response );
 				}
-
-				$response['message'] = __( "Updated product {$product_id} as {$product}.", 'wdm-ebridge-woocommerce-sync' );
+				$product = new WC_Product($product);
+				$response['message'] = __( 'Updated product ' . $product_id . ' as <a href="'. $product->get_permalink() .'">' . $product->get_id() . '</a>', 'wdm-ebridge-woocommerce-sync' );
 				wp_send_json_success( $response );
 			}
 
