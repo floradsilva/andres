@@ -312,7 +312,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 						'product_cat'
 					);
 				}
-				
+
 				$categories[] = $category->term_id;
 			}
 		}

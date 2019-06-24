@@ -44,6 +44,7 @@
 					},
 					submitHandler: function (form) {
 						event.preventDefault();
+						$( '.import_button' ).prepend( '<div class="loader-container"><div class="loader"></div></div>' );
 						$( "#message-wrap" ).remove();
 						var formData = new FormData( document.getElementById( 'customer_sync_form' ) );
 						formData.append( "action", "upload_csv" );
@@ -58,7 +59,7 @@
 								processData: false,
 								success: function (response) {
 									console.log( response );
-
+									$( '.loader-container').remove();
 									if (response.success) {
 										$( '<div id="message-wrap"><h3>Logs:</h3><p id="message">' + response.data.message + '</p></div>' ).insertAfter( '#customer_sync_form' );
 									} else {
