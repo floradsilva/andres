@@ -163,6 +163,7 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		$plugin_admin              = new Wdm_Ebridge_Woocommerce_Sync_Admin( $this->get_plugin_name(), $this->get_version() );
 		$plugin_admin_settings     = new Wdm_Ebridge_Woocommerce_Sync_Settings( $this->get_plugin_name(), $this->get_version() );
 		$plugin_admin_product_sync = new Wdm_Ebridge_Woocommerce_Sync_Product_Sync( $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin_order_sync   = new Wdm_Ebridge_Woocommerce_Sync_Orders( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
@@ -182,6 +183,8 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		$this->loader->add_action( 'wp_ajax_delete_product', $plugin_admin_product_sync, 'delete_product' );
 		$this->loader->add_filter( 'bulk_actions-edit-product', $plugin_admin_product_sync, 'register_sync_products_bulk_action' );
 		$this->loader->add_filter( 'handle_bulk_actions-edit-product', $plugin_admin_product_sync, 'sync_products_bulk_action_handler', 10, 3 );
+		$this->loader->add_action( 'woocommerce_checkout_create_order', $plugin_admin_order_sync, 'product_availability', 10, 2 );
+
 	}
 
 	/**

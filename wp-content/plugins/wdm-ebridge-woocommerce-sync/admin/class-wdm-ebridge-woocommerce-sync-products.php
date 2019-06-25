@@ -411,6 +411,10 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			}
 		}
 
+		if ( ! $product_obj->availableOnWeb ) {
+			$product->set_catalog_visibility( 'hidden' );
+		}
+
 		$product->set_sale_price( $product_obj->normalPrice );
 
 		$product->set_category_ids( $this->categories_to_set( $product_obj->webCategories ) );
