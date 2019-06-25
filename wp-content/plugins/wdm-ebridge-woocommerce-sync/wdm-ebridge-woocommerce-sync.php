@@ -76,7 +76,7 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-wdm-ebridge-woocommerce-sy
 
 // Define WC_PLUGIN_FILE.
 if ( ! defined( 'WEWS_FETCH_SIZE' ) ) {
-	define( 'WEWS_FETCH_SIZE', 25 );
+	define( 'WEWS_FETCH_SIZE', 100 );
 }
 
 /**
