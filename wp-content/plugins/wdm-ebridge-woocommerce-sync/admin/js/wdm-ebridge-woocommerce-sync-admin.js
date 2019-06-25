@@ -198,15 +198,16 @@
 														success: function (response_updated) {
 															total_updated++;
 															$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight + 2 );
-															if ( total_updated === (update_ids.length - 1) ) {
-																$( '.loader-container' ).remove();
-																$( '#message' ).append( wews.update_complete + '<br />' );
-															}
 															if (response_updated.success) {
 																$( '#message' ).append( response_updated.data.message + '<br />' );
 																$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
 															} else {
 																$( '#message' ).append( response_updated.data.message + '<br />' );
+															}
+															if ( total_updated === (update_ids.length - 1) ) {
+																$( '.loader-container' ).remove();
+																$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
+																$( '#message-brief' ).append( wews.update_complete + '<br />' );
 															}
 														}
 													}
@@ -227,15 +228,18 @@
 													success: function (response_deleted) {
 														total_updated++;
 														$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight );
-														if ( total_updated === (delete_ids.length - 1) ) {
-															$( '#message' ).append( wews.delete_complete + '<br />' );
-															$( '.loader-container' ).remove();
-														}
+														
 														if (response_deleted.success) {
 															$( '#message' ).append( response_deleted.data.message + '<br />' );
 															$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
 														} else {
 															$( '#message' ).append( response.data.message + '<br />' );
+														}
+
+														if ( total_updated === (delete_ids.length - 1) ) {
+															$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
+															$( '#message-brief' ).append( wews.delete_complete + '<br />' );
+															$( '.loader-container' ).remove();
 														}
 													}
 												}

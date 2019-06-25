@@ -78,7 +78,7 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 
 			$customer = $this->find_or_create_customers( $order );
 
-			throw new Exception(  );
+			throw new Exception( $customer );
 
 		}
 
