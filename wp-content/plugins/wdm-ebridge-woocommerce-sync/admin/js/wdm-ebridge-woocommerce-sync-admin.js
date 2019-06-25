@@ -196,6 +196,7 @@
 															'product_id' : id_to_update,
 														},
 														success: function (response_updated) {
+															total_updated++;
 															$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight + 2 );
 															if ( total_updated === (update_ids.length - 1) ) {
 																$( '.loader-container' ).remove();
@@ -203,7 +204,6 @@
 															}
 															if (response_updated.success) {
 																$( '#message' ).append( response_updated.data.message + '<br />' );
-																total_updated++;
 																$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
 															} else {
 																$( '#message' ).append( response_updated.data.message + '<br />' );
@@ -225,13 +225,13 @@
 														'product_id' : id_to_delete,
 													},
 													success: function (response_deleted) {
+														total_updated++;
 														$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight );
 														if ( total_updated === (delete_ids.length - 1) ) {
 															$( '#message' ).append( wews.delete_complete + '<br />' );
 															$( '.loader-container' ).remove();
 														}
 														if (response_deleted.success) {
-															total_updated++;
 															$( '#message' ).append( response_deleted.data.message + '<br />' );
 															$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
 														} else {
@@ -278,9 +278,9 @@
 										'product_id' : id_to_update,
 									},
 									success: function (response) {
+										total_updated++;
 										if (response.success) {
 											$( '#message' ).append( response.data.message + '<br />' );
-											total_updated++;
 										} else {
 											$( '#message' ).append( response.data.message + '<br />' );
 										}
