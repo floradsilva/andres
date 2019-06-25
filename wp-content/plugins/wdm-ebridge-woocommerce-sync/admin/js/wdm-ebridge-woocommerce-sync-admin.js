@@ -236,7 +236,7 @@
 															$( '#message' ).append( response.data.message + '<br />' );
 														}
 
-														if ( total_updated === (delete_ids.length - 1) ) {
+														if ( total_updated === (update_ids.length + delete_ids.length - 1) ) {
 															$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
 															$( '#message-brief' ).append( wews.delete_complete + '<br />' );
 															$( '.loader-container' ).remove();
