@@ -178,7 +178,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		if ( ( wp_remote_retrieve_response_code( $response ) == 200 ) && isset( $product->product ) ) {
 			$product = $product->product;
 			if ( ! empty( $product->kitComponents ) ) {
-				return $this->create_grouped_product( $product );
+				return $this->create_product_bundle( $product );
 			} else {
 				return $this->create_simple_product( $product );
 			}
@@ -715,6 +715,77 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		}
 
 		return $tags;
+	}
+
+
+	/**
+	 * Creates/Updates a WooCommerce Grouped Product.
+	 *
+	 * @since    1.0.0
+	 * @param      object $product_obj       The Ebridge Grouped Product Object.
+	 */
+	public function create_product_bundle( $product_obj ) {
+		$product_id     = get_option( 'product_' . $product_obj->id, '' );
+		$child_products = array();
+
+		if ( ! $product_id ) {
+			$product = new WC_Product_Bundle( 0 );
+		} else {
+			$product = wc_get_product( $product_id );
+
+			$last_sync_time = $product->get_meta( 'product_last_synced', true );
+
+			$current_time        = current_time( 'timestamp', true );
+			$fifteen_mins_before = $current_time - ( MINUTE_IN_SECONDS * 15 );
+
+			if ( $last_sync_time > $fifteen_mins_before ) {
+				return $product->get_id();
+			}
+		}
+
+		$product = $this->set_product_common_data( $product, $product_obj );
+
+		foreach ( $product_obj->kitComponents as $key => $value ) {
+			$child_product_id = get_option( 'product_' . $value->id, '' );
+
+			if ( ! $child_product_id ) {
+				$child_product_id = $this->create_product( $value->id );
+
+				if ( $child_product_id ) {
+					$this->updated_products[ $value->id ] = $child_product_id;
+					$child_products[]                     = $child_product_id;
+					$args = array(
+						'product_id'  => $child_product_id,
+						'bundle_id' => $product->get_id(),
+						// 'menu_order' => 0,
+						// 'meta_data'  => array()
+					);
+					$result = WC_PB_DB::add_bundled_item( $args );
+					echo "<pre>";
+					echo "==========1============";
+					var_dump( $result );
+					echo "</pre>";
+				}
+			} else {
+				$child_products[] = $child_product_id;
+				$args = array(
+					'product_id'  => $child_product_id,
+					'bundle_id' => $product->get_id(),
+					// 'menu_order' => 0,
+					// 'meta_data'  => array()
+				);
+				$result = WC_PB_DB::add_bundled_item( $args );
+				echo "<pre>";
+				echo "==========2============";
+				var_dump( $result );
+				echo "</pre>";
+			}
+		}
+
+		// $product->set_children( $child_products );
+		$product->save();
+
+		return $product->get_id();
 	}
 }
 
