@@ -389,7 +389,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$product->set_date_on_sale_to( $end_date );
 		}
 
-		if ( $product->is_type('bundle') ) {
+		if ( $product->is_type( 'bundle' ) ) {
 			$product = $this->setProductAvailability( $product, $product_obj );
 		} elseif ( isset( $product_obj->inventory ) ) {
 			$net_quantity = $product_obj->inventory->netQuantityAvailable;
@@ -456,7 +456,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		update_post_meta( $product_id, '_wc_cog_cost', $product_obj->replacementCost );
 
 		update_option( 'product_' . $product_obj->id, $product_id );
-		
+
 		return $product;
 	}
 
@@ -833,11 +833,13 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				}
 			}
 
-			$product->set_manage_stock( true );
-			$product->set_stock_quantity( $net_quantity );
+			if ( WEWS_MAX_NET_QUANTITY !== $net_quantity ) {
+				$product->set_manage_stock( true );
+				$product->set_stock_quantity( $net_quantity );
 
-			if ( $backorders ) {
-				$product->set_backorders( 'notify' );
+				if ( $backorders ) {
+					$product->set_backorders( 'notify' );
+				}
 			}
 		}
 
