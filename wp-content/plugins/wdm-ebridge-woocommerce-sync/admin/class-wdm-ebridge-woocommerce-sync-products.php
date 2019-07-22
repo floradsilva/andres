@@ -373,12 +373,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		$product->set_regular_price( $product_obj->msrp );
 		$product->set_weight( $product_obj->weight );
 
-		if ( $product_obj->showAvailability ) {
-			$product->set_stock_status( 'instock' );
-		} else {
-			$product->set_stock_status( 'outofstock' );
-		}
-
 		if ( isset( $product_obj->dimension ) ) {
 			$product->set_length( $product_obj->dimension->depth );
 			$product->set_width( $product_obj->dimension->width );
@@ -395,7 +389,9 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$product->set_date_on_sale_to( $end_date );
 		}
 
-		if ( isset( $product_obj->inventory ) ) {
+		if ( $product->is_type('bundle') ) {
+			$product = $this->setProductAvailability( $product, $product_obj );
+		} elseif ( isset( $product_obj->inventory ) ) {
 			$net_quantity = $product_obj->inventory->netQuantityAvailable;
 			$product->set_manage_stock( true );
 			$product->set_stock_quantity( $net_quantity );
@@ -404,7 +400,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				$locations = $product_obj->inventory->locations;
 
 				foreach ( $locations as $key => $location ) {
-					if ( is_numeric( $location->leadDays ) && ( $net_quantity === 0 ) ) {
+					if ( is_numeric( $location->leadDays ) && ( 0 === $net_quantity ) ) {
 						$product->set_backorders( 'notify' );
 					}
 				}
@@ -460,7 +456,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		update_post_meta( $product_id, '_wc_cog_cost', $product_obj->replacementCost );
 
 		update_option( 'product_' . $product_obj->id, $product_id );
-
+		
 		return $product;
 	}
 
@@ -754,31 +750,23 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				if ( $child_product_id ) {
 					$this->updated_products[ $value->id ] = $child_product_id;
 					$child_products[]                     = $child_product_id;
-					$args = array(
-						'product_id'  => $child_product_id,
-						'bundle_id' => $product->get_id(),
+					$args                                 = array(
+						'product_id' => $child_product_id,
+						'bundle_id'  => $product->get_id(),
 						// 'menu_order' => 0,
 						// 'meta_data'  => array()
 					);
 					$result = WC_PB_DB::add_bundled_item( $args );
-					echo "<pre>";
-					echo "==========1============";
-					var_dump( $result );
-					echo "</pre>";
 				}
 			} else {
 				$child_products[] = $child_product_id;
-				$args = array(
-					'product_id'  => $child_product_id,
-					'bundle_id' => $product->get_id(),
+				$args             = array(
+					'product_id' => $child_product_id,
+					'bundle_id'  => $product->get_id(),
 					// 'menu_order' => 0,
 					// 'meta_data'  => array()
 				);
 				$result = WC_PB_DB::add_bundled_item( $args );
-				echo "<pre>";
-				echo "==========2============";
-				var_dump( $result );
-				echo "</pre>";
 			}
 		}
 
@@ -786,6 +774,74 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		$product->save();
 
 		return $product->get_id();
+	}
+
+	public function setProductAvailability( $product, $product_obj ) {
+		if ( isset( $product_obj->kitComponents ) ) {
+			$net_quantity   = WEWS_MAX_NET_QUANTITY;
+			$product_to_set = null;
+			$backorders     = false;
+
+			foreach ( $product_obj->kitComponents as $key => $value ) {
+				$response        = wp_remote_get( $this->api_url . '/' . $this->api_token . '/products/' . $value->id );
+				$kit_product_obj = json_decode( wp_remote_retrieve_body( $response ) );
+
+				if ( ( wp_remote_retrieve_response_code( $response ) == 200 ) && isset( $kit_product_obj->product ) ) {
+					$kit_product_obj = $kit_product_obj->product;
+
+					if ( isset( $kit_product_obj->inventory ) ) {
+						$kit_product_net_quantity = $kit_product_obj->inventory->netQuantityAvailable;
+
+						if ( $kit_product_net_quantity < $net_quantity ) {
+							$net_quantity   = $kit_product_net_quantity;
+							$product_to_set = $kit_product_obj;
+
+							if ( isset( $kit_product_obj->inventory->locations ) ) {
+								$locations = $kit_product_obj->inventory->locations;
+
+								$new_backorders = false;
+								foreach ( $locations as $key => $location ) {
+									if ( is_numeric( $location->leadDays ) && ( $net_quantity === 0 ) ) {
+										// $product->set_backorders( 'notify' );
+										$new_backorders = true;
+									}
+								}
+
+								$backorders = $new_backorders;
+							}
+
+							$product_to_set = $kit_product_obj;
+						} elseif ( $kit_product_net_quantity === $net_quantity ) {
+							if ( isset( $kit_product_obj->inventory->locations ) ) {
+								$locations = $kit_product_obj->inventory->locations;
+
+								$new_backorders = false;
+								foreach ( $locations as $key => $location ) {
+									if ( is_numeric( $location->leadDays ) && ( 0 === $net_quantity ) ) {
+										// $product->set_backorders( 'notify' );
+										$new_backorders = true;
+									}
+								}
+
+								if ( ( $backorders && $new_backorders ) || ( ! isset( $product_to_set ) && $new_backorders ) ) {
+									$backorders     = true;
+									$product_to_set = $kit_product_obj;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			$product->set_manage_stock( true );
+			$product->set_stock_quantity( $net_quantity );
+
+			if ( $backorders ) {
+				$product->set_backorders( 'notify' );
+			}
+		}
+
+		return $product;
 	}
 }
 

@@ -74,9 +74,14 @@ register_deactivation_hook( __FILE__, 'deactivate_wdm_ebridge_woocommerce_sync' 
  */
 require plugin_dir_path( __FILE__ ) . 'includes/class-wdm-ebridge-woocommerce-sync.php';
 
-// Define WC_PLUGIN_FILE.
+// Define WEWS_FETCH_SIZE.
 if ( ! defined( 'WEWS_FETCH_SIZE' ) ) {
 	define( 'WEWS_FETCH_SIZE', 100 );
+}
+
+// Define WEWS_MAX_NET_QUANTITY.
+if ( ! defined( 'WEWS_MAX_NET_QUANTITY' ) ) {
+	define( 'WEWS_MAX_NET_QUANTITY', 100 );
 }
 
 /**
