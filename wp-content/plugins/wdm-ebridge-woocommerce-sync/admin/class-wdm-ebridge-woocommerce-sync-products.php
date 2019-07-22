@@ -750,24 +750,20 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				if ( $child_product_id ) {
 					$this->updated_products[ $value->id ] = $child_product_id;
 					$child_products[]                     = $child_product_id;
-					$args                                 = array(
-						'product_id' => $child_product_id,
-						'bundle_id'  => $product->get_id(),
-						// 'menu_order' => 0,
-						// 'meta_data'  => array()
-					);
-					$result = WC_PB_DB::add_bundled_item( $args );
 				}
 			} else {
 				$child_products[] = $child_product_id;
-				$args             = array(
-					'product_id' => $child_product_id,
-					'bundle_id'  => $product->get_id(),
-					// 'menu_order' => 0,
-					// 'meta_data'  => array()
-				);
-				$result = WC_PB_DB::add_bundled_item( $args );
 			}
+
+			$args = array(
+				'product_id'    => $child_product_id,
+				'bundle_id'     => $product->get_id(),
+				'quantity_min'  => $value->quantity,
+				'quantity_max'  => $value->quantity,
+				// 'menu_order' => 0,
+				// 'meta_data'  => array()
+			);
+			$result = WC_PB_DB::add_bundled_item( $args );
 		}
 
 		// $product->set_children( $child_products );
