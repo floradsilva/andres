@@ -833,12 +833,26 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				}
 			}
 
-			if ( WEWS_MAX_NET_QUANTITY !== $net_quantity ) {
+			if ( ( WEWS_MAX_NET_QUANTITY > $net_quantity )  && ( isset( $product_to_set ) && ( $net_quantity <= $product_obj->inventory->netQuantityAvailable ) ) ) {
 				$product->set_manage_stock( true );
 				$product->set_stock_quantity( $net_quantity );
 
 				if ( $backorders ) {
 					$product->set_backorders( 'notify' );
+				}
+			} else {
+				$net_quantity = $product_obj->inventory->netQuantityAvailable;
+				$product->set_manage_stock( true );
+				$product->set_stock_quantity( $net_quantity );
+
+				if ( isset( $product_obj->inventory->locations ) ) {
+					$locations = $product_obj->inventory->locations;
+
+					foreach ( $locations as $key => $location ) {
+						if ( is_numeric( $location->leadDays ) && ( 0 === $net_quantity ) ) {
+							$product->set_backorders( 'notify' );
+						}
+					}
 				}
 			}
 		}
