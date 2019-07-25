@@ -169,11 +169,11 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 	 * @param      string $id       The Ebridge Product Id.
 	 */
 	public function create_product( $id ) {
-		// if ( get_transient( 'product_' . $id . '_' ) ) {
-		// 	return true;
-		// } else {
-		// 	set_transient( 'product_' . $id . '_', $id, 30 * MINUTE_IN_SECONDS );
-		// }
+		if ( get_transient( 'product_' . $id . '_' ) ) {
+			return true;
+		} else {
+			set_transient( 'product_' . $id . '_', $id, 30 * MINUTE_IN_SECONDS );
+		}
 
 		$response = wp_remote_get( $this->api_url . '/' . $this->api_token . '/products/' . $id, $this->curl_args );
 		$product  = json_decode( wp_remote_retrieve_body( $response ) );
@@ -751,8 +751,14 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			}
 		}
 
-		$product = $this->set_product_common_data( $product, $product_obj );
+		$current_child_product_ids = $product->get_bundled_item_ids();
 
+		foreach ( $current_child_product_ids as $key => $current_child_product_id ) {
+			$current_child_product = new WC_Bundled_Item_Data( $current_child_product_id );
+			$current_child_product->delete();
+		}
+
+		$product = $this->set_product_common_data( $product, $product_obj );
 
 		foreach ( $product_obj->kitComponents as $key => $value ) {
 			$child_product_id = get_option( 'product_' . $value->id, '' );
@@ -776,7 +782,11 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				// 'menu_order' => 0,
 				// 'meta_data'  => array()
 			);
+
 			$result = WC_PB_DB::add_bundled_item( $args );
+			$item = new WC_Bundled_Item_Data( $result );
+			$item->update_meta( 'single_product_visibility', 'hidden');
+			$item->save();
 		}
 
 		// $product->set_children( $child_products );
