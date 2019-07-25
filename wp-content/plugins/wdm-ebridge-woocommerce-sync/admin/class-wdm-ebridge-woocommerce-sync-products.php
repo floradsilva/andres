@@ -79,6 +79,9 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 	public function __construct() {
 		$this->api_url   = get_option( 'ebridge_sync_api_url', '' );
 		$this->api_token = get_option( 'ebridge_sync_api_token', '' );
+		$this->curl_args = array(
+			'timeout'     => 6000,
+		);
 	}
 
 
@@ -110,7 +113,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 			// $url = $this->api_url . '/' . $this->api_token . '/productsync?returnMode=2';
 			// echo $url;
-			$response = wp_remote_get( $url );
+			$response = wp_remote_get( $url, $this->curl_args );
 			$products = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
@@ -166,13 +169,13 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 	 * @param      string $id       The Ebridge Product Id.
 	 */
 	public function create_product( $id ) {
-		if ( get_transient( 'product_' . $id . '_' ) ) {
-			return true;
-		} else {
-			set_transient( 'product_' . $id . '_', $id, 30 * MINUTE_IN_SECONDS );
-		}
+		// if ( get_transient( 'product_' . $id . '_' ) ) {
+		// 	return true;
+		// } else {
+		// 	set_transient( 'product_' . $id . '_', $id, 30 * MINUTE_IN_SECONDS );
+		// }
 
-		$response = wp_remote_get( $this->api_url . '/' . $this->api_token . '/products/' . $id );
+		$response = wp_remote_get( $this->api_url . '/' . $this->api_token . '/products/' . $id, $this->curl_args );
 		$product  = json_decode( wp_remote_retrieve_body( $response ) );
 
 		if ( ( wp_remote_retrieve_response_code( $response ) == 200 ) && isset( $product->product ) ) {
@@ -427,21 +430,28 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 		wp_set_post_terms( $product_id, $this->brand_to_set( $product_obj->brandId, $product_obj->brandDescription ), 'brand' );
 
-		if ( $product_obj->availableOnWeb ) {
-			wp_update_post(
-				array(
-					'ID'          => $product_id,
-					'post_status' => 'publish',
-				)
-			);
-		} else {
-			wp_update_post(
-				array(
-					'ID'          => $product_id,
-					'post_status' => 'private',
-				)
-			);
-		}
+		// if ( $product_obj->availableOnWeb ) {
+		// 	wp_update_post(
+		// 		array(
+		// 			'ID'          => $product_id,
+		// 			'post_status' => 'publish',
+		// 		)
+		// 	);
+		// } else {
+		// 	wp_update_post(
+		// 		array(
+		// 			'ID'          => $product_id,
+		// 			'post_status' => 'private',
+		// 		)
+		// 	);
+		// }
+
+		wp_update_post(
+			array(
+				'ID'          => $product_id,
+				'post_status' => 'publish',
+			)
+		);
 
 		// Meta data for Yoast Plugin.
 		if ( isset( $product_obj->seo ) ) {
@@ -472,7 +482,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 		if ( $api_url && $api_token ) {
 			$url      = $api_url . '/' . $api_token . '/productsync?returnMode=2';
-			$response = wp_remote_get( $url );
+			$response = wp_remote_get( $url, $this->curl_args );
 			$products = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
@@ -507,7 +517,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				$url = $api_url . '/' . $api_token . '/productsync?returnMode=2';
 			}
 
-			$response = wp_remote_get( $url );
+			$response = wp_remote_get( $url, $this->curl_args );
 			$products = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
@@ -535,7 +545,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 		if ( $api_url && $api_token ) {
 			$url         = $api_url . '/' . $api_token . '/productsync?returnMode=2';
-			$response    = wp_remote_get( $url );
+			$response    = wp_remote_get( $url, $this->curl_args );
 			$product_ids = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
@@ -607,7 +617,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				$url = $api_url . '/' . $api_token . '/productsync?returnMode=2';
 			}
 
-			$response    = wp_remote_get( $url );
+			$response    = wp_remote_get( $url, $this->curl_args );
 			$product_ids = json_decode( wp_remote_retrieve_body( $response ) );
 
 			if ( wp_remote_retrieve_response_code( $response ) == 200 ) {
@@ -728,6 +738,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$product = new WC_Product_Bundle( 0 );
 		} else {
 			$product = wc_get_product( $product_id );
+			
+			$current_child_products = wc_pb_get_bundled_product_map( $product );
 
 			$last_sync_time = $product->get_meta( 'product_last_synced', true );
 
@@ -740,6 +752,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		}
 
 		$product = $this->set_product_common_data( $product, $product_obj );
+
 
 		foreach ( $product_obj->kitComponents as $key => $value ) {
 			$child_product_id = get_option( 'product_' . $value->id, '' );
@@ -779,7 +792,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$backorders     = false;
 
 			foreach ( $product_obj->kitComponents as $key => $value ) {
-				$response        = wp_remote_get( $this->api_url . '/' . $this->api_token . '/products/' . $value->id );
+				$response        = wp_remote_get( $this->api_url . '/' . $this->api_token . '/products/' . $value->id, $this->curl_args );
 				$kit_product_obj = json_decode( wp_remote_retrieve_body( $response ) );
 
 				if ( ( wp_remote_retrieve_response_code( $response ) == 200 ) && isset( $kit_product_obj->product ) ) {
@@ -836,21 +849,22 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				if ( $backorders ) {
 					$product->set_backorders( 'notify' );
 				}
-			} else {
-				$net_quantity = $product_obj->inventory->netQuantityAvailable;
-				$product->set_manage_stock( true );
-				$product->set_stock_quantity( $net_quantity );
-
-				if ( isset( $product_obj->inventory->locations ) ) {
-					$locations = $product_obj->inventory->locations;
-
-					foreach ( $locations as $key => $location ) {
-						if ( is_numeric( $location->leadDays ) && ( 0 === $net_quantity ) ) {
-							$product->set_backorders( 'notify' );
-						}
-					}
-				}
 			}
+			// else {
+			// 	$net_quantity = $product_obj->inventory->netQuantityAvailable;
+			// 	$product->set_manage_stock( true );
+			// 	$product->set_stock_quantity( $net_quantity );
+
+			// 	if ( isset( $product_obj->inventory->locations ) ) {
+			// 		$locations = $product_obj->inventory->locations;
+
+			// 		foreach ( $locations as $key => $location ) {
+			// 			if ( is_numeric( $location->leadDays ) && ( 0 === $net_quantity ) ) {
+			// 				$product->set_backorders( 'notify' );
+			// 			}
+			// 		}
+			// 	}
+			// }
 		}
 
 		return $product;
