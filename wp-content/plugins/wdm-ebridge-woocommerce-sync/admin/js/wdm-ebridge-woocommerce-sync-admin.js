@@ -207,7 +207,7 @@
 															if ( total_updated === (update_ids.length - 1) ) {
 																$( '.loader-container' ).remove();
 																$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
-																$( '#message-brief' ).append( wews.update_complete + '<br />' );
+																$( '#message-brief' ).append( '<br />' + wews.update_complete + '<br />' );
 															}
 														}
 													}

@@ -80,7 +80,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		$this->api_url   = get_option( 'ebridge_sync_api_url', '' );
 		$this->api_token = get_option( 'ebridge_sync_api_token', '' );
 		$this->curl_args = array(
-			'timeout'     => 6000,
+			'timeout' => 6000,
 		);
 	}
 
@@ -106,7 +106,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 					'beginTime'               => $last_updated_time,
 					'webServerTimeZoneOffset' => $web_server_time_zone_offset,
 				);
-				$url  = 'https://ebridge.storis.com/lrelease/2.0.26.26UNDERPRICED/storisapiv3.svc/restssl/gF-2FGRXhkmMCmn9nU49-2FI-2FJixjoQ9ixf-2BIlwmdklJpPY-3D/productsync?beginDate=' . $last_updated_date . '&beginTime=' . $last_updated_time . '&webServerTimeZoneOffset=' . $web_server_time_zone_offset;
+				$url  = $this->api_url . '/' . $this->api_token . '/productsync?beginDate=' . $last_updated_date . '&beginTime=' . $last_updated_time . '&webServerTimeZoneOffset=' . $web_server_time_zone_offset;
 			} else {
 				$url = $this->api_url . '/' . $this->api_token . '/productsync?returnMode=2';
 			}
@@ -393,7 +393,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		}
 
 		if ( $product->is_type( 'bundle' ) ) {
-			$product = $this->setProductAvailability( $product, $product_obj );
+			$product = $this->set_product_availability( $product, $product_obj );
 		} elseif ( isset( $product_obj->inventory ) ) {
 			$net_quantity = $product_obj->inventory->netQuantityAvailable;
 			$product->set_manage_stock( true );
@@ -431,19 +431,19 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		wp_set_post_terms( $product_id, $this->brand_to_set( $product_obj->brandId, $product_obj->brandDescription ), 'brand' );
 
 		// if ( $product_obj->availableOnWeb ) {
-		// 	wp_update_post(
-		// 		array(
-		// 			'ID'          => $product_id,
-		// 			'post_status' => 'publish',
-		// 		)
-		// 	);
+		// wp_update_post(
+		// array(
+		// 'ID'          => $product_id,
+		// 'post_status' => 'publish',
+		// )
+		// );
 		// } else {
-		// 	wp_update_post(
-		// 		array(
-		// 			'ID'          => $product_id,
-		// 			'post_status' => 'private',
-		// 		)
-		// 	);
+		// wp_update_post(
+		// array(
+		// 'ID'          => $product_id,
+		// 'post_status' => 'private',
+		// )
+		// );
 		// }
 
 		wp_update_post(
@@ -738,7 +738,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$product = new WC_Product_Bundle( 0 );
 		} else {
 			$product = wc_get_product( $product_id );
-			
+
 			$current_child_products = wc_pb_get_bundled_product_map( $product );
 
 			$last_sync_time = $product->get_meta( 'product_last_synced', true );
@@ -775,17 +775,17 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			}
 
 			$args = array(
-				'product_id'    => $child_product_id,
-				'bundle_id'     => $product->get_id(),
-				'quantity_min'  => $value->quantity,
-				'quantity_max'  => $value->quantity,
+				'product_id'   => $child_product_id,
+				'bundle_id'    => $product->get_id(),
+				'quantity_min' => $value->quantity,
+				'quantity_max' => $value->quantity,
 				// 'menu_order' => 0,
 				// 'meta_data'  => array()
 			);
 
 			$result = WC_PB_DB::add_bundled_item( $args );
-			$item = new WC_Bundled_Item_Data( $result );
-			$item->update_meta( 'single_product_visibility', 'hidden');
+			$item   = new WC_Bundled_Item_Data( $result );
+			$item->update_meta( 'single_product_visibility', 'hidden' );
 			$item->save();
 		}
 
@@ -795,7 +795,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		return $product->get_id();
 	}
 
-	public function setProductAvailability( $product, $product_obj ) {
+	public function set_product_availability( $product, $product_obj ) {
 		if ( isset( $product_obj->kitComponents ) ) {
 			$net_quantity   = WEWS_MAX_NET_QUANTITY;
 			$product_to_set = null;
@@ -852,7 +852,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				}
 			}
 
-			if ( ( WEWS_MAX_NET_QUANTITY > $net_quantity )  && ( isset( $product_to_set ) && ( $net_quantity <= $product_obj->inventory->netQuantityAvailable ) ) ) {
+			if ( ( WEWS_MAX_NET_QUANTITY > $net_quantity ) && ( isset( $product_to_set ) && ( $net_quantity <= $product_obj->inventory->netQuantityAvailable ) ) ) {
 				$product->set_manage_stock( true );
 				$product->set_stock_quantity( $net_quantity );
 
@@ -861,19 +861,19 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				}
 			}
 			// else {
-			// 	$net_quantity = $product_obj->inventory->netQuantityAvailable;
-			// 	$product->set_manage_stock( true );
-			// 	$product->set_stock_quantity( $net_quantity );
+			// $net_quantity = $product_obj->inventory->netQuantityAvailable;
+			// $product->set_manage_stock( true );
+			// $product->set_stock_quantity( $net_quantity );
 
-			// 	if ( isset( $product_obj->inventory->locations ) ) {
-			// 		$locations = $product_obj->inventory->locations;
+			// if ( isset( $product_obj->inventory->locations ) ) {
+			// $locations = $product_obj->inventory->locations;
 
-			// 		foreach ( $locations as $key => $location ) {
-			// 			if ( is_numeric( $location->leadDays ) && ( 0 === $net_quantity ) ) {
-			// 				$product->set_backorders( 'notify' );
-			// 			}
-			// 		}
-			// 	}
+			// foreach ( $locations as $key => $location ) {
+			// if ( is_numeric( $location->leadDays ) && ( 0 === $net_quantity ) ) {
+			// $product->set_backorders( 'notify' );
+			// }
+			// }
+			// }
 			// }
 		}
 

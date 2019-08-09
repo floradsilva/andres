@@ -121,7 +121,6 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/pages/class-wdm-ebridge-woocommerce-sync-settings.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/pages/class-wdm-ebridge-woocommerce-sync-product-sync.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wdm-ebridge-woocommerce-sync-products.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wdm-ebridge-woocommerce-sync-orders.php';
 
 		/**
@@ -129,6 +128,12 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		 * side of the site.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-wdm-ebridge-woocommerce-sync-public.php';
+
+		/**
+		 * These classes are the helper classes.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wdm-ebridge-woocommerce-sync-products.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wdm-ebridge-sync-customer.php';
 
 		$this->loader = new Wdm_Ebridge_Woocommerce_Sync_Loader();
 
@@ -183,8 +188,7 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		$this->loader->add_action( 'wp_ajax_delete_product', $plugin_admin_product_sync, 'delete_product' );
 		$this->loader->add_filter( 'bulk_actions-edit-product', $plugin_admin_product_sync, 'register_sync_products_bulk_action' );
 		$this->loader->add_filter( 'handle_bulk_actions-edit-product', $plugin_admin_product_sync, 'sync_products_bulk_action_handler', 10, 3 );
-		$this->loader->add_action( 'woocommerce_checkout_create_order', $plugin_admin_order_sync, 'product_availability', 10, 2 );
-
+		$this->loader->add_action( 'woocommerce_checkout_create_order', $plugin_admin_order_sync, 'wews_create_order', 10, 2 );
 	}
 
 	/**
