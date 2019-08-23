@@ -1,0 +1,26 @@
+/* Social Icons - styles moved into trx_addons.front to share them with theme */
+.sc_socials {
+	position: relative;	
+	padding-top: 0.1px;
+}
+.socials_wrap {
+	display:block;
+	vertical-align:middle;
+	white-space:nowrap;
+	margin:-10px -10px 0 0;
+}
+.socials_wrap .social_item {
+	display: inline-block;
+	margin: 10px 10px 0 0;
+}
+.socials_wrap .social_item a {
+	display: block;
+	width: 3.5em;
+	height: 3.5em;
+	line-height:3.5em;
+	text-align:center;
+	-webkit-border-radius: 50%;
+	   -moz-border-radius: 50%;
+	    -ms-border-radius: 50%;
+			border-radius: 50%;
+}

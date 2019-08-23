@@ -1,0 +1,1 @@
+<?php/** * Product indexing, caching & searching features concept is taken from open source 'Advanced Woo Search' Wp plugin by ILLID. *///include_once( 'includes/class-woowbot-cache.php' );include_once( 'includes/class-woowbot-table.php' );include_once( 'includes/class-woowbot-search.php' );

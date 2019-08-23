@@ -1,0 +1,1173 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Coming Soon and Maintenance Mode\n"
+"POT-Creation-Date: 2015-02-26 14:20+0300\n"
+"PO-Revision-Date: 2015-02-26 14:20+0300\n"
+"Last-Translator: \n"
+"Language-Team: Ivan Churakov\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.7\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: c:\\WebServers\\home\\test1.ru\\www\\wp01\\wp-content"
+"\\plugins\\cs-mm\n"
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:27
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:271
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:272
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1679
+msgid "Coming Soon"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:29
+msgid "Expect something fresh and interesting."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:53
+msgid "Your e-mail address..."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:60
+msgid "Subscribe"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:65
+msgid "Thank you. We will let you know when we are ready."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:66
+msgid "Invalid e-mail address!"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:178
+msgid "Logo URL must be a valid URL"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:181
+msgid "Logo width must be a valid integer value"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:183
+msgid "Text color must be a valid value"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:184
+msgid "Text shadow color must be a valid value"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:185
+msgid "Social icons color must be a valid value"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:186
+msgid "Social icons hover color must be a valid value"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:187
+msgid "Social icons shadow color must be a valid value"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:188
+msgid "Background color of the input field must be a valid value"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:189
+msgid "Text color of the input field must be a valid value"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:190
+msgid "Text shadow color of the input field must be a valid value"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:191
+msgid "Opacity of the input field must be in a range [0...1]"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:192
+msgid "Background color of the button must be a valid value"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:193
+msgid "Text color of the button must be a valid value"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:194
+msgid "Text shadow color of the button must be a valid value"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:195
+msgid "Opacity of the button must be in a range [0...1]"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:196
+msgid "Input placeholder can not be empty"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:197
+msgid "Button label can not be empty"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:198
+msgid "Confirmation message can not be empty"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:199
+msgid "Error message can not be empty"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:200
+msgid "Background color of the digit must be a valid value"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:201
+msgid "Text color of the digit must be a valid value"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:202
+msgid "Text shadow color of the digit must be a valid value"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:203
+msgid "Opacity of the digit box must be in a range [0...1]"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:205
+msgid "Invalid font size of title."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:206
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:210
+msgid "Invalid font size of short description."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:207
+msgid "Invalid font size of copyright message."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:208
+msgid "Invalid font size of opt-in form."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:209
+msgid "Invalid font size of opt-in form message."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:211
+msgid "Invalid social link size."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:218
+msgid "Background image URL must be a valid URL"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:221
+msgid "Slide duration must be a valid integer value"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:223
+msgid "Slide duration must be 2 seconds or longer"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:226
+msgid "Invalid expiration date/time"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:238
+msgid "Social link must be valid URL"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:241
+msgid "Invalid MailChimp API Key"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:242
+msgid "Invalid MailChimp List ID"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:245
+msgid "Invalid iContact App ID"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:246
+msgid "Invalid iContact API Username"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:247
+msgid "Invalid iContact API Password"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:248
+msgid "Invalid iContact List ID"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:251
+msgid "Invalid Campaign Monitor API Key"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:252
+msgid "Invalid Campaign Monitor List ID"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:255
+msgid "Invalid GetResponse API Key"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:256
+msgid "Invalid GetResponse Campaign ID"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:259
+msgid "Invalid AWeber Connection"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:260
+msgid "Invalid AWeber List ID"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:263
+msgid "Invalid MyMail List ID"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:279
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:280
+msgid "Settings"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:287
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:288
+msgid "Subscribers"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:314
+msgid "The following error(s) exists:"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:321
+msgid "Coming Soon and Maintenance Mode - Settings"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:328
+msgid "General Settings"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:332
+msgid "Status"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:335
+msgid "Maintenace Mode Enabled"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:336
+msgid "Turn Live Mode"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:337
+msgid "Press button to switch website into live mode."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:340
+msgid "Live Mode Enabled"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:341
+msgid "Turn Maintenace Mode"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:342
+msgid ""
+"Press button to switch website into maintenance mode. Website will be "
+"available only for administrators."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:348
+msgid "Page title"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:351
+msgid "The title appears at the top of the page."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:355
+msgid "Font size of page title"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:357
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:371
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:385
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:399
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:512
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:591
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:676
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:697
+msgid "pixels"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:358
+msgid "The font size of the title."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:362
+msgid "Short description"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:365
+msgid "Description appears below the title."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:369
+msgid "Font size of description"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:372
+msgid "The font size of the description."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:376
+msgid "Copyright message"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:379
+msgid "This is a small text line at the bottom of the page."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:383
+msgid "Font size of copyright message"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:386
+msgid "The font size of the copyright message."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:390
+msgid "Logo URL"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:393
+msgid "The logo appears at the top of the page."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:397
+msgid "Logo width"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:400
+msgid "This is a logo width."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:404
+msgid "Text color"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:407
+msgid "Set text color."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:411
+msgid "Text shadow color"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:414
+msgid "Set text shadow color."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:419
+msgid "Background images"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:427
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:434
+msgid "Remove URL"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:427
+msgid "Background image URL"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:438
+msgid "Add Background Image"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:445
+msgid "Slide duration"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:447
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1744
+msgid "seconds"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:448
+msgid "Slide duration."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:453
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:455
+msgid "Enable countdown"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:456
+msgid "Tick checkbox to activate countdown."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:460
+msgid "Expiration date/time"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:478
+msgid ""
+"Enter expiration date. Countdown will be automatically disabled if "
+"expiration date is in the past. Important! This is server time."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:482
+msgid "Digit background color"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:485
+msgid "Set the background color of the digit."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:489
+msgid "Digit background opacity"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:492
+msgid "Set the background opacity of the digit."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:496
+msgid "Digit color"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:499
+msgid "Set the color of the digit."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:503
+msgid "Digit shadow color"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:506
+msgid "Set the shadow color of the digit."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:510
+msgid "Font size of digits"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:513
+msgid "The font size of digits."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:518
+msgid "Social links"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:530
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:549
+msgid "Remove Icon"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:561
+msgid "Add Social Icon"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:568
+msgid "Icon color"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:571
+msgid "Set social icon color."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:575
+msgid "Icon hover color"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:578
+msgid "Set social icon hover color."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:582
+msgid "Icon shadow color"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:585
+msgid "Set social icon shadow color."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:589
+msgid "Social link size"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:592
+msgid "The font size of social icons."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:597
+msgid "Opt-in form"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:599
+msgid "Enable opt-in form"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:600
+msgid "Tick checkbox to activate opt-in form."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:604
+msgid "Input field placeholder"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:607
+msgid "Set the placeholder of the input field."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:611
+msgid "Input field color"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:614
+msgid "Set the color of the input field."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:618
+msgid "Input field opacity"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:621
+msgid "Set the opacity of the input field."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:625
+msgid "Input field text color"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:628
+msgid "Set the text color of the input field."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:632
+msgid "Input field text shadow color"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:635
+msgid "Set the text shadow color of the input field."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:639
+msgid "Button label"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:642
+msgid "Set the label of the button."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:646
+msgid "Button color"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:649
+msgid "Set the color of the button."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:653
+msgid "Button opacity"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:656
+msgid "Set the opacity of the button."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:660
+msgid "Button text color"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:663
+msgid "Set the text color of the button."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:667
+msgid "Button text shadow color"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:670
+msgid "Set the text shadow color of the button."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:674
+msgid "Font size of opt-in form"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:677
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:698
+msgid "The font size of the opt-in form."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:681
+msgid "Confirmation message"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:684
+msgid "This message appears after successful subscription."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:688
+msgid "Error message"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:691
+msgid "This message appears user submitted invalid e-mail address."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:695
+msgid "Font size of message"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:703
+msgid "CSV column separator"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:706
+msgid "Semicolon - \";\""
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:707
+msgid "Comma - \",\""
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:708
+msgid "Tab"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:710
+msgid "Select CSV column separator."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:715
+msgid "White IP-addresses"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:718
+msgid ""
+"Maintenance mode will never be enabled for these IP-addresses. "
+"<strong>Important! One IP per line.</strong>"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:722
+msgid "White user roles"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:735
+msgid "Maintenance mode will never be enabled for these user roles!"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:742
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:787
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:839
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:870
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:901
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:978
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1036
+msgid "Update Settings"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:747
+msgid "MailChimp Settings"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:751
+msgid "Enable MailChimp"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:753
+msgid "Submit contact details to MailChimp"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:754
+msgid ""
+"Please tick checkbox if you want to submit contact details to MailChimp. "
+"<strong>CURL required!</strong>"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:758
+msgid "MailChimp API Key:"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:761
+msgid ""
+"Enter your MailChimp API Key. You can get it <a href=\"https://admin."
+"mailchimp.com/account/api-key-popup\" target=\"_blank\">here</a>."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:765
+msgid "List ID:"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:768
+msgid ""
+"Enter your List ID. You can get it <a href=\"https://admin.mailchimp.com/"
+"lists/\" target=\"_blank\">here</a> (click <strong>Settings</strong>)."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:772
+msgid "Double opt-in"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:774
+msgid "Ask users to confirm their subscription"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:775
+msgid "Control whether a double opt-in confirmation message is sent."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:779
+msgid "Send Welcome"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:781
+msgid "Send Lists Welcome message"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:782
+msgid ""
+"If your <strong>Double opt-in</strong> is disabled and this is enabled, "
+"MailChimp will send your lists Welcome Email if this subscribe succeeds. If "
+"<strong>Double opt-in</strong> is enabled, this has no effect."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:792
+msgid "iContact Settings"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:796
+msgid "Enable iContact"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:798
+msgid "Submit contact details to iContact"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:799
+msgid ""
+"Please tick checkbox if you want to submit contact details to iContact. "
+"<strong>CURL required!</strong>"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:803
+msgid "AppID"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:806
+msgid ""
+"Obtained when you <a href=\"http://developer.icontact.com/documentation/"
+"register-your-app/\" target=\"_blank\">Register the API application</a>. "
+"This identifier is used to uniquely identify your application."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:810
+msgid "API Username"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:813
+msgid "The iContact username for logging into your iContact account."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:817
+msgid "API Password"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:820
+msgid ""
+"The API application password set when the application was registered. This "
+"API password is used as input when your application authenticates to the "
+"API. This password is not the same as the password you use to log in to "
+"iContact."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:824
+msgid "Validate"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:826
+msgid "Validate parameters"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:827
+msgid "Click this button to make sure that entered values are valid."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:831
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:893
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:958
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1011
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1246
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1599
+msgid "List ID"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:834
+msgid "Enter your List ID. You can get List ID from"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:834
+msgid "Available Lists"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:834
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:865
+msgid "this table"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:844
+msgid "GetResponse Details"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:848
+msgid "Enable GetResponse"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:850
+msgid "Submit contact details to GetResponse"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:851
+msgid ""
+"Please tick checkbox if you want to submit contact details to GetResponse. "
+"<strong>CURL required!</strong>"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:855
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:886
+msgid "API Key"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:858
+msgid ""
+"Enter your GetResponse API Key. You can get your API Key <a href=\"https://"
+"app.getresponse.com/my_api_key.html\" target=\"_blank\">here</a>."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:862
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1564
+msgid "Campaign ID"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:865
+msgid "Enter your Campaign ID. You can get Campaign ID from"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:865
+msgid "Available Campaigns"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:875
+msgid "Campaign Monitor Details"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:879
+msgid "Enable Campaign Monitor"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:881
+msgid "Submit contact details to Campaign Monitor"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:882
+msgid ""
+"Please tick checkbox if you want to submit contact details to Campaign "
+"Monitor. <strong>CURL required!</strong>"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:889
+msgid ""
+"Enter your Campaign Monitor API Key. You can get your API Key from the "
+"Account Settings page when logged into your Campaign Monitor account."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:896
+msgid ""
+"Enter your List ID. You can get List ID from the list editor page when "
+"logged into your Campaign Monitor account."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:906
+msgid "AWeber Settings"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:910
+msgid "Enable AWeber"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:912
+msgid "Submit contact details to AWeber"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:913
+msgid "Please tick checkbox if you want to submit contact details to AWeber."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:932
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1278
+msgid "Authorization code"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:935
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1281
+msgid "here"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:941
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1287
+msgid "Make Connection"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:950
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1238
+msgid "Connected"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:952
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1240
+msgid "Disconnect"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:954
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1242
+msgid "Click the button to disconnect."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:961
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1249
+msgid "--- Select List ID ---"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:969
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1022
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1257
+msgid "Select your List ID."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:985
+msgid "MyMail Settings"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:998
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1004
+msgid "Enable MyMail"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:999
+msgid "Please"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:999
+msgid "create"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:999
+msgid "at least one list."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1006
+msgid "Submit contact details to MyMail"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1007
+msgid "Please tick checkbox if you want to submit contact details to MyMail."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1026
+msgid "Double Opt-In"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1028
+msgid "Enable Double Opt-In"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1029
+msgid "Please tick checkbox if you want to enable double opt-in feature."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1193
+msgid "Authorization Code not found."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1214
+msgid "Invalid Authorization Code!"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1224
+msgid "Can not access AWeber account!"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1321
+msgid "Coming Soon and Maintenance Mode - Users"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1325
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1326
+msgid "Search"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1327
+msgid "Reset search results"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1329
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1356
+msgid "CSV Export"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1333
+msgid "E-mail"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1334
+msgid "Registered"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1344
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1361
+msgid "Delete record"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1350
+msgid "No results found for"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1350
+msgid "List is empty."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1355
+msgid "Delete All"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1360
+msgid "Legend:"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1366
+msgid "Do you really want to continue?"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1449
+msgid "Settings successfully <strong>updated</strong>."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1469
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1506
+msgid "Record successfully <strong>deleted</strong>."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1472
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1509
+msgid "Service is <strong>not available</strong>."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1499
+msgid "<strong>No records</strong> found."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1546
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1548
+msgid "API call failed."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1552
+msgid "API Key failed"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1559
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1594
+msgid "GetResponse Campaigns"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1565
+msgid "Campaign Name"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1578
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1579
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1613
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1614
+msgid "No data found!"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1600
+msgid "List Title"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1638
+msgid ""
+"<strong>Coming Soon</strong> plugin almost ready. You must do some <a href="
+"\"admin.php?page=csmm\">settings</a> for it to work."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1645
+msgid ""
+"Website is in maintenance mode and visible only for administrators, "
+"whitelisted IPs and roles."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1646
+msgid "Others see it like that"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1680
+msgid "Coming Soon page"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1729
+msgid "days"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1734
+msgid "hours"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1739
+msgid "minutes"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1762
+msgid "Subscribe to get notified when we are ready."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:1984
+msgid "Subscription temporarily closed."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:2007
+msgid "Account not found."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:2009
+msgid "Your account has been disabled."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:2017
+msgid "No client folders were found for this account."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:2019
+msgid "Parameters validated!"
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:2086
+msgid "Unable to execute the cURL handle."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:2089
+msgid "The iContact API did not return valid JSON."
+msgstr ""
+
+#: c:\WebServers\home\test1.ru\www\wp01\wp-content\plugins\cs-mm/coming-soon.php:2109
+msgid "Pages"
+msgstr ""

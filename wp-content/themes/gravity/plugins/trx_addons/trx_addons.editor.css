@@ -1,0 +1,132 @@
+/* Tooltips */
+.trx_addons_tooltip {
+	border-bottom-style: solid;
+}
+.trx_addons_tooltip:before {
+	font-size:1em;
+	line-height:1.3em;
+	padding: 0.6em 1em;
+	-webkit-transform:translateX(-50%);
+	   -moz-transform:translateX(-50%);
+	    -ms-transform:translateX(-50%);
+	        transform:translateX(-50%);
+	-webkit-border-radius: 0 !important;
+	   -moz-border-radius: 0 !important;
+			border-radius: 0 !important;
+}
+.trx_addons_tooltip:after {
+	margin-bottom:-8px;
+	-webkit-transform:none;
+	   -moz-transform:none;
+	    -ms-transform:none;
+	        transform:none;
+}
+
+
+/* Dropcaps */
+.trx_addons_dropcap.trx_addons_dropcap_style_2 {
+	font-size: 5rem;
+	font-weight: 400;
+	width: auto;
+	height: auto;
+	line-height: 0.9;
+	margin: 0 0.3em 0 0;
+}
+.trx_addons_dropcap {
+	font-size: 3.571rem;
+	font-weight: 400;
+	line-height: 1.33em;
+	text-transform: uppercase;
+	padding: 0;
+	margin: 0.1em 0.6em 0 0;
+	width: 1.4em;
+	height: 1.4em;
+	-webkit-border-radius: 0;
+	   -moz-border-radius: 0;
+			border-radius: 0;
+}
+
+/* Tiny text */
+.trx_addons_tiny_text {
+	letter-spacing: 0;
+	font-size: 0.929rem;
+	font-weight: 700;
+	line-height: 2.143rem;
+	text-transform: uppercase;
+}
+
+/* Lists */
+ol.trx_addons_list li,
+ul.trx_addons_list li {
+	list-style: none;
+}
+.trx_addons_list_parameters > li > strong,
+.trx_addons_list_parameters > li > em {
+	color:inherit;
+}
+.trx_addons_list_parameters > li > em {
+	font-family:inherit;
+}
+ul.trx_addons_list_success {
+	padding-left: 1.1em;
+}
+ul[class*="trx_addons_list_success"] > li:before {
+	font-family: 'fontello';
+	content: '\e920';
+	font-size: 2em;
+	top: -1px;
+}
+ul[class*="trx_addons_list"] > li + li {
+	margin-top: 0.435em;
+}
+ul[class*="trx_addons_list_custom"] > li:before {
+	font-size: 1.3em;
+	left: -0.8em;
+}
+ol{
+	padding-left: 2.5em;
+
+}
+ol.trx_addons_list_nums{
+	counter-reset: num;
+}
+ol > li{
+	padding-left: 0.5em;
+	position: relative;
+}
+ol > li + li {
+	margin-top: 0.435em;
+}
+ol.trx_addons_list_nums > li:before {
+	counter-increment: num;
+	content: counter(num)'.';
+	display: inline-block;
+	text-align: center;
+	position: absolute;
+	font-weight: 400;
+	left: -1em;
+}
+
+ol.trx_addons_list_parameters {
+	margin-top: 3.35rem;
+	margin-bottom: 3.4rem;
+	padding-left: 0.9rem;
+}
+ol.trx_addons_list_parameters > li:before {
+	width: 2.786rem;
+	height: 2.786rem;
+	line-height: 2.786rem;
+	text-align: center;
+	top: 0.25rem;
+	content: counter(num);
+}
+.trx_addons_list_parameters > li {
+	padding-left: 2.9rem;
+	line-height: 3.2rem;
+}
+.trx_addons_list_parameters > li {
+	white-space: normal;
+}
+.vc_col-sm-6 .sc_item_subtitle {
+	right: -84.9%;
+}

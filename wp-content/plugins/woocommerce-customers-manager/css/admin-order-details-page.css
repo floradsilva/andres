@@ -1,0 +1,24 @@
+.wccm_order_details_column
+ {
+	width: 90%;
+	padding: 0 2% 0 0;
+	float: left;
+	
+	background: #fff none repeat scroll 0 0;
+	padding: 15px;
+	border: 1px dashed #a46497;
+	border: 1px solid #dedede;
+	margin-top: 20px;
+}
+#order_data h3.wcccm_title
+{
+	margin-top: 0px;
+}
+.wcccm_label
+{
+	font-weight:bold;
+}
+#wccm_user_details_button
+{
+	margin-top: 10px;
+}

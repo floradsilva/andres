@@ -1,0 +1,511 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+ /****For Product Detail Page*****/
+.wp-list-table.widefat.striped.posts .column-pinterest_rich_pin{width: 120px;}
+.wp-list-table.widefat.striped.posts .column-pinterest_rich_pin .button{
+    margin: 5px;
+}
+.pinterest-log-screen .view-log-outer{
+	width: 100%;
+	height: 400px;
+	overflow: auto;
+	background-color: #eee;
+	padding: 2px 6px;
+	line-height: 1.4;
+	resize: vertical;
+	font-size: 14px;
+	border-radius: 0;
+	border: 1px solid #ddd;
+	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+	margin-top: 20px;
+}
+.no-log-message{margin-top: 20px;}
+.pinterest-product-images-select-outer .check-mark {
+	position: absolute;
+	width: 24px;
+	height: 24px;
+	padding: 5px;
+	background-color: #0073aa;
+	box-shadow: 0 0 0 1px #fff,0 0 0 2px #0073aa;
+	top: -7px;
+	right: -7px;
+	text-align: center;
+	display: none;
+	color:#FFF;
+}
+.pinterest-product-images-select-outer .check-mark .fa{display:block;}
+.pinterest-product-images-select-outer .active .check-mark {display: block;}
+.pinterest-product-images-select-outer .pinterest-product-images{
+	display: block;
+	margin-bottom: 20px;
+	padding: 3px;
+	border: solid 1px #dedede;
+	position: relative;
+}
+.pinterest-product-images-select-outer .pinterest-product-images input[type="checkbox"]{display: none;}
+
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+.create-action{
+	margin: 0 5px;
+}
+.pinterest_rich_pin-listing table.pinterest_rich_pin-listing-table{
+	margin:10px 0px;
+}
+
+.pinterest_rich_pin-listing table.pinterest_rich_pin-listing-table tbody td{
+	vertical-align:middle;
+}
+.header-main {
+	margin:15px 0;
+}
+.h1-type{
+	display:inline-block;
+	margin:0;
+	margin-right:15px;
+	vertical-align:middle;
+}
+.addbutton{
+	background:#00b3e3;
+	color:#fff;
+	display:inline-block;
+	vertical-align:middle;
+	padding:5px 10px;
+	font-weight:bold;
+}
+.addbutton:hover{
+	color:#fff;
+	text-decoration:none;
+}
+.add_medicine_popup-cls,.edit_medicine_popup-cls{
+	    border: 5px solid #0085ba;
+    margin-top: 20px;
+    background: #fff;
+    width: 500px;
+    margin: 0 auto;
+    display: block;
+    position: relative;
+}
+.add_medicine_popup-cls input,.edit_medicine_popup-cls input{
+	max-width:100%;
+}
+#custom_filter_form .inline_block_class{
+	vertical-align:top;
+}
+#custom_filter_form{
+	margin-bottom:10px;
+}
+.prescription-listing-table{
+	background:#fff;
+}
+.prescription-listing-table th{
+	vertical-align:middle;
+}
+.prescription-listing-table td{
+ padding: 10px 8px;
+ border: 1px solid #ccc;
+ }
+ .custom_pagination a {
+	background: #fff none repeat scroll 0 0;
+    border: 1px solid #ccc;
+    display: inline-block;
+	padding: 6px 10px 8px;
+	line-height:1;
+	text-decoration:none;
+ }
+.custom_pagination span {
+    display: inline-block;
+	border: 1px solid #ccc;
+    padding: 6px 10px 8px;
+	line-height:1;
+}
+.custom_pagination span.disabled{
+	background:#ddd;
+ }
+ .custom_pagination .current{
+ 	background: #0085ba;
+	border-color:#006799;
+	color:#FFF;
+ }
+  .custom_pagination a:hover {
+ 	background: #0085ba;
+	border-color:#006799;
+	color:#FFF;
+  }
+.prescription-listing-table .table-bordered thead th {
+    padding-right: 10px;
+    position: relative;
+}
+.prescription-listing-table  thead .arrowup:hover::before {
+    display: none;
+    transition: all 0.5s ease 0s;
+}
+.prescription-listing-table .table-bordered thead .arrowdown:hover::before {
+    display: none;
+    transition: all 0.5s ease 0s;
+}
+
+
+
+/* Prescription View */
+.heading-title{
+	margin-top:0;
+	padding-bottom:10px;
+	border-bottom:2px solid #ccc;
+}
+.heading{
+	font-size: 20px;
+    font-weight: bold;
+    text-align: left;
+	margin:5px 0;
+}
+.detail .appoitment-value:nth-child(1){
+	 border-top: 2px solid #ccc;
+}
+.appoitment-value {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-bottom: 2px solid #ccc;
+    border-image: none;
+    border-left: 2px solid #ccc;
+    border-right: 2px solid #ccc;
+    padding: 0 10px;
+}
+.field-title{
+	padding-top:5px;
+	padding-bottom:5px;
+	text-align:right;
+}
+.field-value{
+padding-top:5px;
+	padding-bottom:5px;
+border-left:2px solid #ccc;
+}
+.medicine-list .field-title{
+	text-align:left;
+}
+.medicine-list .field-value{
+	text-align:center;
+}
+.medicine-list .appoitment-value:nth-child(1){
+	background-color:#0d98e8;
+	color:white;
+}
+.heading-medicine:nth-child(2){
+	border-left:2px solid #ccc;
+}
+.search_text{
+	width: 100%;
+}
+.datecalendar{
+    position: absolute;
+    right: 10px;
+    top: 9px;
+    z-index:11;
+    cursor: pointer;
+}
+.pinterest-queue-screen .accordian-head{
+	display:block;
+	 padding: 10px 15px;
+}
+.pinterest-queue-screen .accordian-head:focus{
+	outline-offset:0;
+	text-decoration:none;
+	box-shadow:none;
+	z-index:11;
+	position:relative;
+}
+.pinterest-queue-screen .panel-title{
+	position:relative;
+	cursor:pointer;
+}
+.pinterest-queue-screen .panel-title.arrowdownacc:after{
+	border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #00b3e3;
+    content: "";
+    position: absolute;
+    right: 12px;
+    top: 15px;
+}
+.pinterest-queue-screen .panel-title.arrowupacc:after{
+	border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid #00b3e3;
+    content: "";
+    position: absolute;
+    right: 12px;
+    top: 15px;
+}
+.pinterest-queue-screen .panel-heading{
+	padding:0!important;
+}
+.pinterest-queue-screen td{
+	word-break: break-all;
+}
+
+
+/* Status CSS */
+.qt-status {
+	font-size: 12px;
+	color: #fff;
+	padding: 3px 7px 2px;
+    border-radius: 4px;
+}
+.qt-status.status-new{
+	background-color: #0074d9;
+}
+.qt-status.status-pending{
+	background-color: #ff4136;
+}
+.qt-status.status-expired{
+	background-color: #ff851b;
+}
+.qt-status.status-accepted{
+	background-color: #3d9970;
+}
+.qt-status.status-rejected{
+	background-color: #ff851b;
+}
+.qt-status.status-cancel{
+	background-color: #ff4136;
+}
+.qt-status.status-completed{
+	background-color: #3d9970;
+}
+/**********New Css*************/
+*{
+	-webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.prp-row{
+	margin-left: -10px;
+	margin-right: -10px;
+}
+.prp-row:before,
+.prp-row:after,
+.clearfix,
+.clearfix:after,
+.clearfix:before{
+	content: " ";
+    display: table;
+}
+.clearfix{
+	clear:both;
+}
+.prp-row .prp-col{
+	position: relative;
+	min-height: 1px;
+	padding-left: 10px;
+	padding-right: 10px;
+	width: 25%;
+	float:left;
+}
+.prp-row img{
+	display: block;
+	max-width: 100%;
+	height: auto;
+}
+.pinterest_rich_pin-listing-main .vsz-post-per-page{
+	float:right;
+}
+.pinterest_rich_pin-listing-main #queue-bulk-action{
+    line-height: 1;
+    height: 32px;
+	min-width:160px;
+}
+.pinterest_rich_pin-listing-main .tablenav .action{
+	line-height: 1;
+    height: 32px;
+}
+.pinterest_rich_pin-listing-main .tablenav{
+	height:34px;
+}
+.pinterest_rich_pin-listing-main .pagination-and-totle{
+	float:right;
+	margin-top:6px;
+}
+.pinterest_rich_pin-listing-main .pinterest_rich_pin_total, .pinterest_rich_pin-listing-main .paginate-list{
+	display:inline-block;
+	margin-left:10px;
+}
+.pinterest_rich_pin-listing-table th{
+	font-weight:600;
+}
+.pinterest_rich_pin-listing-table .column-check{
+	width:60px;
+}
+.pinterest_rich_pin-listing-table .column-check #pinterest-rich_pin-checkAll{
+	margin:2px 0px 0px;
+}
+.pinterest_rich_pin-listing-table .column-thumb{
+    width: 60px;
+    white-space: nowrap;
+}
+.pinterest_rich_pin-listing-table .column-name {
+    width: 25%;
+}
+.pinterest_rich_pin-listing-table .column-date{
+	width: 18%;
+}
+.pinterest_rich_pin-listing-table .column-action{
+	width:12%;
+}
+.pinterest_rich_pin-listing-table .sorted{
+	width:70px;
+}
+.pinterest_rich_pin-listing-table .retry_queue_action, .pinterest_rich_pin-listing-table .remove_queue_action{
+	/* color: #555;
+	background: #f7f7f7;
+	box-shadow: 0 1px 0 #ccc;
+	vertical-align: top;
+	padding: 7px 10px;
+	border: 1px #CCC solid;
+	border-radius:5px;
+	width:80px;
+	text-align:center;
+	display:inline-block; */
+}
+.pinterest_rich_pin-listing-table .retry_queue_action:hover, .pinterest_rich_pin-listing-table .remove_queue_action:hover{
+	/* background: #fafafa;
+	border-color: #999;
+	color: #23282d; */
+}
+.pinterest_rich_pin_action-btn{
+	color: #555;
+	background: #f7f7f7;
+	box-shadow: 0 1px 0 #ccc;
+	vertical-align: middle;
+	padding: 7px 10px;
+	border: 1px #CCC solid;
+	border-radius:5px;
+	text-align:center;
+	display:inline-block;
+	line-height: normal;
+}
+.pinterest_rich_pin_action-btn .fa{
+	display: inline-block;
+	font-size: 14px;
+}
+.pinterest_rich_pin_action-btn.remove_queue_action:hover .fa,.pinterest_rich_pin_action-btn.pinterest_remove_pin:hover .fa{
+	color: #ff0000;
+}
+.column-pinterest_rich_pin .pinterest_rich_pin_action-btn{
+	margin: 5px;
+}
+.pinterest_rich_pin-listing-table .failed{color:#ff4f4f;}
+.pinterest_rich_pin-listing-table .processing{color:#6bc12b;}
+
+/* Settings Screen */
+.pd10-T{
+	padding-top: 10px;
+}
+.form-table .form-field input[type="number"]{
+	width: auto;
+}
+.form-table .form-field .regular-text{
+	width: 25em;
+}
+.danger-text{
+	color: #ff0000;
+}
+.pinterest_rich_pin_notice.notice-outer{
+	border-radius: 15px;
+	border: 2px solid #ccc;
+	box-shadow: 0 2px 20px 0 rgba(0,0,0,0.1);
+	margin: 5px 0 15px;
+	background: #fff;
+	padding: 1px 12px;
+}
+.pinterest_rich_pin_notice.notice-outer .note {
+    font-size: 17px;
+    font-weight: bold;
+}
+.pinterest_rich_pin_notice.notice-outer li {
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+.pinterest_rich_pin_notice.notice-outer i {
+    font-size: 18px;
+    margin-right: 7px;
+}
+/* Loader */
+.pinterest_rich_pin_loader-image{
+	background:rgba(255,255,255,0.7) url('../../images/loader.svg') no-repeat center center;
+	position:fixed;
+	height:100%;
+	width:100%;
+	z-index:99999;
+	text-align:center;
+	top:0px;
+	left:0px;
+	right:0px;
+	bottom:0px;
+	background-size: 120px 120px;
+	display: none;
+}
+.pinterest_rich_pin_loader-image.inner-position{
+	position:absolute;
+	z-index:9;
+}
+/* Error Popup */
+.pinterest_rich_pin-expired-token.error-overlay{
+	position: fixed;
+	background-color: rgba(0,0,0,0.6);
+	height: 100%;
+	width: 100%;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 99999;
+}
+.pinterest_rich_pin-expired-token.error-overlay .error-msg-box{
+	position: relative;
+	background-color: #ffffff;
+	padding: 50px;
+	max-width: 75%;
+	margin: 0 auto;
+	top: 50%;
+	-webkit-transform: translateY(-50%);
+	   -moz-transform: translateY(-50%);
+	    -ms-transform: translateY(-50%);
+	     -o-transform: translateY(-50%);
+	        transform: translateY(-50%);
+}
+.pinterest_rich_pin-expired-token.error-overlay .error-msg-box .error-msg{
+	padding: 15px;
+	border-radius: 4px;
+	border: 1px solid #ebccd1;
+	background-color: #f2dede;
+	color: #a94442;
+	font-size: 20px;
+}
+.pinterest_rich_pin-expired-token.error-overlay .error-msg-box .error-msg .fa{
+	display: inline-block;
+	margin-right: 5px;
+}
+
+.pinterest_rich_pin_error_message{
+	margin: 0.5em 0;
+}
+.error.pinterest-error p{
+	display:none;
+}
+.pinterest_rich_pin_error_message span{
+	display:inline-block;
+	vertical-align:middle;
+}
+.pinterest_rich_pin_error_message .image img{
+	display: block;
+	max-width: 25px;
+	max-height: 25px;
+	margin-right: 5px;
+}

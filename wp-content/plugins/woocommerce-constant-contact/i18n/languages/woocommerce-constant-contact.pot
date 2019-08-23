@@ -1,0 +1,289 @@
+# Copyright (C) 2019 SkyVerge
+# This file is distributed under the GNU General Public License v3.0.
+msgid ""
+msgstr ""
+"Project-Id-Version: WooCommerce Constant Contact 1.10.1\n"
+"Report-Msgid-Bugs-To: "
+"https://woocommerce.com/my-account/marketplace-ticket-form/\n"
+"POT-Creation-Date: 2019-04-24 08:47:41+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2019-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: class-wc-constant-contact.php:248
+msgid "Email List Subscribers"
+msgstr ""
+
+#: class-wc-constant-contact.php:269
+msgid "Error loading stats: %s"
+msgstr ""
+
+#: class-wc-constant-contact.php:281
+msgid "Unable to load stats from Constant Contact"
+msgstr ""
+
+#: class-wc-constant-contact.php:291
+msgid "Subscriber"
+msgid_plural "Subscribers"
+msgstr[0] ""
+msgstr[1] ""
+
+#. Plugin Name of the plugin/theme
+msgid "WooCommerce Constant Contact"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:46
+msgid "Constant Contact"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:73
+msgid "General Settings"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:81
+msgid "Subscribe Checkbox Label"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:82
+msgid "Text displayed next to the opt-in checkbox on the Checkout page."
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:84
+msgid "Subscribe to our newsletter?"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:91
+msgid "Subscribe Checkbox Default"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:92
+msgid "Default status for the Subscribe checkbox on the Checkout page."
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:96
+msgid "Unchecked"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:97
+msgid "Checked"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:104
+#: includes/class-wc-constant-contact-widget.php:153
+#: includes/class-wc-constant-contact-widget.php:154
+msgid "Email List"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:105
+msgid ""
+"This is the email list that customer's will be added to when they opt-in at "
+"checkout"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:114
+msgid "API Settings"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:122
+msgid "ConstantContact.com Username"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:123
+msgid "This is the username you use to log into your Constant Contact account."
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:130
+msgid "ConstantContact.com Password"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:131
+msgid "This is the password you use to log into your Constant Contact account."
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:138
+msgid "API Key"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:139
+msgid ""
+"This is the API Key for your Constant Contact account. Read the "
+"documentation to learn how to get this."
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:146
+msgid "Debug Mode"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:148
+#. translators: Placeholder: %s - debug log file name and full path
+msgid "Save API requests/responses and Detailed Error Messages to the debug log: %s"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:152
+msgid "Off"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:153
+msgid "On"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:183
+msgid "Select a List"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:187
+#: includes/class-wc-constant-contact-widget.php:148
+msgid "Oops, something went wrong: %s"
+msgstr ""
+
+#: includes/admin/class-wc-constant-contact-settings.php:192
+msgid "Lists will appear after entering API info."
+msgstr ""
+
+#: includes/api/class-wc-constant-contact-api-request.php:75
+msgid "Add contact to List: Contact is missing"
+msgstr ""
+
+#: includes/api/class-wc-constant-contact-api-response.php:77
+msgid "Get Lists - Entries are missing"
+msgstr ""
+
+#: includes/api/class-wc-constant-contact-api-response.php:95
+msgid "contact"
+msgid_plural "contacts"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/api/class-wc-constant-contact-api-response.php:95
+msgid "no contacts"
+msgstr ""
+
+#: includes/api/class-wc-constant-contact-api-response.php:129
+msgid "Contact ID is missing"
+msgstr ""
+
+#: includes/api/class-wc-constant-contact-api-response.php:147
+msgid "Created contact ID missing"
+msgstr ""
+
+#: includes/api/class-wc-constant-contact-api-response.php:165
+msgid "List ID is missing"
+msgstr ""
+
+#: includes/api/class-wc-constant-contact-api.php:379
+msgid "Customer subscribed to email list"
+msgstr ""
+
+#: includes/api/class-wc-constant-contact-api.php:399
+msgid "Error Code %s"
+msgstr ""
+
+#: includes/class-wc-constant-contact-frontend.php:114
+#: includes/class-wc-constant-contact-frontend.php:225
+msgid "Failed to subscribe customer to email list: %s"
+msgstr ""
+
+#: includes/class-wc-constant-contact-frontend.php:139
+msgid "Subscribe Now"
+msgstr ""
+
+#: includes/class-wc-constant-contact-frontend.php:205
+#: includes/class-wc-constant-contact-frontend.php:221
+msgid "Oops, something went wrong. Please contact us to subscribe."
+msgstr ""
+
+#: includes/class-wc-constant-contact-frontend.php:208
+msgid "Order Received Subscribe: No Order ID"
+msgstr ""
+
+#: includes/class-wc-constant-contact-frontend.php:217
+msgid "Thanks for subscribing!"
+msgstr ""
+
+#: includes/class-wc-constant-contact-frontend.php:227
+msgid "Order Received Subscribe: %s"
+msgstr ""
+
+#: includes/class-wc-constant-contact-points-and-rewards.php:74
+msgid "Points earned for a Constant Contact sign up"
+msgstr ""
+
+#: includes/class-wc-constant-contact-points-and-rewards.php:75
+msgid ""
+"Enter the amount of points earned when a customer signs up to an email list "
+"via Constant Contact."
+msgstr ""
+
+#: includes/class-wc-constant-contact-points-and-rewards.php:129
+msgid "%s earned for email sign-up"
+msgstr ""
+
+#: includes/class-wc-constant-contact-widget.php:46
+msgid "Allow your customers to subscribe to your Constant Contact email list."
+msgstr ""
+
+#: includes/class-wc-constant-contact-widget.php:94
+msgid "Email Address"
+msgstr ""
+
+#: includes/class-wc-constant-contact-widget.php:96
+msgid "Your email address"
+msgstr ""
+
+#: includes/class-wc-constant-contact-widget.php:97
+msgid "Subscribe"
+msgstr ""
+
+#: includes/class-wc-constant-contact-widget.php:138
+msgid ""
+"You must enter your API info in WooCommerce > Settings > Constant Contact "
+"before using this widget."
+msgstr ""
+
+#: includes/class-wc-constant-contact-widget.php:152
+msgid "Title"
+msgstr ""
+
+#: includes/class-wc-constant-contact-widget.php:165
+msgid ""
+"Select an email list to subscribe customers to or leave blank to use the "
+"list defined under WooCommerce > Settings > Constant Contact."
+msgstr ""
+
+#: includes/class-wc-constant-contact-widget.php:246
+msgid "Please enter a valid email address."
+msgstr ""
+
+#: includes/class-wc-constant-contact-widget.php:256
+msgid "Thanks for subscribing."
+msgstr ""
+
+#: includes/class-wc-constant-contact-widget.php:262
+msgid "Oops, something went wrong. Please try again later."
+msgstr ""
+
+#: includes/class-wc-constant-contact-widget.php:266
+msgid "Widget Signup: %s"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://www.woocommerce.com/products/woocommerce-constant-contact/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Easily signup customers to your Constant Contact email lists during "
+"checkout and anywhere else on your WooCommerce store with the included "
+"widget!"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "SkyVerge"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://www.woocommerce.com"
+msgstr ""

@@ -1,0 +1,4 @@
+1. jQuery: http://jquery.com/
+2. jQuery UI: http://jqueryui.com/
+3. Backstretch: http://srobbin.com/jquery-plugins/backstretch/
+4. Mono Social Icon Font: http://drinchev.github.io/monosocialiconsfont/
