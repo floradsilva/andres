@@ -111,8 +111,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				$url = $this->api_url . '/' . $this->api_token . '/productsync?returnMode=2';
 			}
 
-			// $url = $this->api_url . '/' . $this->api_token . '/productsync?returnMode=2';
-			// echo $url;
 			$response = wp_remote_get( $url, $this->curl_args );
 			$products = json_decode( wp_remote_retrieve_body( $response ) );
 
@@ -121,7 +119,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 				$no_updated_products = count( $update_product_ids );
 				for ( $index = 0; $index < $no_updated_products; $index++ ) {
-					// for ( $index = 100; $index < 110; $index++ ) {
 					$success = $this->create_product( $update_product_ids[ $index ] );
 					$updated_products[ $update_product_ids[ $index ] ]       = $success;
 					$this->updated_products[ $update_product_ids[ $index ] ] = $success;
@@ -137,7 +134,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 				$no_deleted_products = count( $delete_product_ids );
 				for ( $index = 0; $index < $no_deleted_products; $index++ ) {
-					// for ( $index = 120; $index < 130; $index++ ) {
 					$success = $this->delete_product( $delete_product_ids[ $index ] );
 					$updated_products[ $delete_product_ids[ $index ] ]       = $success;
 					$this->updated_products[ $delete_product_ids[ $index ] ] = $success;
@@ -395,8 +391,11 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$product = $this->set_product_availability( $product, $product_obj );
 		} elseif ( isset( $product_obj->inventory ) ) {
 			$net_quantity = $product_obj->inventory->netQuantityAvailable;
-			$product->set_manage_stock( true );
-			$product->set_stock_quantity( $net_quantity );
+
+			if ( is_numeric( $net_quantity ) ) {
+				$product->set_manage_stock( true );
+				$product->set_stock_quantity( $net_quantity );
+			}
 
 			if ( isset( $product_obj->inventory->locations ) ) {
 				$locations = $product_obj->inventory->locations;
@@ -428,22 +427,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		$product_id = $product->get_id();
 
 		wp_set_post_terms( $product_id, $this->brand_to_set( $product_obj->brandId, $product_obj->brandDescription ), 'brand' );
-
-		// if ( $product_obj->availableOnWeb ) {
-		// wp_update_post(
-		// array(
-		// 'ID'          => $product_id,
-		// 'post_status' => 'publish',
-		// )
-		// );
-		// } else {
-		// wp_update_post(
-		// array(
-		// 'ID'          => $product_id,
-		// 'post_status' => 'private',
-		// )
-		// );
-		// }
 
 		wp_update_post(
 			array(
@@ -859,21 +842,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 					$product->set_backorders( 'notify' );
 				}
 			}
-			// else {
-			// $net_quantity = $product_obj->inventory->netQuantityAvailable;
-			// $product->set_manage_stock( true );
-			// $product->set_stock_quantity( $net_quantity );
-
-			// if ( isset( $product_obj->inventory->locations ) ) {
-			// $locations = $product_obj->inventory->locations;
-
-			// foreach ( $locations as $key => $location ) {
-			// if ( is_numeric( $location->leadDays ) && ( 0 === $net_quantity ) ) {
-			// $product->set_backorders( 'notify' );
-			// }
-			// }
-			// }
-			// }
 		}
 
 		return $product;

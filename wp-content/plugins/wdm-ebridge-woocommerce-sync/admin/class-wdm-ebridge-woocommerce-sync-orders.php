@@ -94,20 +94,7 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 
 			if ( ! $ebridge_order ) {
 				throw new Exception( __( 'Unable to place this order due to technical difficulties. Please try again after some time.', 'wdm-ebridge-woocommerce-sync' ) );
-			} else {
-				$order = $this->map_order_data( $ebridge_order, $order );
 			}
-
-			// echo '<pre>';
-			// echo '===================data=================<br>';
-			// var_dump( $data );
-			// echo '================================================<br>';
-			// echo '===================order============<br>';
-			// var_dump( $order );
-			// echo '================================================<br>';
-			// echo '</pre>';
-
-			// die;
 		}
 
 
@@ -122,8 +109,10 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 					$product = $this->products_obj->set_product_availability( $product, $ebridge_product );
 				} elseif ( isset( $ebridge_product->inventory ) ) {
 					$net_quantity = $ebridge_product->inventory->netQuantityAvailable;
-					$product->set_manage_stock( true );
-					$product->set_stock_quantity( $net_quantity );
+					if ( is_numeric( $net_quantity ) ) {
+						$product->set_manage_stock( true );
+						$product->set_stock_quantity( $net_quantity );
+					}
 
 					if ( isset( $ebridge_product->inventory->locations ) ) {
 						$locations = $ebridge_product->inventory->locations;
@@ -215,22 +204,6 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 				// $order_json['staffId']              = 'String content';
 				// $order_json['workPhone'] = isset( $data['billing_phone'] ) ? $data['billing_phone'] : '';
 
-				// echo '<pre>';
-				// echo '===================order_json=================<br>';
-				// var_dump( $order_json );
-				// echo '================================================<br>';
-				// echo '===================order=================<br>';
-				// var_dump( $order );
-				// echo '================================================<br>';
-				// echo '===================order=================<br>';
-				// var_dump( $order->get_items() );
-				// echo '================================================<br>';
-				// echo '===================order============<br>';
-				// var_dump( $order );
-				// echo '================================================<br>';
-				// echo '</pre>';
-
-				// die;
 				$response = wp_remote_post(
 					$url,
 					array(
@@ -244,8 +217,10 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 
 				$json_response = json_decode( wp_remote_retrieve_body( $response ) );
 
+
 				if ( ( 200 == wp_remote_retrieve_response_code( $response ) ) && ( 0 === $json_response->status ) ) {
 					$order_details = $json_response->salesOrderCreationResponse->createdSalesOrders;
+					$this->map_order_data( $order_details[0], $order );		
 					return $order_details[0]->orderId;
 				}
 			}
@@ -314,6 +289,7 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 
 			$cart_item = array();
 			$items = $order->get_items( 'line_item' );
+
 			
 			foreach ($items as $item) {
 				$product        = $item->get_product();
@@ -321,7 +297,7 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 				$cart_item['description'] = $product->get_name();
 				$cart_item['id'] = $product->get_sku();				
 				$cart_item['lineItemDeliveryType'] = 2;
-				$cart_item['price'] = $product->get_regular_price();
+				$cart_item['price'] = $product->get_sale_price();
 				$cart_item['quantity'] = $item->get_quantity();
 				$cart_item['lineItemCommentData'] = "WooCommerce Order";
 				// $cart_item['vendorModelOverride'] = "";
@@ -351,9 +327,11 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 
 
 		public function map_order_data( $ebridge_order, $order ) {
-			$order->add_meta_data( 'ebridge_order_id', $ebridge_order );
+			$order->add_meta_data( 'ebridge_order_id', $ebridge_order->orderId );
+			$order->add_meta_data( 'ebridge_order_type', $ebridge_order->orderType );
+			$order->add_meta_data( 'ebridge_order_total', $ebridge_order->total );
+			$order->add_meta_data( 'ebridge_order_customerId', $ebridge_order->customerId );			
 		}
 	}
 
 }
-

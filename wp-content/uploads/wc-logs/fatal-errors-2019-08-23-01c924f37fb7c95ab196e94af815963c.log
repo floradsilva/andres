@@ -591,3 +591,5 @@ Stack trace:
 #2 /home/flo/Wisdmlabs/Andres/wp-content/plugins/wdm-ebridge-woocommerce-sync/includes/class-wdm-ebridge-woocommerce-sync-products.php(186): Wdm_Ebridge_Woocommerce_Sync_Products->create_simple_product(Object(stdClass))
 #3 /home/flo/Wisdmlabs/Andres/wp-content/plugins/wdm-ebridge-woocommerce-sync/admin/pages/class-wdm-ebridge-woocommerce-sync in /home/flo/Wisdmlabs/Andres/wp-content/plugins/wdm-ebridge-woocommerce-sync/includes/class-wdm-ebridge-woocommerce-sync-products.php on line 309
 
+2019-08-23T08:12:35+00:00 CRITICAL require(): Failed opening required '/home/flo/Wisdmlabs/Andres/wp-content/themes/boxshop/classes/class-twentynineteen-svg-icons.php' (include_path='.:/usr/share/php') in /home/flo/Wisdmlabs/Andres/wp-content/themes/twentynineteen/functions.php on line 298
+
