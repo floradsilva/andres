@@ -297,7 +297,7 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 				$cart_item['description'] = $product->get_name();
 				$cart_item['id'] = $product->get_sku();				
 				$cart_item['lineItemDeliveryType'] = 2;
-				$cart_item['price'] = $product->get_sale_price();
+				$cart_item['price'] = $product->get_price();
 				$cart_item['quantity'] = $item->get_quantity();
 				$cart_item['lineItemCommentData'] = "WooCommerce Order";
 				// $cart_item['vendorModelOverride'] = "";
