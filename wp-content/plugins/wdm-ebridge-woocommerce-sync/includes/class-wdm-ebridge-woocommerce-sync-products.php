@@ -306,7 +306,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 				if ( ! $category ) {
 					include_once plugin_dir_path( __FILE__ ) . 'class-wdm-ebridge-woocommerce-sync-categories.php';
-					// echo plugin_dir_path( __FILE__ ) . 'class-wdm-ebridge-woocommerce-sync-categories.php';
 					Wdm_Ebridge_Woocommerce_Sync_Categories::create_custom_category( $value, 'product_cat' );
 
 					$category = get_term_by(

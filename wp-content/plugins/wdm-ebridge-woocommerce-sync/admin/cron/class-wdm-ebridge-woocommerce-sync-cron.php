@@ -69,8 +69,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Cron {
 	public function __construct() {
 		// include_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
 		include_once $_SERVER['PWD'] . '/wp-load.php';
-		include_once plugin_dir_path( __DIR__ ) . 'class-wdm-ebridge-woocommerce-sync-categories.php';
-		include_once plugin_dir_path( __DIR__ ) . 'class-wdm-ebridge-woocommerce-sync-products.php';
+		include_once WEWS_PLUGIN_PATH . 'includes/class-wdm-ebridge-woocommerce-sync-categories.php';
+		include_once WEWS_PLUGIN_PATH . 'includes/class-wdm-ebridge-woocommerce-sync-products.php';
 
 		$this->api_url   = get_option( 'ebridge_sync_api_url', '' );
 		$this->api_token = get_option( 'ebridge_sync_api_token', '' );
