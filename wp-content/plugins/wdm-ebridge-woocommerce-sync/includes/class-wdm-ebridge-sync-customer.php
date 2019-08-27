@@ -126,7 +126,6 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Customer' ) ) {
 
 				$json_response = json_decode( wp_remote_retrieve_body( $response ) );
 
-
 				if ( ( 200 == wp_remote_retrieve_response_code( $response ) ) && ( 0 === $json_response->status ) ) {
 					$ebridge_customer_id = $json_response->customerId;
 					$this->update_current_user_ebridge( $ebridge_customer_id, $customer_json['cellPhone'], $customer_json['emailAddress'] );
