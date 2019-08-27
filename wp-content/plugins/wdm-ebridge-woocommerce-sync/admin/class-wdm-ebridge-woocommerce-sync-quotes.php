@@ -113,7 +113,7 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Quotes' ) ) {
 				$quote_json['cartItems']      = $this->get_cart_item_data( $data, $customer );
 				$quote_json['cellPhone']      = isset( $enquiry_details['Phone'] ) ? $enquiry_details['Phone'] : '';
 				$quote_json['charges']        = $this->get_delivery_and_installation_charges( $data, $customer );
-				$quote_json['customerId']     = $customer;
+				// $quote_json['customerId']     = $customer;
 				$quote_json['emailAddress']   = isset( $data->email ) ? $data->email : '';
 				// $quote_json['salesTax']             = 0;
 				$quote_json['sellLocationId']  = '99';
@@ -155,6 +155,18 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Quotes' ) ) {
 				);
 
 				$json_response = json_decode( wp_remote_retrieve_body( $response ) );
+
+                echo "<pre>";
+                echo "===================json_response=================<br>";
+                var_dump( $json_response );
+                echo "===================response=================<br>";
+                var_dump( $response );
+                echo "===================data=================<br>";
+                var_dump( $data );
+                echo "===================customer=================<br>";
+                var_dump( $customer );
+                echo "================================================<br>";
+                echo "</pre>";
 
 				if ( ( 200 == wp_remote_retrieve_response_code( $response ) ) && ( 0 === $json_response->status ) ) {
 					$quote_details = $json_response->salesOrderCreationResponse->createdSalesOrders;
