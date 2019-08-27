@@ -89,8 +89,8 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Quotes' ) ) {
 			}
 
 			if ( ( ! ( isset( $customer ) ) ) || ( ! $customer ) ) {
-				if ( ( ! ( isset( $phone ) && $phone ) ) && ( isset( $enquiry_details['Phone number'] ) ) ) {
-					$phone = $enquiry_details['Phone number'];
+				if ( ( ! ( isset( $phone ) && $phone ) ) && ( isset( $enquiry_details['Phone'] ) ) ) {
+					$phone = $enquiry_details['Phone'];
 				}
 
 				if ( ( ! ( isset( $email ) && $email ) ) && ( isset( $data->email ) ) ) {
@@ -111,7 +111,7 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Quotes' ) ) {
 				$quote_json                   = array();
 				$quote_json['billingAddress'] = $this->get_billing_address_data( $enquiry_details, $customer );
 				$quote_json['cartItems']      = $this->get_cart_item_data( $data, $customer );
-				$quote_json['cellPhone']      = isset( $enquiry_details['Phone number'] ) ? $enquiry_details['Phone number'] : '';
+				$quote_json['cellPhone']      = isset( $enquiry_details['Phone'] ) ? $enquiry_details['Phone'] : '';
 				$quote_json['charges']        = $this->get_delivery_and_installation_charges( $data, $customer );
 				$quote_json['customerId']     = $customer;
 				$quote_json['emailAddress']   = isset( $data->email ) ? $data->email : '';
@@ -180,12 +180,12 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Quotes' ) ) {
 			$billing_address_data['firstName']     = ( count( $name ) > 0 ) ? $name[0] : '';
 			$billing_address_data['middleInitial'] = '';
 			$billing_address_data['lastName']      = ( count( $name ) > 1 ) ? $name[1] : '';
-			$billing_address_data['address1']      = isset( $enquiry_details['Address Line 1'] ) ? $enquiry_details['Address Line 1'] : '';
-			$billing_address_data['address2']      = isset( $enquiry_details['Address Line 2'] ) ? $enquiry_details['Address Line 2'] : '';
+			$billing_address_data['address1']      = isset( $enquiry_details['Address1'] ) ? $enquiry_details['Address1'] : '';
+			$billing_address_data['address2']      = isset( $enquiry_details['Address2'] ) ? $enquiry_details['Address2'] : '';
 			$billing_address_data['city']          = isset( $enquiry_details['City'] ) ? $enquiry_details['City'] : '';
 			$billing_address_data['state']         = $this->get_state_code( $enquiry_details['State'] );
-			$billing_address_data['zipCode']       = isset( $enquiry_details['Zip Code'] ) ? $enquiry_details['Zip Code'] : '';
-			$billing_address_data['cellPhone']     = isset( $enquiry_details['Phone number'] ) ? $enquiry_details['Phone number'] : '';
+			$billing_address_data['zipCode']       = isset( $enquiry_details['Zipcode'] ) ? $enquiry_details['Zipcode'] : '';
+			$billing_address_data['cellPhone']     = isset( $enquiry_details['Phone'] ) ? $enquiry_details['Phone'] : '';
 			$billing_address_data['emailAddress']  = isset( $enquiry_details['email'] ) ? $enquiry_details['email'] : '';
 
 			return $billing_address_data;
