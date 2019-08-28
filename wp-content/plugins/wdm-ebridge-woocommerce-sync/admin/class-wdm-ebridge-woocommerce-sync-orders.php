@@ -83,26 +83,17 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 				}
 			}
 
-			// echo "<pre>";
-			// echo "===================order=================<br>";
-			// var_dump( $order );
-			// echo "===================data=================<br>";
-			// var_dump( $data );
-			// echo "================================================<br>";
-			// echo "</pre>";
-			// die;
+			$customer = $this->find_or_create_ebridge_customers( $order, $data );
 
-			// $customer = $this->find_or_create_ebridge_customers( $order, $data );
+			if ( ! $customer ) {
+				throw new Exception( __( 'Unable to place this order. Please make sure the billing phone and email address is valid.', 'wdm-ebridge-woocommerce-sync' ) );
+			}
 
-			// if ( ! $customer ) {
-			// 	throw new Exception( __( 'Unable to place this order. Please make sure the billing phone and email address is valid.', 'wdm-ebridge-woocommerce-sync' ) );
-			// }
+			$ebridge_order = $this->create_ebridge_order( $order, $data, $customer );
 
-			// $ebridge_order = $this->create_ebridge_order( $order, $data, $customer );
-
-			// if ( ! $ebridge_order ) {
-			// 	throw new Exception( __( 'Unable to place this order due to technical difficulties. Please try again after some time.', 'wdm-ebridge-woocommerce-sync' ) );
-			// }
+			if ( ! $ebridge_order ) {
+				throw new Exception( __( 'Unable to place this order due to technical difficulties. Please try again after some time.', 'wdm-ebridge-woocommerce-sync' ) );
+			}
 		}
 
 
