@@ -122,7 +122,6 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/pages/class-wdm-ebridge-woocommerce-sync-settings.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/pages/class-wdm-ebridge-woocommerce-sync-product-sync.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wdm-ebridge-woocommerce-sync-orders.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wdm-ebridge-woocommerce-sync-quotes.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
@@ -170,7 +169,6 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		$plugin_admin_settings     = new Wdm_Ebridge_Woocommerce_Sync_Settings( $this->get_plugin_name(), $this->get_version() );
 		$plugin_admin_product_sync = new Wdm_Ebridge_Woocommerce_Sync_Product_Sync( $this->get_plugin_name(), $this->get_version() );
 		$plugin_admin_order_sync   = new Wdm_Ebridge_Woocommerce_Sync_Orders( $this->get_plugin_name(), $this->get_version() );
-		$plugin_admin_quote_sync   = new Wdm_Ebridge_Woocommerce_Sync_Quotes( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
@@ -191,7 +189,6 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		$this->loader->add_filter( 'bulk_actions-edit-product', $plugin_admin_product_sync, 'register_sync_products_bulk_action' );
 		$this->loader->add_filter( 'handle_bulk_actions-edit-product', $plugin_admin_product_sync, 'sync_products_bulk_action_handler', 10, 3 );
 		$this->loader->add_action( 'woocommerce_checkout_create_order', $plugin_admin_order_sync, 'wews_create_order', 10, 2 );
-		$this->loader->add_action( 'pep_add_custom_field_in_db', $plugin_admin_quote_sync, 'wews_create_ebridge_quote' );
 	}
 
 	/**
