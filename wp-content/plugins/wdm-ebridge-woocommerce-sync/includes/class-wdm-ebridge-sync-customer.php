@@ -146,22 +146,22 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Customer' ) ) {
 				$user_ebridge_id = get_user_meta( $current_user_id, 'ebridge_customer_id', true );
 				$user_phone      = get_user_meta( $current_user_id, 'phone_number', true );
 
-				// if ( ( $user_email === $email ) || ( $user_ebridge_id === $ebridge_id ) || ( $user_phone === $phone ) ) {
-				update_user_meta( $current_user_id, 'ebridge_customer_id', $ebridge_id );
+				if ( ( $user_email === $email ) || ( $user_ebridge_id === $ebridge_id ) || ( $user_phone === $phone ) ) {
+					update_user_meta( $current_user_id, 'ebridge_customer_id', $ebridge_id );
 
-				if ( $phone ) {
-					update_user_meta( $current_user_id, 'phone_number', $phone );
+					if ( $phone ) {
+						update_user_meta( $current_user_id, 'phone_number', $phone );
+					}
+
+					if ( $email ) {
+						$args = array(
+							'ID'         => $current_user->id,
+							'user_email' => $email,
+						);
+
+						wp_update_user( $args );
+					}
 				}
-
-				if ( $email ) {
-					$args = array(
-						'ID'         => $current_user->id,
-						'user_email' => $email,
-					);
-
-					wp_update_user( $args );
-				}
-				// }
 			}
 		}
 	}
