@@ -10,6 +10,7 @@ if(!class_exists('OP_Warehouse'))
         {
             $this->_meta_field = array(
                 'address' => '_op_address',
+                'address_2' => '_op_address_2',
                 'city' => '_op_city',
                 'postal_code' => '_op_postal_code',
                 'country' => '_op_country',
@@ -20,10 +21,13 @@ if(!class_exists('OP_Warehouse'))
         }
         public function warehouses(){
             $result = array();
-            $result[] = array(
+            $default_store = $this->get(0);
+
+            $default = array(
                 'id' => 0,
                 'name' => __('Default online store','openpos'),
                 'address' => '',
+                'address_2' => '',
                 'city' => '',
                 'postal_code' => '',
                 'country' => '',
@@ -33,6 +37,7 @@ if(!class_exists('OP_Warehouse'))
                 'status' => 'publish',
                 'total_qty' => ''
             );
+            $result[] = array_merge($default,$default_store);
             $posts = get_posts([
                 'post_type' => $this->_post_type,
                 'post_status' => array('publish','draft'),
@@ -42,7 +47,7 @@ if(!class_exists('OP_Warehouse'))
             {
                 $result[] = $this->get($p->ID);
             }
-            return $result;
+            return apply_filters('op_warehouse_list',$result,$this);
         }
         public function get($id = 0){
             if($id == 0)
@@ -50,10 +55,11 @@ if(!class_exists('OP_Warehouse'))
                 return array(
                     'id' => 0,
                     'name' => __('Default online store','openpos'),
-                    'address' => '',
-                    'city' => '',
-                    'postal_code' => '',
-                    'country' => '',
+                    'address' =>  WC()->countries->get_base_address(),
+                    'address_2' => WC()->countries->get_base_address_2(),
+                    'city' => WC()->countries->get_base_city(),
+                    'postal_code' => WC()->countries->get_base_postcode(),
+                    'country' => implode(':',array(WC()->countries->get_base_country(),WC()->countries->get_base_state())),
                     'phone' => '',
                     'email' => '',
                     'facebook' => '',
@@ -122,6 +128,7 @@ if(!class_exists('OP_Warehouse'))
                 $meta_key = $this->_meta_product_qty.'_'.$warehouse_id;
                 update_post_meta($product_id,$meta_key,$qty);
 
+                do_action('op_update_warehouse_qty',$warehouse_id,$product_id,$qty,$meta_key);
                // update_option('_openpos_product_version_'.$warehouse_id,time());
             }else{
 
@@ -151,6 +158,26 @@ if(!class_exists('OP_Warehouse'))
         public function get_transaction_meta_key(){
             $option_key = '_pos_transaction_warehouse';
             return $option_key;
+        }
+        public function getStorePickupAddress($warehouse_id = 0){
+            $details = $this->get($warehouse_id);
+            $result['address_1'] = isset($details['address']) ? $details['address']:'';
+            $result['address_2'] = isset($details['address_2']) ? $details['address_2']:'';
+            $result['city'] = isset($details['city']) ? $details['city']:'';
+            $result['postcode'] = isset($details['postal_code']) ? $details['postal_code']:'';
+            $country_state = isset($details['country']) ? $details['country']:'';
+            $country = '';
+            $state = '';
+            if($country_state)
+            {
+                $location = wc_format_country_state_string($country_state);
+
+                $country = $location['country'];
+                $state = $location['state'];
+            }
+            $result['country'] = $country;
+            $result['state'] = $state;
+            return $result;
         }
     }
 }

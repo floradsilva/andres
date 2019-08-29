@@ -77,11 +77,7 @@ $openpos_type = $this->settings_api->get_option('openpos_type','openpos_pos');
                                 </td>
                                 <td class="address">
                                     <address>
-                                        <?php  echo $warehouse['address'] ? $warehouse['address'].'<br>':'' ?>
-                                        <?php  echo $warehouse['city'] ? $warehouse['city'].'<br>':'' ?>
-                                        <?php  echo $warehouse['postal_code'] ? $warehouse['postal_code'].'<br>':'' ?>
-                                        <?php  echo $warehouse['country'] ? $warehouse['country'].'<br>':'' ?>
-
+                                        <?php echo $address = WC()->countries->get_formatted_address( $op_warehouse->getStorePickupAddress( $warehouse['id'] ) ); ?>
                                     </address>
                                 </td>
                                 <td>

@@ -183,6 +183,10 @@ if(!class_exists('OP_Register'))
             $upload_dir = wp_upload_dir();
             $url = $upload_dir['baseurl'];
             $url = ltrim($url,'/');
+            if(is_multisite()){
+                $prefix = '/sites/'.get_current_blog_id();
+                $url = str_replace($prefix, '',$url);
+            }
             return $url.'/openpos/registers/'.$register_id.'.json';
         }
         public function bill_template(){

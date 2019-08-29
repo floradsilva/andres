@@ -5,15 +5,15 @@ Plugin URI: http://openswatch.com
 Description: Quick POS system for woocommerce.
 Author: anhvnit@gmail.com
 Author URI: http://openswatch.com/
-Version: 3.0
+Version: 3.4.0
 WC requires at least: 2.6
-WC tested up to: 3.6.1
+WC tested up to: 3.7.0
 Text Domain: openpos
 License: GPL version 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 */
+
 define('OPENPOS_DIR',plugin_dir_path(__FILE__));
 define('OPENPOS_URL',plugins_url('woocommerce-openpos'));
-
 
 global $OPENPOS_SETTING;
 global $OPENPOS_CORE;
@@ -34,6 +34,7 @@ require_once( OPENPOS_DIR.'lib/abtract-op-app.php' );
 
 require_once( OPENPOS_DIR.'lib/class-op-woo.php' );
 require_once( OPENPOS_DIR.'lib/class-op-woo-cart.php' );
+require_once( OPENPOS_DIR.'lib/class-op-woo-order.php' );
 require_once( OPENPOS_DIR.'lib/class-op-session.php' );
 require_once( OPENPOS_DIR.'lib/class-op-register.php' );
 require_once( OPENPOS_DIR.'lib/class-op-table.php' );
@@ -51,6 +52,7 @@ global $op_table;
 global $op_stock;
 global $op_woo;
 global $op_woo_cart;
+global $op_woo_order;
 global $op_exchange;
 
 //check woocommerce active
@@ -63,6 +65,7 @@ if(is_plugin_active( 'woocommerce/woocommerce.php' ))
     $op_woo = new OP_Woo();
     $op_woo->init();
     $op_woo_cart = new OP_Woo_Cart();
+    $op_woo_order = new OP_Woo_Order();
 
     $op_warehouse = new OP_Warehouse();
     $op_register = new OP_Register();

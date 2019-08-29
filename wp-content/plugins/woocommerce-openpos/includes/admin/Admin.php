@@ -30,9 +30,10 @@ class Openpos_Admin{
 
     public function init()
     {
+        add_action( 'admin_notices',array($this, 'admin_notice') );
         add_action( 'admin_init', array($this, 'admin_init') );
         add_action( 'init', array($this, '_short_code') );
-        //add_action('admin_enqueue_scripts', array($this,'admin_style'));
+        add_action('admin_enqueue_scripts', array($this,'admin_global_style'));
         //add_action( 'init', array($this,'create_store_taxonomies'), 0 );
 
         add_filter( "manage_edit-store_columns", array($this,'store_setting_column_header'), 10);
@@ -86,6 +87,7 @@ class Openpos_Admin{
         add_action( 'wp_ajax_op_adjust_stock', array($this,'op_adjust_stock') );
         add_action( 'wp_ajax_op_ajax_category', array($this,'op_ajax_category') );
         add_action( 'wp_ajax_op_ajax_report', array($this,'report_ajax') );
+        add_action( 'wp_ajax_op_upload_product_image', array($this,'upload_product_image') );
 //        add_action( 'wp_ajax_openpos_report_data_table', array($this,'report_data_table') );
 
     }
@@ -99,7 +101,7 @@ class Openpos_Admin{
         //initialize settings
         $this->settings_api->admin_init();
 
-
+        $this->admin_notice_init();
     }
     function plugin_row_meta($plugin_meta, $plugin_file, $plugin_data){
         $plugin = isset($plugin_data['TextDomain']) ? $plugin_data['TextDomain']:'';
@@ -187,6 +189,9 @@ class Openpos_Admin{
 
 
         $allow_payment_methods = $this->settings_api->get_option('payment_methods','openpos_payment');
+
+        $setting_pos_discount_tax_class = $this->settings_api->get_option('pos_discount_tax_class','openpos_general');
+
         $addition_general_setting = array();
         $wc_order_status = wc_get_order_statuses();
         if(isset($allow_payment_methods['stripe']))
@@ -230,7 +235,10 @@ class Openpos_Admin{
         $pos_custom_item_tax_class_setting = array();
         $pos_custom_item_tax_rate_setting = array();
 
-        if($pos_custom_item == 'yes' && $pos_tax_class != 'op_notax')
+        $pos_discount_tax_class_setting = array();
+        $pos_discount_tax_rate_setting = array();
+
+        if($pos_custom_item == 'yes' && $pos_tax_class == 'op_productax')
         {
             $pos_custom_item_tax_class = $this->settings_api->get_option('pos_custom_item_tax_class','openpos_pos');
 
@@ -292,20 +300,23 @@ class Openpos_Admin{
                 )
             );
         }
+
+        $tax_included_discount = array(
+//            'name'              => 'pos_tax_included_discount',
+//            'label'             => __( 'Tax Included Discount', 'openpos' ),
+//            'type'              => 'select',
+//            'default'           => 'no',
+//            'desc'    => __( 'Include discount amount when get final tax amount', 'openpos' ),
+//            'options' =>  array(
+//                'yes' => __( 'Yes', 'openpos' ),
+//                'no'  => __( 'No', 'openpos' ),
+//            )
+        );
+
         if($pos_tax_class != 'op_productax')
         {
 
-            $tax_included_discount = array(
-                'name'              => 'pos_tax_included_discount',
-                'label'             => __( 'Tax Included Discount', 'openpos' ),
-                'type'              => 'select',
-                'default'           => 'no',
-                'desc'    => __( 'Include discount amount when get final tax amount', 'openpos' ),
-                'options' =>  array(
-                    'yes' => __( 'Yes', 'openpos' ),
-                    'no'  => __( 'No', 'openpos' ),
-                )
-            );
+
             if($pos_tax_class != 'op_notax')
             {
                 $rates = $op_woo->getTaxRates($pos_tax_class);
@@ -334,17 +345,45 @@ class Openpos_Admin{
             }
 
         }else{
-            $tax_included_discount = array(
-                'name'              => 'pos_tax_included_discount',
-                'label'             => __( 'Tax Included Discount', 'openpos' ),
+
+
+
+
+            $pos_discount_tax_class_setting = array(
+                'name'              => 'pos_discount_tax_class',
+                'label'             => __( 'Discount Tax Class', 'openpos' ),
+                'desc'              => __('Discount Tax Class, both cart discount and coupon. It for POS only','openpos'),
+                'default'           => 'op_notax',
                 'type'              => 'select',
-                'default'           => 'no',
-                'desc'    => __( 'Include discount amount when get cart item final tax amount', 'openpos' ),
-                'options' =>  array(
-                    'yes' => __( 'Yes', 'openpos' ),
-                    'no'  => __( 'No', 'openpos' ),
-                )
+                'options' => array_merge( array(
+                    'op_notax'  =>  __( 'No Tax', 'openpos' )
+                ),$all_tax_classes)
             );
+
+            if($setting_pos_discount_tax_class != 'op_notax')
+            {
+                $rates = $op_woo->getTaxRates($setting_pos_discount_tax_class);
+
+                $rate_options = array();
+                foreach($rates as $rate_id => $rate)
+                {
+                    $rate_options[''.$rate_id] = $rate['label'].' ('.$rate['rate'].'%)';
+                }
+
+                if( !empty($rate_options))
+                {
+                    $rate_options[0] = __( 'Choose tax rate', 'openpos' );
+                    $pos_discount_tax_rate_setting = array(
+                        'name'              => 'pos_discount_tax_rate',
+                        'label'             => __( 'Discount Tax Rate', 'openpos' ),
+                        'desc'              => __('Add discount tax rate, this rate for cart discount and coupon discount on POS only','openpos'),
+                        'default'           => '0',
+                        'type'              => 'select',
+                        'options' => $rate_options
+                    );
+                }
+            }
+
         }
 
         $dashboard_display_options = array(
@@ -431,8 +470,21 @@ class Openpos_Admin{
                         'op_notax'  => 'No Tax'
                     ),wc_get_product_tax_class_options())
                 ),
+                array(
+                    'name'    => 'pos_cart_discount',
+                    'label'   => __( 'Cart Discount Calculation', 'openpos' ),
+                    'desc'    => __( 'Cart discount calculation base on', 'openpos' ),
+                    'type'    => 'select',
+                    'default' => 'after_tax',
+                    'options' =>  array(
+                        'after_tax' => __( 'After Tax', 'openpos' ),
+                        'before_tax'  => __( 'Before Tax', 'openpos' ),
+                    )
+                ),
                 $tax_included_discount_rate,
-                $tax_included_discount
+                $tax_included_discount,
+                $pos_discount_tax_class_setting,
+                $pos_discount_tax_rate_setting
             ),
             'openpos_payment' => array(
                 array(
@@ -470,7 +522,7 @@ class Openpos_Admin{
                     'default' => 'in',
                     'options' => array(
                         'in' => 'Inch',
-                        'mm' => 'Minimeter'
+                        'mm' => 'Millimeter'
                     )
                 ),
                 array(
@@ -759,7 +811,7 @@ class Openpos_Admin{
                 array(
                     'name'              => 'pos_clear_product',
                     'label'             => __( 'Clear Product List ', 'openpos' ),
-                    'desc'              => __( 'Auto clear product list on your local data after logout. It help if you have a lots of products.','openpos'),
+                    'desc'              => __( 'Auto clear product list on your local data after logout. Recommend set to "No" if you have > 500 products.','openpos'),
                     'default'           => 'yes',
                     'type'              => 'select',
                     'options' => array(
@@ -849,6 +901,40 @@ class Openpos_Admin{
                     'default'           => '',
                     'type'              => 'text'
                 ),
+                array(
+                    'name'              => 'pos_require_customer_mode',
+                    'label'             => __( 'Require customer', 'openpos' ),
+                    'desc'              => __( 'Require checkout with customer added only in POS','openpos'),
+                    'default'           => 'no',
+                    'type'              => 'select',
+                    'options' => array(
+                        'yes' => __('Yes','openpos'),
+                        'no' => __('No','openpos'),
+                    )
+                ),
+                array(
+                    'name'              => 'search_type',
+                    'label'             => __( 'Search Type', 'openpos' ),
+                    'desc'              => __( 'Layout of result return by search product input ','openpos'),
+                    'default'           => 'suggestion',
+                    'type'              => 'select',
+                    'options' => array(
+                        'suggestion' => __('Auto Suggestion','openpos'),
+                        'grid' => __('Product Grid Display','openpos'),
+                    )
+                ),
+                array(
+                    'name'              => 'pos_default_checkout_mode',
+                    'label'             => __( 'Payment Type', 'openpos' ),
+                    'desc'              => __( 'Logic for Payment method type use in POS checkout','openpos'),
+                    'default'           => 'multi',
+                    'type'              => 'select',
+                    'options' => array(
+                        'multi' => __('Split Multi Payment','openpos'),
+                        'single' => __('Single Payment','openpos'),
+                    )
+                ),
+
 
 
             ),
@@ -962,6 +1048,7 @@ class Openpos_Admin{
                 ),
             )
         );
+        $addition_general_setting = apply_filters('op_addition_general_setting',$addition_general_setting);
         $settings_fields['openpos_payment'] = array_merge($settings_fields['openpos_payment'],$addition_general_setting);
         return $settings_fields;
     }
@@ -1133,24 +1220,39 @@ class Openpos_Admin{
 
     public function stock_products_update(){
         global $op_warehouse;
-        $request_data = isset($_REQUEST['qty']) ? $_REQUEST['qty'] : array();
-        foreach($request_data as $product_id => $qty_data)
+        $params = $_REQUEST;
+        if(isset($params['field']) && $params['field'] && isset($params['id']))
         {
-            foreach($qty_data as $warehouse_id => $qty)
-            {
-                if($warehouse_id > 0)
+                $id = $params['id'];
+                $product = wc_get_product($id);
+                if($product)
                 {
-                    $op_warehouse->set_qty($warehouse_id,$product_id,$qty);
-                }else{
-                    $_product = wc_get_product($product_id);
-                    $_product->set_manage_stock(true);
-                    $_product->set_stock_quantity($qty);
-                    $_product->save();
-                    $this->core->addProductChange($product_id,$warehouse_id);
-                    //update_option('_openpos_product_version_0',time());
+                    if($params['field'] == 'price' && $params['field_value'])
+                    {
+                        $product->set_price((float)$params['field_value']);
+                        $product->set_regular_price((float)$params['field_value']);
+                        $product->save();
+                    }
+
                 }
-
-
+        }else{
+            $request_data = isset($_REQUEST['qty']) ? $_REQUEST['qty'] : array();
+            foreach($request_data as $product_id => $qty_data)
+            {
+                foreach($qty_data as $warehouse_id => $qty)
+                {
+                    if($warehouse_id > 0)
+                    {
+                        $op_warehouse->set_qty($warehouse_id,$product_id,$qty);
+                    }else{
+                        $_product = wc_get_product($product_id);
+                        $_product->set_manage_stock(true);
+                        $_product->set_stock_quantity($qty);
+                        $_product->save();
+                        $this->core->addProductChange($product_id,$warehouse_id);
+                        //update_option('_openpos_product_version_0',time());
+                    }
+                }
             }
         }
     }
@@ -1212,6 +1314,8 @@ class Openpos_Admin{
             $args['s'] = $searchPhrase;
         }
 
+        $args = apply_filters('op_load_stock_product_args',$args);
+
         $posts = $this->core->getProducts($args);
         $posts_array = $posts['posts'];
         $total = $posts['total'];
@@ -1240,8 +1344,8 @@ class Openpos_Admin{
                     $tmp[$field] = $post->$field;
                 }
 
-
-                if($tid = get_post_thumbnail_id($post->ID))
+                $tid = get_post_thumbnail_id($post->ID);
+                if($tid)
                 {
                     $props = wc_get_product_attachment_props( get_post_thumbnail_id($product_id), $post );
                     $thumb = get_the_post_thumbnail( $post->ID, 'shop_thumbnail', array(
@@ -1255,13 +1359,16 @@ class Openpos_Admin{
                 {
                     $parent_id = $post->post_parent;
                     $parent_product = wc_get_product($parent_id);
-                    if($tid = get_post_thumbnail_id($parent_id))
+                    if(!$tid)
                     {
-                        $props = wc_get_product_attachment_props( get_post_thumbnail_id($parent_id), $parent_product );
-                        $thumb = get_the_post_thumbnail( $parent_id, 'shop_thumbnail', array(
-                            'title'  => $props['title'],
-                            'alt'    => $props['alt'],
-                        ) );
+                        if($tid = get_post_thumbnail_id($parent_id))
+                        {
+                            $props = wc_get_product_attachment_props( get_post_thumbnail_id($parent_id), $parent_product );
+                            $thumb = get_the_post_thumbnail( $parent_id, 'shop_thumbnail', array(
+                                'title'  => $props['title'],
+                                'alt'    => $props['alt'],
+                            ) );
+                        }
                     }
                 }
 
@@ -1285,7 +1392,7 @@ class Openpos_Admin{
                     $price = 0;
                 }
 
-                $tmp['formatted_price'] = wc_price($price);
+                $tmp['formatted_price'] = '<div class="vna-row-price row"><div class="col-md-8 text-right"><input type="text" value="'.$price.'" class="row-price-input form-control" /><div class="row-price-span">'.wc_price($price).'</div> </div><div class="col-md-4 text-left"> <a href="javascript:void(0)" data-id="'.$product_id.'" class="click-edit-price-a"><span class="glyphicon glyphicon-pencil"></span><span class="glyphicon glyphicon-saved"></span></a></div></div>';
                 $qty = $_product->get_stock_quantity();
 
 
@@ -1296,34 +1403,33 @@ class Openpos_Admin{
 
                 foreach($warehouses as $w)
                 {
-
+                    $tmp_qty_html = '';
                     if($warehouse_id == -1)
                     {
 
                         $qty = $op_warehouse->get_qty($w['id'],$product_id);
 
                         $tmp['total_qty']  += $qty;
-                        $tmp['qty_html'] .= '<div> <p>'.$w['name'].': </p><p><input class="form-text-input input-control" name="qty['.$product_id.']['.$w['id'].']" type="number" value="'.$qty.'"/></p></div>';
+                        $tmp_qty_html .= '<div class="warehouse-product-qty"> <p>'.$w['name'].': </p><p><input class="form-text-input input-control product-qty-warehouse" name="qty['.$product_id.']['.$w['id'].']" type="number" value="'.$qty.'"/><input class="input-control product-allow-warehouse" type="checkbox" name="allow_pos['.$product_id.']['.$w['id'].']" value="yes" checked /></p></div>';
                     }else{
                         if($w['id'] == $warehouse_id)
                         {
                             $qty = $op_warehouse->get_qty($w['id'],$product_id);
 
                             $tmp['total_qty']  += $qty;
-                            $tmp['qty_html'] .= '<div> <p>'.$w['name'].': </p><p><input class="form-text-input input-control" name="qty['.$product_id.']['.$w['id'].']" type="number" value="'.$qty.'"/></p></div>';
+                            $tmp_qty_html .= '<div class="warehouse-product-qty"> <p>'.$w['name'].': </p><p><input class="form-text-input input-control product-qty-warehouse" name="qty['.$product_id.']['.$w['id'].']" type="number" value="'.$qty.'"/><input  class="input-control product-allow-warehouse" type="checkbox" name="allow_pos['.$product_id.']['.$w['id'].']" value="yes" checked /></p></div>';
                         }
-
-
                     }
+                    $tmp['qty_html'] .= apply_filters('op_warehouse_stock_qty_html_input',$tmp_qty_html,$tmp,$w);
 
 
                 }
                 $tmp['qty_html'] .= '</form>';
                 $tmp['id'] = $product_id;
 
-                $tmp['product_thumb'] = $thumb;
+                $tmp['product_thumb'] = '<div class="vna-cell-image"><a href="javascript:void(0);" class="upload-a" data-id="'.$product_id.'"><span class="glyphicon glyphicon-camera"></span></a>'.$thumb.'</div>';
 
-                $rows[] = $tmp;
+                $rows[] =  apply_filters('op_warehouse_stock_row_data',$tmp,$post,$warehouse_id);
 
 
             }
@@ -1483,7 +1589,8 @@ class Openpos_Admin{
 
                 $tmp['product_thumb'] = $thumb;
 
-                $rows[] = $tmp;
+
+                $rows[] =  apply_filters('op_warehouse_inventory_row',$tmp,$warehouse_id,$post);
 
 
             }
@@ -1825,11 +1932,12 @@ class Openpos_Admin{
                 wp_enqueue_script('openpos.admin-jquery.bootgrid', OPENPOS_URL.'/assets/js/jquery.bootgrid.min.js','jquery',$info['Version']);
             }
 
-            wp_enqueue_style('openpos.admin', OPENPOS_URL.'/assets/css/admin.css','',$info['Version']);
+
             wp_enqueue_script('openpos.admin.js', OPENPOS_URL.'/assets/js/admin.js','jquery',$info['Version']);
             $vars['ajax_url'] = admin_url('admin-ajax.php');
             wp_localize_script('openpos.admin.js', 'openpos_admin', $vars);
         }
+        wp_enqueue_style('openpos.admin', OPENPOS_URL.'/assets/css/admin.css','',$info['Version']);
 
 
     }
@@ -1894,6 +2002,11 @@ class Openpos_Admin{
 
     }
 
+    public function get_pos_url(){
+        $pos_url = OPENPOS_URL.'/pos/';
+        return  apply_filters('op_pos_url',$pos_url);
+    }
+
     public function admin_bar_menus( $wp_admin_bar ) {
         if ( ! is_admin() || ! is_user_logged_in() ) {
             return;
@@ -1902,7 +2015,7 @@ class Openpos_Admin{
         if ( ! is_user_member_of_blog() && ! is_super_admin() ) {
             return;
         }
-        $pos_url = OPENPOS_URL.'/pos/';
+        $pos_url = $this->get_pos_url();
         // Add an option to visit the store.
         $wp_admin_bar->add_node( array(
             'parent' => 'site-name',
@@ -1929,7 +2042,7 @@ class Openpos_Admin{
         $page = add_submenu_page( 'openpos-dasboard', __( 'POS - Products', 'openpos' ),  __( 'Products Barcode', 'openpos' ) , 'manage_woocommerce', 'op-products', array( $this, 'products_page' ) );
         add_action( 'admin_print_styles-'. $page, array( &$this, 'admin_enqueue' ) );
 
-        $page = add_submenu_page( 'openpos-dasboard', __( 'POS - Staffs', 'openpos' ),  __( 'Store Staffs', 'openpos' ) , 'manage_options', 'op-cashiers', array( $this, 'cashier_page' ) );
+        $page = add_submenu_page( 'openpos-dasboard', __( 'POS - Staffs', 'openpos' ),  __( 'Store Staff', 'openpos' ) , 'manage_options', 'op-cashiers', array( $this, 'cashier_page' ) );
         add_action( 'admin_print_styles-'. $page, array( &$this, 'admin_enqueue' ) );
 
 
@@ -2054,6 +2167,7 @@ class Openpos_Admin{
     {
         $ranges = $this->core->getReportRanges('last_7_days');
         $chart_data = array();
+        $pos_url = $this->get_pos_url();
         $chart_data[] = array(
             __('Date','openpos'),
             __('Sales','openpos'),
@@ -2859,6 +2973,107 @@ class Openpos_Admin{
                             }
                         }
                         break;
+                    case 'sale_by_product':
+                        $orders_table_data = array();
+                        $orders_export_data = array();
+                        $summary_html = '';
+                        $is_all = false;
+                        if($report_register_id > 0)
+                        {
+                            $orders = $this->core->getPosRegisterOrderByDate($report_register_id,$ranges['start'],$ranges['end']);
+                        }elseif($report_outlet_id > 0){
+                            $orders = $this->core->getPosWarehouseOrderByDate($report_outlet_id,$ranges['start'],$ranges['end']);
+                        }else{
+                            $orders = $this->core->getPosOrderByDate($ranges['start'],$ranges['end']);
+                            $is_all = true;
+                        }
+
+                        $orders_export_data[] = array(
+                            __('Product','openpos'),
+                            __('QTY','openpos'),
+                            __('Sale','openpos'),
+                        );
+
+                        $summary_html.= '<div class="container-fluid"><div class="row"><div class="col-md-12">';
+                        $summary_html.= '<table class="table table-bordered">';
+                        $summary_html.= '<tr>';
+                        $summary_html.= '<th>'.__('Product','openpos').'</th>';
+                        $summary_html.= '<th>'.__('QTY','openpos').'</th>';
+                        $summary_html.= '<th>'.__('Sale','openpos').'</th>';
+                        $summary_html.= '</tr>';
+
+                        $item_data = array();
+                        $custom_item_data = array();
+
+                        foreach($orders as $_order) {
+                            $order = new WC_Order($_order->ID);
+                            $items = $order->get_items();
+                            foreach($items as $item)
+                            {
+                                $product = $item->get_product();
+                                $order_item_data = $item->get_data();
+                                if($product)
+                                {
+                                    $id = $product->get_id();
+                                    $item_qty = $item->get_quantity();
+                                    $item_sales =  $order_item_data['subtotal'];
+                                    if(isset($item_data[$id]))
+                                    {
+                                        $item_data[$id]['qty'] += $item_qty;
+                                        $item_data[$id]['sale'] += $item_sales;
+                                    }else{
+                                        $item_data[$id] = array(
+                                            'name' => $item->get_name(),
+                                            'qty' => $item_qty,
+                                            'sale' => $item_sales
+                                        );
+                                    }
+                                }else{
+
+                                    $item_qty = $item->get_quantity();
+                                    $item_sales =  $order_item_data['subtotal'];
+                                    $custom_item_data[] = array(
+                                        'name' => $item->get_name(),
+                                        'qty' => $item_qty,
+                                        'sale' => $item_sales
+                                    );
+                                }
+
+                            }
+                        }
+                        foreach($item_data as $_item)
+                        {
+                            $summary_html.= '<tr>';
+                            $summary_html.= '<td>'.$_item['name'].'</td>';
+                            $summary_html.= '<td>'.$_item['qty'].'</td>';
+                            $summary_html.= '<td>'.wc_price($_item['sale']).'</td>';
+                            $summary_html.= '</tr>';
+
+                            $orders_export_data[] = array(
+                                $_item['name'],
+                                $_item['qty'],
+                                $_item['sale']
+                            );
+                        }
+                        foreach($custom_item_data as $_item)
+                        {
+                            $summary_html.= '<tr>';
+                            $summary_html.= '<td>'.$_item['name'].'</td>';
+                            $summary_html.= '<td>'.$_item['qty'].'</td>';
+                            $summary_html.= '<td>'.wc_price($_item['sale']).'</td>';
+                            $summary_html.= '</tr>';
+                            $orders_export_data[] = array(
+                                $_item['name'],
+                                $_item['qty'],
+                                $_item['sale']
+                            );
+                        }
+                        $summary_html.= '</table></div></div></div>';
+                        break;
+                    case 'x_report':
+                    case 'z_report':
+
+                        break;
 
                 }
                 $result['table_data'] = $orders_table_data;
@@ -3403,6 +3618,10 @@ class Openpos_Admin{
                 }
                 break;
         }
+        if(strpos($atts['attribute'],'price') !== false)
+        {
+            $result = wc_price($result);
+        }
         $result = apply_filters('op_product_info_label',$result,$_op_product);
         return $result;
     }
@@ -3835,7 +4054,7 @@ class Openpos_Admin{
         try{
             $data = array();
 
-            if(isset($_FILES['file']))
+            if(current_user_can('upload_files') && isset($_FILES['file']))
             {
                 $file = $_FILES['file'];
                 if($file['type'])
@@ -3943,6 +4162,7 @@ class Openpos_Admin{
         );
         try{
             $params = $_POST;
+
             $result['data'] = $params['product'];
 
             if(!isset($params['warehouse_id']) )
@@ -4010,5 +4230,76 @@ class Openpos_Admin{
         echo json_encode($result);
         exit;
     }
+    function upload_product_image(){
+        $product_id = isset($_REQUEST['id']) ? $_REQUEST['id'] : 0;
+        if($product_id && current_user_can('upload_files'))
+        {
+            if ( ! function_exists( 'wp_handle_upload' ) ) {
+                require_once( ABSPATH . 'wp-admin/includes/file.php' );
+            }
+            $uploadedfile = $_FILES['field_value'];
+
+            $upload_overrides = array( 'test_form' => false );
+
+            $movefile = wp_handle_upload( $uploadedfile, $upload_overrides );
+
+            if ( $movefile && ! isset( $movefile['error'] ) ) {
+                $type = $movefile['type'];
+                if(strpos($type,'image') >= 0)
+                {
+                    $filename = $movefile['file'];
+                    $attachment = array(
+                        'guid'           => $movefile['url'],
+                        'post_mime_type' => $type,
+                        'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
+                        'post_content'   => '',
+                        'post_status'    => 'inherit'
+                    );
+                    $attach_id = wp_insert_attachment( $attachment, $filename, $product_id );
+                    require_once( ABSPATH . 'wp-admin/includes/image.php' );
+
+                    $attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
+
+                    wp_update_attachment_metadata( $attach_id, $attach_data );
+                    set_post_thumbnail( $product_id, $attach_id );
+                }
+            } else {
+                /**
+                 * Error generated by _wp_handle_upload()
+                 * @see _wp_handle_upload() in wp-admin/includes/file.php
+                 */
+                echo $movefile['error'];
+            }
+        }
+
+    }
+    function admin_global_style(){
+        wp_enqueue_style('openpos.admin.global', OPENPOS_URL.'/assets/css/admin_global.css');
+    }
+
+    function admin_notice_init(){
+        $option_page = isset($_REQUEST['option_page']) ? esc_attr($_REQUEST['option_page']) : '';
+        $action = isset($_REQUEST['action']) ? esc_attr($_REQUEST['action']) : '';
+        if(strpos($option_page,'openpos_') !== false && $action == 'update')
+        {
+            update_option('_admin_op_setting_msg',__( 'Your setting has been update succes. Don\'t forget Logout and Login POS again to take effect on POS panel !', 'openpos' ));
+        }
+    }
+
+    function admin_notice() {
+
+        $msg = get_option('_admin_op_setting_msg',false);
+
+        if($msg)
+        {
+            ?>
+            <div class="notice">
+                <p style="color: green;"><?php echo $msg; ?></p>
+            </div>
+            <?php
+            update_option('_admin_op_setting_msg','');
+        }
+    }
+
 
 }

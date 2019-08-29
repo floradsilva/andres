@@ -69,7 +69,7 @@ if(!class_exists('OP_Exchange'))
                 'post_title' => $exchange_title,
                 'post_content' => $reason,
                 'post_type' => $this->_post_type,
-                'post_status' => $exchange['status'],
+                'post_status' => isset($exchange['status']) ? $exchange['status'] : 'publish',
                 'post_parent' => $order_id,
                 'post_author' => $cashier_id
             );

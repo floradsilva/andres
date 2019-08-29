@@ -41,6 +41,8 @@ foreach($payment_gateways as $code => $gateway)
                             <?php endif; ?>
                             <option value="transactions" <?php echo $report_type == 'transactions' ? 'selected':''; ?>><?php echo __( 'Cash Transactions Report', 'openpos' ); ?></option>
                             <option value="sale_by_payment" <?php echo $report_type == 'sale_by_payment' ? 'selected':''; ?>><?php echo __( 'Sales By Payment Method', 'openpos' ); ?></option>
+                            <option value="sale_by_product" <?php echo $report_type == 'sale_by_product' ? 'selected':''; ?>><?php echo __( 'Sales By Product', 'openpos' ); ?></option>
+<!--                            <option value="x_report" --><?php //echo $report_type == 'x_report' ? 'selected':''; ?><!-->--><?php //echo __( 'X/Z Report', 'openpos' ); ?><!--</option>-->
 
                         </select>
                     </div>
@@ -173,10 +175,17 @@ foreach($payment_gateways as $code => $gateway)
                             curveType: 'function',
                             legend: { position: 'bottom' }
                         };
+                        $('.report-chart').show();
+                       if(data['chart_data'].length > 0)
+                       {
+                           var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+                           var chart_data = google.visualization.arrayToDataTable(data['chart_data']);
+                           chart.draw(chart_data, options);
+                       }else {
+                           $('.report-chart').hide();
+                       }
 
-                        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
-                        var chart_data = google.visualization.arrayToDataTable(data['chart_data']);
-                        chart.draw(chart_data, options);
+
                     }
                     if(data['table_data'])
                     {

@@ -18,7 +18,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12 col-log-12 col-sm-12 col-xs-12">
+        <div class="col-md-12 col-log-12 col-sm-12 col-xs-12 report-chart">
             <div id="curve_chart"></div>
         </div>
     </div>

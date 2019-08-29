@@ -3,6 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 ?>
 <?php
 global $op_warehouse;
+global $op_woo;
 $default = array(
     'id' => 0,
     'name' => '',
@@ -21,6 +22,8 @@ if($id)
     $default = $op_warehouse->get($id);
 
 }
+$op_warehouse->getStorePickupAddress(0);
+$countries = $op_woo->get_countries_and_states();
 
 ?>
 <style type="text/css">
@@ -61,30 +64,47 @@ if($id)
                         <label for="input_name" class="col-sm-4 control-label required "><?php echo __('Outlet Name','openpos');?></label>
                         <div class="col-sm-8">
                             <input type="text" name="name" value="<?php echo $default['name'];?>"  class="form-control" id="input_name" placeholder="Name">
+
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="input_address" class="col-sm-4 control-label"><?php echo __('Address','openpos');?></label>
+                        <label for="input_address" class="col-sm-4 control-label"><?php echo __('Address line 1','openpos');?></label>
                         <div class="col-sm-8">
                             <input type="text" name="address" value="<?php echo $default['address'];?>"  class="form-control" id="input_address" placeholder="Address">
+                            <p class="help-block"><?php echo __( 'The street address for your business location.', 'openpos' ); ?></p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="input_address" class="col-sm-4 control-label"><?php echo __('Address line 2','openpos');?></label>
+                        <div class="col-sm-8">
+                            <input type="text" name="address_2" value="<?php echo isset($default['address_2']) ? $default['address_2'] : '';?>"  class="form-control" id="input_address" placeholder="Address 2">
+                            <p class="help-block"><?php echo __( 'An additional, optional address line for your business location.', 'openpos' ); ?></p>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="input_city" class="col-sm-4 control-label"><?php echo __('City','openpos');?></label>
                         <div class="col-sm-8">
                             <input type="text" name="city" value="<?php echo $default['city'];?>"  class="form-control" id="input_city" placeholder="City">
+                            <p class="help-block"><?php echo __( 'The city in which your business is located.', 'openpos' ); ?></p>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="input_zip" class="col-sm-4 control-label"><?php echo __('Postal Code','openpos');?></label>
-                        <div class="col-sm-4">
-                            <input type="text" name="postal_code" value="<?php echo $default['postal_code'];?>"  class="form-control" id="input_zip" placeholder="Potstal code">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="input_country" class="col-sm-4 control-label"><?php echo __('Country','openpos');?></label>
+                        <label for="input_country" class="col-sm-4 control-label"><?php echo __('Country / State','openpos');?></label>
                         <div class="col-sm-8">
-                            <input type="text" name="country" value="<?php echo $default['country'];?>"  class="form-control" id="input_country" placeholder="Country">
+                            <select class="form-control" name="country">
+                                <option value=""><?php echo __('Default store','openpos');?></option>
+                                <?php foreach($countries as $value => $label): ?>
+                                <option value="<?php echo $value; ?>" <?php echo $value == $default['country'] ? 'selected':'';?>><?php echo $label; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="help-block"><?php echo __( 'The country and state or province, if any, in which your business is located.', 'openpos' ); ?></p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="input_zip" class="col-sm-4 control-label"><?php echo __('Postcode / ZIP','openpos');?></label>
+                        <div class="col-sm-8">
+                            <input type="text" name="postal_code" value="<?php echo $default['postal_code'];?>"  class="form-control" id="input_zip" placeholder="Postcode code">
+                            <p class="help-block"><?php echo __( 'The postal code, if any, in which your business is located.', 'openpos' ); ?></p>
                         </div>
                     </div>
                     <div class="form-group">

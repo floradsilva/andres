@@ -51,7 +51,9 @@ if(!class_exists('OP_Session'))
             }
         }
         function generate_session_id(){
-            session_start();
+            if(session_id() == '') {
+                session_start();
+            }
             $session_id = 'op-'.time().'-'.session_id();
             return apply_filters('op_session_id',$session_id);
         }

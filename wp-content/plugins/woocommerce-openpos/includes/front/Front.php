@@ -11,7 +11,6 @@ class Openpos_Front{
     private $_session;
     public function __construct()
     {
-
         header('Access-Control-Allow-Origin: *');
         global $OPENPOS_SETTING;
         global $OPENPOS_CORE;
@@ -50,9 +49,11 @@ class Openpos_Front{
         $payment_methods = $this->settings_api->get_option('payment_methods','openpos_payment');
 
 
-        wp_enqueue_style('openpos.material.icon', 'https://fonts.googleapis.com/icon?family=Material+Icons');
+        wp_enqueue_style('openpos.material.icon', OPENPOS_URL.'/assets/css/material-icons.css','',$info['Version']);
+        wp_enqueue_style( 'openpos.styles.font', OPENPOS_URL.'/pos/font.css','',$info['Version']);
+        wp_enqueue_style( 'openpos.front', OPENPOS_URL.'/pos/pos.css',array('openpos.styles.font'),$info['Version']);
         wp_enqueue_style( 'openpos.styles', OPENPOS_URL.'/pos/styles.css','',$info['Version']);
-        wp_enqueue_style( 'openpos.front', OPENPOS_URL.'/pos/pos.css','',$info['Version']);
+
         if($custom_css)
         {
             wp_add_inline_style( 'openpos.front', esc_textarea($custom_css) );
@@ -66,13 +67,11 @@ class Openpos_Front{
                 wp_enqueue_script('openpos.pos.stripe', 'https://js.stripe.com/v3/','',$info['Version']);
                 wp_add_inline_script('openpos.pos.stripe',"
                   var stripe = Stripe('".esc_textarea($stripe_public_key)."'); 
-                  var elements = stripe.elements();
+                  
                 ");
                 $depend_script[] = 'openpos.pos.stripe';
             }
-
         }
-
 
         wp_register_script('openpos.pos.ga', 'https://www.googletagmanager.com/gtag/js?id=UA-128492614-1',$depend_script);
         wp_add_inline_script('openpos.pos.ga',"
@@ -86,6 +85,8 @@ class Openpos_Front{
               'domain': '".esc_url(OPENPOS_URL)."'
           });
         ");
+
+
 
 
         wp_enqueue_script('openpos.pos.runtime', OPENPOS_URL.'/pos/runtime.js','',$info['Version']);
@@ -184,6 +185,7 @@ class Openpos_Front{
         }
         if($validate )
         {
+            do_action('op_before_api_return',$api_action);
             switch ($api_action)
             {
                 case 'login':
@@ -219,8 +221,17 @@ class Openpos_Front{
                 case 'pending-order':
                     $result = $this->pending_payment_order();
                     break;
+                case 'payment-cc-order':
+                    $result = $this->payment_cc_order();
+                    break;
                 case 'payment-order':
                     $result = $this->payment_order();
+                    break;
+                case 'get-order-note':
+                    $result = $this->get_order_note();
+                    break;
+                case 'save-order-note':
+                    $result = $this->save_order_note();
                     break;
                 case 'update-order':
                     $result = $this->update_order();
@@ -233,6 +244,9 @@ class Openpos_Front{
                     break;
                 case 'search-customer-by':
                     $result = $this->search_customer_by();
+                    break;
+                case 'get-customer-orders':
+                    $result = $this->get_customer_orders();
                     break;
                 case 'update-customer':
                     $result = $this->update_customer();
@@ -282,17 +296,29 @@ class Openpos_Front{
                 case 'get-shipping-method':
                     $result = $this->get_shipping_method();
                     break;
+                case 'get-cart-discount':
+                    $result = $this->get_cart_discount();
+                    break;
                 case 'get-shipping-cost':
                     $result = $this->get_shipping_cost();
                     break;
                 case 'get_order_number':
                     $result = $this->get_order_number();
                     break;
+                case 'upload-desk':
+                    $result = $this->upload_desk();
+                    break;
                 case 'pull-desk':
                     $result = $this->pull_desk();
                     break;
+                case 'remove-takeaway-desk':
+                    $result = $this->remove_desk();
+                    break;
                 case 'check':
                     $result = $this->update_state();
+                    break;
+                case 'add_custom_product':
+                    $result = $this->add_custom_product();
                     break;
                 case 'get_app_list':
                     $result = $this->get_app_list();
@@ -301,6 +327,10 @@ class Openpos_Front{
                     $this->app_view();
                     exit;
                     break;
+                case 'search_product':
+                    $result = $this->search_product();
+                    break;
+
             }
         }
         $result['database_version'] = get_option('_openpos_product_version_'.$warehouse_id,0);
@@ -345,6 +375,7 @@ class Openpos_Front{
         $session_data = $this->_getSessionData();
         $login_cashdrawer_id = isset($session_data['login_cashdrawer_id']) ?  $session_data['login_cashdrawer_id'] : 0;
         $show_out_of_stock_setting = $this->settings_api->get_option('pos_display_outofstock','openpos_pos');
+        $show_out_of_stock = false;
         if($show_out_of_stock_setting == 'yes')
         {
             $show_out_of_stock = true;
@@ -410,7 +441,7 @@ class Openpos_Front{
             'orderby'          => $sortBy,
             'order'            => $order,
             'post_type'        => array('product','product_variation'),
-            'post_status'      => 'publish',
+            'post_status'      => array('publish'),
             'suppress_filters' => false
         );
         $args = apply_filters('op_load_product_args',$args);
@@ -523,6 +554,10 @@ class Openpos_Front{
                     $total_with_online = 0;
                     $total_no_online = 0;
                     $product = wc_get_product($product_id);
+                    if(!$product)
+                    {
+                        continue;
+                    }
                     if($product->get_type() == 'variable')
                     {
                         continue;
@@ -692,8 +727,6 @@ class Openpos_Front{
             $tmp_test['id'] = (int)$tmp['ID'];
             $tmp_test['name'] = $tmp['display_name'];
 
-
-
             $rows[] = $tmp_test;
         }
         return $rows;
@@ -846,37 +879,68 @@ class Openpos_Front{
         $setting['pos_money'] = $this->_formatCash($setting['pos_money']);
         $setting['pos_custom_cart_discount_amount'] = $this->_formatDiscountAmount($setting['pos_custom_cart_discount_amount']);
         $setting['pos_custom_item_discount_amount'] = $this->_formatDiscountAmount($setting['pos_custom_item_discount_amount']);
-        $tax_class = $this->getTaxDetails($setting['pos_tax_class']);
 
-        $setting['pos_tax_details'] = $this->getTaxDetails($setting['pos_tax_class']);
+
+        if(isset($setting['pos_tax_rate_id']))
+        {
+            $setting['pos_tax_details'] = $this->getTaxDetails($setting['pos_tax_class'],$setting['pos_tax_rate_id']);
+        }
+
+        if($setting['pos_tax_class'] == 'op_productax' && isset($setting['pos_discount_tax_rate']))
+        {
+            $setting['pos_discount_tax'] = $this->getTaxDetails($setting['pos_discount_tax_class'],$setting['pos_discount_tax_rate']);
+        }
+
+        if($setting['pos_tax_class'] == 'op_notax')
+        {
+            $setting['pos_tax_details'] = $this->getTaxDetails('',0);
+        }
 
         $setting['openpos_customer_addition_fields'] = $op_woo->getCustomerAdditionFields();
         $setting['pos_custom_item_tax'] = $op_woo->getCustomItemTax();
         $setting['pos_incl_tax_mode'] = ( $setting['pos_tax_class'] == 'op_productax'  && 'yes' === get_option( 'woocommerce_prices_include_tax' ) )  ? 'yes' : 'no';
+        if($setting['pos_incl_tax_mode'] == 'yes')
+        {
+            $setting['pos_item_incl_tax_mode'] = 'yes';
 
+        }
+
+
+        if($setting['pos_tax_class'] == '')
+        {
+            $setting['pos_tax_class'] = 'standard';
+        }
         return $setting;
     }
 
-    function getTaxDetails($tax_class){
-        $result = array('rate'=> 0,'compound' => '0','shipping' => 'no','label' => 'Tax');
+    function getTaxDetails($tax_class,$rate_id = 0){
+        global $op_woo;
+        $result = array('rate'=> 0,'compound' => '0','rate_id' => $rate_id,'shipping' => 'no','label' => 'Tax');
         if($tax_class != 'op_productax' && $tax_class != 'op_notax')
         {
             $tax_rate = 0;
+
             if(wc_tax_enabled() )
             {
 
                     $tax_rates = WC_Tax::get_rates( $tax_class );
+                    $rates = $op_woo->getTaxRates($tax_class);
                     if(!empty($tax_rates))
                     {
                         $rate = end($tax_rates);
                         $result = $rate;
                     }
+                    if($rate_id && isset($rates[$rate_id]))
+                    {
+                        $result = $rates[$rate_id];
+                    }
 
+                    $result['code'] = $tax_class ? $tax_class.'_'.$rate_id : 'standard_'.$rate_id;
+                    $result['rate_id'] = $rate_id;
             }
 
-
-
         }
+
         return $result;
     }
     function _formatCash($cash_str){
@@ -1358,7 +1422,33 @@ class Openpos_Front{
     function get_customer_field(){
         $result = array('status' => 0, 'message' => '','data' => array());
         try{
+            $by_data = json_decode(stripslashes($_REQUEST['by_data']),true);
+            $country = $by_data['country'];
             $data = array();
+            if($country )
+            {
+                $countries_obj   = new WC_Countries();
+                $states = $countries_obj->get_states($country);
+                if(!$states || empty($states))
+                {
+                    $data['state'] = array(
+                        'type' => 'text',
+                        'default' => ''
+                    );
+                }else{
+                    $state_options = array();
+                    foreach($states as $key => $state)
+                    {
+                        $state_options[] = ['value' => $key,'label' => $state];
+                    }
+                    $data['state'] = array(
+                        'type' => 'select',
+                        'default' => '',
+                        'options' => $state_options
+                    );
+                }
+
+            }
             $result['data'] = apply_filters('op_get_customer_field',$data);
             $result['status'] = 1;
         }catch (Exception $e)
@@ -1422,7 +1512,7 @@ class Openpos_Front{
             ) );
         }
 
-        $username = apply_filters('op_customer_username',sanitize_title($username));;
+        $username = apply_filters('op_customer_username',sanitize_title($username));
         if(!$email)
         {
            $email = $username.'@open-pos.com';
@@ -1467,6 +1557,10 @@ class Openpos_Front{
                     $customer->set_billing_city($request['city']);
                     $customer->set_shipping_city($request['city']);
                 }
+
+
+                $customer->set_billing_address_1($address);
+                $customer->set_shipping_address_1($address);
 
                 if(isset($request['address_2']) && $request['address_2'] && $request['address_2'] != null && $request['address_2'] != 'null')
                 {
@@ -1551,6 +1645,7 @@ class Openpos_Front{
             $name = $customer->get_billing_first_name().' '.$customer->get_billing_last_name();
         }
         $name = trim($name);
+
         if(strlen($name) < 1 && $phone){
             $name = $customer->get_billing_phone();
         }
@@ -1561,15 +1656,15 @@ class Openpos_Front{
         $customer_data = array(
             'id' => $customer_id,
             'name' => $name,
-            'firstname' => $customer->get_first_name(),
-            'lastname' => $customer->get_last_name(),
-            'address' => $customer->get_billing_address(),
-            'address_2' => $customer->get_address_2(),
-            'state' => $customer->get_state(),
-            'city' => $customer->get_city(),
-            'country' => $customer->get_country(),
-            'postcode' => $customer->get_postcode(),
-            'phone' => $customer->get_billing_phone(),
+            'firstname' => $customer->get_first_name() != 'null' ? $customer->get_first_name() : '',
+            'lastname' => $customer->get_last_name()  != 'null' ? $customer->get_last_name() : '',
+            'address' => $customer->get_billing_address() != 'null' ? $customer->get_billing_address() : '',
+            'address_2' => $customer->get_address_2() != 'null' ? $customer->get_address_2() : '',
+            'state' => $customer->get_state()  != 'null' ? $customer->get_state() : '',
+            'city' => $customer->get_city()  != 'null' ? $customer->get_city() : '',
+            'country' => $customer->get_country()  != 'null' ? $customer->get_country() : '',
+            'postcode' => $customer->get_postcode()  != 'null' ? $customer->get_postcode() : '',
+            'phone' => $customer->get_billing_phone()  != 'null' ? $customer->get_billing_phone() : '',
             'email' => $email,
             'billing_address' => $billing_address,
             'point' => 0,
@@ -1577,6 +1672,7 @@ class Openpos_Front{
             'badge' => '',
             'shipping_address' => $op_woo->getCustomerShippingAddress($customer_id)
         );
+
         $final_result = apply_filters('op_customer_data',$customer_data);
         return $final_result;
     }
@@ -1589,12 +1685,13 @@ class Openpos_Front{
                 throw new Exception(__('Customer do not exist','openpos'));
             }
             $name = esc_textarea($_REQUEST['name']);
-            $address = esc_textarea($_REQUEST['address']);
-            $phone = esc_textarea($_REQUEST['phone']);
-            $address_2 = isset($_REQUEST['address_2']) ? esc_textarea($_REQUEST['address_2']):'';
-            $state = isset($_REQUEST['state']) ? esc_textarea($_REQUEST['state']):'';
-            $city = isset($_REQUEST['city']) ? esc_textarea($_REQUEST['city']):'';
-            $postcode = isset($_REQUEST['postcode']) ? esc_textarea($_REQUEST['postcode']):'';
+            $address = (isset($_REQUEST['address']) && $_REQUEST['address']!=null) ? esc_textarea($_REQUEST['address']) : '';
+            $phone = isset($_REQUEST['phone']) && $_REQUEST['phone'] != null ? esc_textarea($_REQUEST['phone']) : '';
+            $address_2 = isset($_REQUEST['address_2']) && $_REQUEST['address_2'] != null ? esc_textarea($_REQUEST['address_2']):'';
+            $state = isset($_REQUEST['state']) && $_REQUEST['state'] != null ? esc_textarea($_REQUEST['state']):'';
+            $city = isset($_REQUEST['city']) && $_REQUEST['city'] != null ? esc_textarea($_REQUEST['city']):'';
+            $country = isset($_REQUEST['country']) && $_REQUEST['country'] != null ? esc_textarea($_REQUEST['country']):'';
+            $postcode = isset($_REQUEST['postcode']) && $_REQUEST['postcode'] != null ? esc_textarea($_REQUEST['postcode']):'';
             $customer = new WC_Customer($customer_id);
             $session_data = $this->_getSessionData();
             if($customer->get_email())
@@ -1611,34 +1708,99 @@ class Openpos_Front{
                 }
 
                 $customer->set_address($address);
+                $customer->set_billing_address($address);
                 $customer->set_billing_phone($phone);
                 $customer->set_display_name($name);
                 $customer->set_first_name(wc_clean($firstname));
                 $customer->set_last_name(wc_clean($lastname));
 
-                if($address_2)
+                $customer->set_billing_first_name($firstname);
+                $customer->set_billing_last_name($lastname);
+
+                if($address_2 )
                 {
                     $customer->set_address_2($address_2);
+                    $customer->set_billing_address_2($address_2);
                 }
                 if($state)
                 {
                     $customer->set_state($state);
+                    $customer->set_billing_state($state);
                 }
                 if($city)
                 {
                     $customer->set_city($city);
+                    $customer->set_billing_city($city);
                 }
                 if($postcode)
                 {
                     $customer->set_postcode($postcode);
+                    $customer->set_billing_postcode($postcode);
                 }
 
+                if($country)
+                {
+                    $customer->set_country($country);
+                    $customer->set_billing_country($country);
+                }
                 $customer->save_data();
                 do_action('op_update_customer_after',$customer_id,$session_data);
                 $result['status'] = 1;
                 $result['data'] = $this->_get_customer_data($customer_id);
             }
 
+        }catch (Exception $e)
+        {
+            $result['status'] = 0;
+            $result['message'] = $e->getMessage();
+        }
+        return $result;
+    }
+    function get_customer_orders(){
+        global $op_woo;
+        $result = array('status' => 0, 'message' => '','data' => array());
+        try{
+            $customer_id = (int)$_REQUEST['customer_id'];
+            $current_page = isset($_REQUEST['page']) ? (int)$_REQUEST['page'] : 1;
+            if(!$customer_id)
+            {
+                throw new Exception(__('Customer do not exist','openpos'));
+            }
+            $customer = new WC_Customer($customer_id);
+            if(!$customer)
+            {
+                throw new Exception(__('Customer do not exist','openpos'));
+            }
+            $total_order_count = $customer->get_order_count();
+            $per_page = 10;
+
+            $total_page = ceil($total_order_count / $per_page);
+
+            $data['status'] = 1;
+            $data['total_page'] = $total_page;
+
+            $data['orders'] = array();
+            $offset = ($current_page -1) * $per_page;
+            $query_params = array(
+                'numberposts' => $per_page,
+                'meta_key'    => '_customer_user',
+                'meta_value'  => $customer_id,
+                'post_type'   => wc_get_order_types( 'view-orders' ),
+                'post_status' => array_keys( wc_get_order_statuses() ),
+                'offset'           => $offset,
+                'customer' => $customer_id,
+                'orderby'          => 'date',
+                'order'            => 'DESC',
+            ) ;
+
+            $customer_orders = get_posts( $query_params );
+
+            foreach($customer_orders as $customer_order)
+            {
+                $data['orders'][] =  $op_woo->formatWooOrder($customer_order->ID);
+            }
+
+            $result['data'] = $data;
         }catch (Exception $e)
         {
             $result['status'] = 0;
@@ -1814,36 +1976,6 @@ class Openpos_Front{
                                     'refund_tax'   => array(),
                                 );
                             }
-                            $refund_amount = 0;
-                            $balance = $_exchange['addition_total'];
-                            if($balance  < 0 && $pos_exchange_partial_refund == 'yes')
-                            {
-                                $refund_amount =  (0 - $balance) +  $_exchange['fee_amount'];
-                            }
-
-                            $restock_items = true;
-                            if($warehouse_id > 0)
-                            {
-                                $restock_items = false;
-                            }
-                            $refund = wc_create_refund(
-                                array(
-                                    'amount'         => $refund_amount,
-                                    'reason'         => $refund_reason,
-                                    'order_id'       => $order_id,
-                                    'line_items'     => $line_items,
-                                    'refund_payment' => false,
-                                    'restock_items'  => $restock_items,
-                                )
-                            );
-
-                            if( $refund instanceof WP_Error)
-                            {
-                                //throw new Exception($refund->get_error_message());
-                            }
-                            $refund_id = $refund->get_id();
-                            update_post_meta($refund_id,'_op_local_id',$_exchange['id']);
-
 
                             if($_exchange['fee_amount'] > 0)
                             {
@@ -1945,16 +2077,30 @@ class Openpos_Front{
             $default_country = $op_woo->getDefaultContry();
 
 
+            $source = isset($order_parse_data['source']) ? $order_parse_data['source'] : '';
+            $source_type = isset($order_parse_data['source_type']) ? floatval($order_parse_data['source_type']) : '';
+
+
             $sub_total = isset($order_parse_data['sub_total']) ? floatval($order_parse_data['sub_total']) : 0;
             $tax_amount = isset($order_parse_data['tax_amount']) ? floatval($order_parse_data['tax_amount']) : 0;
             $tax_details = isset($order_parse_data['tax_details']) ? $order_parse_data['tax_details'] : array();
             $discount_amount = isset($order_parse_data['discount_amount']) ? floatval($order_parse_data['discount_amount']) : 0;
             $discount_type = isset($order_parse_data['discount_code']) ? floatval($order_parse_data['discount_code']) : 0;
+
+            $discount_excl_tax = isset($order_parse_data['discount_excl_tax']) ? floatval($order_parse_data['discount_excl_tax']) : 0;
+
+            $discount_tax_details = isset($order_parse_data['discount_tax_details']) ? $order_parse_data['discount_tax_details'] : array();
+
             $final_discount_amount = isset($order_parse_data['final_discount_amount']) ? floatval($order_parse_data['final_discount_amount']) : 0;
             $grand_total = isset($order_parse_data['grand_total']) ? floatval($order_parse_data['grand_total']) : 0;
             $point_paid = isset($order_parse_data['point_paid']) ? $order_parse_data['point_paid'] : 0;
             $discount_code = isset($order_parse_data['discount_code']) ? $order_parse_data['discount_code'] : '';
             $discount_code_amount = isset($order_parse_data['discount_code_amount']) ? floatval($order_parse_data['discount_code_amount']) : 0;
+
+            $discount_code_tax_amount = isset($order_parse_data['discount_code_tax_amount']) ? floatval($order_parse_data['discount_code_tax_amount']) : 0;
+
+            $discount_tax_amount = isset($order_parse_data['discount_tax_amount']) ? floatval($order_parse_data['discount_tax_amount']) : 0;
+
             $payment_method = isset($order_parse_data['payment_method']) ? $order_parse_data['payment_method'] : array();
             $shipping_information = isset($order_parse_data['shipping_information']) ? $order_parse_data['shipping_information'] : array();
             $sale_person_id = isset($order_parse_data['sale_person']) ? intval($order_parse_data['sale_person']) : 0;
@@ -2049,6 +2195,13 @@ class Openpos_Front{
                             'ID'           => $order_number,
                             'post_status'   => 'wc-pending'
                         );
+
+//                        $_POST['order_date'] = get_the_date( 'Y-m-d',$order_number );
+//                        $_POST['order_date_hour'] =  get_the_date( 'H',$order_number  );
+//                        $_POST['order_date_minute'] =  get_the_date( 'i' ,$order_number );
+//                        $_POST['order_date_second'] =  get_the_date( 's' ,$order_number );
+//                        print_r($_POST);die;
+
                         wp_update_post( $hidden_order );
                     }
 
@@ -2066,6 +2219,11 @@ class Openpos_Front{
 
                 $order = wc_create_order($arg);
 
+                $order->remove_order_items();
+
+
+
+
                 do_action('op_add_order_before',$order,$order_data,$session_data);
 
                 $order->set_date_created(current_time( 'timestamp', true ));
@@ -2076,6 +2234,7 @@ class Openpos_Front{
                 }
 
                 //product list
+
                 foreach($items as $_item)
                 {
                     $item_seller_id = isset($_item['seller_id']) ? $_item['seller_id'] : $sale_person_id;
@@ -2143,6 +2302,8 @@ class Openpos_Front{
                             'tax_amount' => $final_price_incl_tax - $final_price,
                         )
                     );
+
+
                     $item->add_meta_data( '_op_local_id', $_item['id']);
 
                     $item->add_meta_data( '_op_seller_id', $item_seller_id);
@@ -2162,9 +2323,11 @@ class Openpos_Front{
                     {
                         $item->add_meta_data('note' , $item_note);
                     }
-                    $item_sub_total = $_item['qty'] * $_item['final_price'];
-                    $item->set_subtotal($item_sub_total);
 
+                    $item_sub_total = $_item['qty'] * $_item['final_price'];
+
+                    $item->set_total_tax($item_total_tax);
+                    $item->set_subtotal($_item['total']);
                     $item->set_total($_item['total']);
 
                     if(isset($_item['subtotal']))
@@ -2174,6 +2337,7 @@ class Openpos_Front{
 
                     // item tax
                     $item->save();
+
                     if(isset($_item['tax_details']) && !empty($_item['tax_details']))
                     {
                         foreach($_item['tax_details'] as $item_tax_detail)
@@ -2189,6 +2353,7 @@ class Openpos_Front{
                                     $item_tax_class = $tmp_tax_class;
                                 }
                             }
+
                             $item->set_total_tax($item_tax_detail['total']);
                             $item->set_tax_class($item_tax_class);
                             $item->set_subtotal_tax($item_tax_detail['total']);
@@ -2198,6 +2363,7 @@ class Openpos_Front{
                                     'subtotal' => array($item_tax_detail['rate_id'] =>$item_tax_detail['total']),
                                 )
                             );
+
                         }
                     }
 
@@ -2399,6 +2565,40 @@ class Openpos_Front{
                     {
                         $order->set_customer_note($shipping_note);
                     }
+                }else{
+
+                    $store_address = $op_warehouse->getStorePickupAddress($login_warehouse_id);
+                    $order->set_shipping_first_name($shipping_first_name);
+                    $order->set_shipping_last_name($shipping_last_name);
+
+
+                    if(isset($store_address['address_1']))
+                    {
+                        $order->set_shipping_address_1($store_address['address_1']);
+                    }
+
+                    if(isset($store_address['address_2']))
+                    {
+                        $order->set_shipping_address_2($store_address['address_2']);
+                    }
+                    if(isset($store_address['city']))
+                    {
+                        $order->set_shipping_city($store_address['city']);
+                    }
+
+                    if(isset($store_address['state']))
+                    {
+                        $order->set_shipping_state($store_address['state']);
+                    }
+                    if(isset($store_address['postcode']))
+                    {
+                        $order->set_shipping_postcode($store_address['postcode']);
+                    }
+                    if(isset($store_address['country']))
+                    {
+                        $order->set_shipping_country($store_address['country']);
+                    }
+
                 }
 
                 $order->set_shipping_total($shipping_cost + $shipping_tax);
@@ -2406,8 +2606,10 @@ class Openpos_Front{
 
                 $grand_total += $shipping_tax;
                 //tax
-                if($tax_amount > 0 && !$is_product_tax)
+                //$tax_amount -= $discount_tax_amount + $discount_code_tax_amount;
+                if($tax_amount >= 0 && !$is_product_tax)
                 {
+
                     if(empty($tax_details))
                     {
                         $tax_item = new WC_Order_Item_Tax();
@@ -2429,7 +2631,11 @@ class Openpos_Front{
                         {
                             $tax_item->set_rate_id($setting_tax_rate_id);
                         }
-                        $order->add_item($tax_item);
+                        if($tax_amount > 0)
+                        {
+                            $order->add_item($tax_item);
+                        }
+
                     }else{
                         foreach($tax_details as $tax_detail)
                         {
@@ -2438,20 +2644,55 @@ class Openpos_Front{
                             $setting_tax_rate_id = $tax_detail['rate_id'];
                             $tax_item->set_label($label);
                             $tax_item->set_name(strtoupper( sanitize_title($label.'-'.$setting_tax_rate_id)));
-                            $tax_item->set_tax_total($tax_detail['total']);
+                            if($setting_tax_class == 'op_productax' || $setting_tax_class == 'op_notax' )
+                            {
+                                $tax_item->set_tax_total($tax_detail['total']);
+                            }else{
+                                $tax_item->set_tax_total($tax_amount);
+                            }
                             if($setting_tax_rate_id)
                             {
                                 $tax_item->set_rate_id($setting_tax_rate_id);
+                                $tax_item->set_rate($setting_tax_rate_id);
+                                $tax_item->set_rate_code($tax_detail['code']);
                             }
                             $tax_item->set_compound(false);
                             $tax_item->set_shipping_tax_total(0);
+                            $order->add_item($tax_item);
 
+                        }
+                    }
+                }
+
+                if(!empty($discount_tax_details))
+                {
+                    foreach($discount_tax_details as $discount_tax_detail){
+                        if(isset($discount_tax_detail['total']) && $discount_tax_detail['total'] > 0)
+                        {
+                            $discount_tax_total = 0 - $discount_tax_detail['total'];
+                            $tax_item = new WC_Order_Item_Tax();
+                            $label = $discount_tax_detail['label'];
+                            $setting_tax_rate_id = $discount_tax_detail['rate_id'];
+                            $tax_item->set_label($label);
+                            $tax_item->set_name(strtoupper( sanitize_title($label.'-'.$setting_tax_rate_id)));
+                            $tax_item->set_tax_total($discount_tax_total);
+
+                            if($setting_tax_rate_id)
+                            {
+                                $tax_item->set_rate_id($setting_tax_rate_id);
+                                $tax_item->set_rate($setting_tax_rate_id);
+                                $tax_item->set_rate_code($discount_tax_detail['code']);
+                            }
+                            $tax_item->set_compound(false);
+                            $tax_item->set_shipping_tax_total(0);
                             $order->add_item($tax_item);
                         }
                     }
-
                 }
+
                 $order->set_cart_tax($tax_amount);
+
+
                 //coupon
                 $coupon_item = new WC_Order_Item_Coupon();
 
@@ -2461,6 +2702,7 @@ class Openpos_Front{
                     //$discount_code_amount = 0 - $discount_code_amount;
                     $coupon_item->set_code($discount_code);
                     $coupon_item->set_discount($discount_code_amount);
+                    $coupon_item->set_discount_tax($discount_code_tax_amount);
                     $order->add_item($coupon_item);
 
                     do_action('op_add_order_coupon_after',$order,$order_data,$discount_code,$discount_code_amount);
@@ -2514,15 +2756,17 @@ class Openpos_Front{
 
 
                 $order->set_meta_data($order_meta);
+
+
+                //cart discount
+
+                $discount_total_tax = $discount_code_tax_amount + $discount_tax_amount;
+                $order->set_discount_tax( $discount_total_tax);
                 $order->set_discount_total($final_discount_amount);
 
+                //end cart discount;
+
                 $order->set_total( $grand_total );
-
-
-
-
-
-
 
                 if($note)
                 {
@@ -2537,18 +2781,15 @@ class Openpos_Front{
                 }
                 $order->save();
 
-
-
-
-
                 $arg = array(
                     'ID' => $order->get_id(),
                     'post_author' => $cashier_id,
                 );
+
+
+
                 wp_update_post( $arg );
-
                 do_action('op_add_order_after',$order,$order_data);
-
 
 
                 $result['data'] = $op_woo->formatWooOrder($order->get_id());
@@ -2570,6 +2811,38 @@ class Openpos_Front{
         return $result;
     }
 
+    function get_order_note(){
+        $result = array('status' => 0, 'message' => '','data' => array());
+        try{
+            global $op_woo_order;
+            $order_number = intval($_REQUEST['order_number']);
+
+            $notes = $op_woo_order->getOrderNotes($order_number);
+            $result['data'] = $notes;
+
+
+        }catch (Exception $e)
+        {
+            $result['status'] = 0;
+            $result['message'] = $e->getMessage();
+        }
+        return $result;
+    }
+    function save_order_note(){
+        $result = array('status' => 0, 'message' => '','data' => array());
+        try{
+            global $op_woo_order;
+            $order_number = intval($_REQUEST['order_number']);
+            $order_note = esc_textarea($_REQUEST['note']);
+            $op_woo_order->addOrderNote($order_number,$order_note);
+        }catch (Exception $e)
+        {
+            $result['status'] = 0;
+            $result['message'] = $e->getMessage();
+        }
+        return $result;
+    }
+
     function payment_order(){
         $result = array('status' => 0, 'message' => '','data' => array());
         try{
@@ -2582,6 +2855,11 @@ class Openpos_Front{
                 $order = wc_get_order($order_result['data']['order_id']);
 
                 $order_parse_data = json_decode(stripslashes($_REQUEST['order']),true);
+
+                $tmp_setting_order_status = $this->settings_api->get_option('pos_order_status','openpos_general');
+                $setting_order_status =  apply_filters('op_new_payment_order_status',$tmp_setting_order_status,$order_parse_data);
+
+
                 $payment_data = json_decode(stripslashes($_REQUEST['payment']),true);
                 $amount = (float)$_REQUEST['amount'];
                 if($amount > 0)
@@ -2627,7 +2905,9 @@ class Openpos_Front{
                         $result['data']['payment_method'] = $payment_method;
                         update_post_meta($order->get_id(), '_op_payment_methods', $payment_method);
 
-                        $order->set_status('completed', __('Done via OpenPos', 'openpos'));
+                        $order->payment_complete();
+                        $order->set_status($setting_order_status, __('Done via OpenPos', 'openpos'));
+                        //$order->set_status('completed', __('Done via OpenPos', 'openpos'));
 
                         $order->save();
                     }
@@ -2686,6 +2966,24 @@ class Openpos_Front{
         return $result;
     }
 
+    function payment_cc_order(){
+        $result = array('status' => 0, 'message' => '','data' => array());
+        try{
+            $payment_parse_data = json_decode(stripslashes($_REQUEST['payment']),true);
+            $payment_code = isset($payment_parse_data['code']) ? esc_attr($payment_parse_data['code']) : '';
+            if($payment_code)
+            {
+                $result = apply_filters('op_payment_cc_order_'.$payment_code,$result);
+            }
+
+        }catch (Exception $e)
+        {
+            $result['status'] = 0;
+            $result['message'] = $e->getMessage();
+        }
+        return $result;
+    }
+
     function check_coupon(){
         $result = array('status' => 0, 'message' => '','data' => array());
         try{
@@ -2706,13 +3004,15 @@ class Openpos_Front{
                     $grand_total = $cart_data['tax_amount'] + $cart_data['sub_total'] - $cart_data['discount_amount'] + $cart_data['shipping_cost'];
                 }
 
+
+
                 foreach ( $cart_data['items'] as $key => $cart_item ) {
                     $item                = new stdClass();
                     $item->key           = $key;
                     $item->object        = $cart_item;
                     $item->product       = $_pf->get_product($cart_item['product']['id']);
                     $item->quantity      = $cart_item['qty'];
-                    $item->price         = wc_add_number_precision_deep( $cart_item['final_price'] * $item->quantity );
+                    $item->price         = wc_add_number_precision_deep( $cart_item['total_incl_tax']  );
                     $items[ $key ] = $item;
                 }
 
@@ -2775,7 +3075,7 @@ class Openpos_Front{
             $refund_amount = trim($_REQUEST['refund_amount']);
             $refund_reason = trim($_REQUEST['refund_reason']);
             $refund_qty = trim($_REQUEST['refund_qty']);
-            $refund_type = trim($_REQUEST['refund_type']);
+            $refund_type = isset($_REQUEST['refund_type']) ? trim($_REQUEST['refund_type']) : '';
             $session_data = $this->_getSessionData();
             $local_order_id = $order_data['order_id'];
             $system_order_id = isset($order_data['system_order_id']) ? $order_data['system_order_id'] : 0;
@@ -3068,7 +3368,13 @@ class Openpos_Front{
                                 'key' => '_billing_phone',
                                 'value' => $term,
                                 'compare' => 'like',
-                            )
+                            ),
+                            array(
+                                'key' => '_billing_address_index',
+                                'value' => $term,
+                                'compare' => 'like',
+                            ),
+
 
                         ),
                         'posts_per_page' => 10,
@@ -3333,6 +3639,27 @@ class Openpos_Front{
         }
         return $result;
     }
+    public function upload_desk(){
+        global $op_table;
+        $result = array('status' => 0, 'message' => 'Unknown message','data' => array());
+
+        try{
+            $tables = array();
+            if(isset($_REQUEST['tables']))
+            {
+                $tables = json_decode(stripslashes($_REQUEST['tables']),true);
+            }
+            //save to table data
+            $op_table->update_bill_screen($tables);
+
+            $result['status'] = 1;
+        }catch (Exception $e)
+        {
+            $result['status'] = 0;
+            $result['message'] = $e->getMessage();
+        }
+        return $result;
+    }
     public function pull_desk(){
         global $op_table;
         $result = array('status' => 0, 'message' => '','data' => array());
@@ -3348,6 +3675,27 @@ class Openpos_Front{
                 'items' => $items,
                 'version'  => $desk_data['ver']
             );
+            $result['status'] = 1;
+        }catch (Exception $e)
+        {
+            $result['status'] = 0;
+            $result['message'] = $e->getMessage();
+        }
+        return $result;
+    }
+
+    public function remove_desk(){
+        global $op_table;
+        $result = array('status' => 0, 'message' => '','data' => array());
+        try{
+            $desk_id = isset($_REQUEST['desk_number']) ? trim($_REQUEST['desk_number'],'#') : 0;
+            if(!$desk_id)
+            {
+                throw new Exception('Cart Not found');
+            }
+
+            $op_table->removeJsonTable($desk_id);
+
             $result['status'] = 1;
         }catch (Exception $e)
         {
@@ -3422,6 +3770,38 @@ class Openpos_Front{
         }
         return $result;
     }
+
+    public function get_cart_discount(){
+        global $op_woo_cart;
+        $result = array('status' => 0, 'message' => '','data' => array());
+        try{
+            $session_data = $this->_getSessionData();
+
+
+            $cart = json_decode(stripslashes($_REQUEST['cart']),true);
+
+            $calc_shipping_cost = 0;
+            $result['data']['discount_amount'] = $calc_shipping_cost;
+            $result['data']['discount_type'] = 'fixed'; // fixed , percent
+
+            $result['status'] = 1;
+            $cost = $op_woo_cart->getCartDiscount($cart);
+            if(!empty($cost))
+            {
+                $result['data']['discount_amount'] = $cost['discount_amount'];
+                $result['data']['discount_type'] = $cost['discount_type'];
+            }
+
+            do_action('op_get_online_discount',$result,$session_data);
+            $result = apply_filters('op_get_online_shipping_cost_response',$result,$session_data);
+        }catch (Exception $e)
+        {
+            $result['status'] = 0;
+            $result['message'] = $e->getMessage();
+        }
+        return $result;
+    }
+
     public function get_order_number(){
         $result = array('status' => 0, 'message' => '','data' => array());
         try{
@@ -3429,7 +3809,7 @@ class Openpos_Front{
             $post_type = 'shop_order';
             $arg = array(
                 'post_type' => $post_type,
-                'post_status'   => 'draft'
+                'post_status'   => 'auto-draft'
             );
             $next_order_id = wp_insert_post( $arg );
             $result['data'] = array('order_number' => $next_order_id);
@@ -3478,6 +3858,7 @@ class Openpos_Front{
                 $session_data['default_display'] =  ( $this->settings_api->get_option('openpos_type','openpos_pos') == 'grocery'  && $this->settings_api->get_option('dashboard_display','openpos_pos') =='table' ) ? 'product': $this->settings_api->get_option('dashboard_display','openpos_pos');
                 $session_data['categories'] = $op_woo->get_pos_categories();
                 $session_data['currency_decimal'] = wc_get_price_decimals() ;
+
                 $session_data['time_frequency'] = $this->settings_api->get_option('time_frequency','openpos_pos') ? (int)$this->settings_api->get_option('time_frequency','openpos_pos') : 3000 ;
                 $session_data['product_sync'] = true;
 
@@ -3495,6 +3876,12 @@ class Openpos_Front{
                 {
                     $setting['openpos_tables'] = $op_table->tables($warehouse_id);
                 }
+
+                $setting['currency'] = array(
+                    'decimal' => wc_get_price_decimals(),
+                    'decimal_separator' => wc_get_price_decimal_separator(),
+                    'thousand_separator' => wc_get_price_thousand_separator(),
+                ) ;
 
                 $session_data['setting'] = $setting;
 
@@ -3548,6 +3935,7 @@ class Openpos_Front{
         global $op_register;
         global $op_table;
 
+
         $result = array('status' => 0, 'message' => 'Unknown message','data' => array());
         $session_id = trim($_REQUEST['session']);
         try{
@@ -3565,6 +3953,7 @@ class Openpos_Front{
                 {
                     $tables = json_decode(stripslashes($_REQUEST['tables']),true);
                 }
+
                 //save to table data
                 $op_table->update_bill_screen($tables);
                 $tables_version = $op_table->tables_version();
@@ -3628,6 +4017,97 @@ class Openpos_Front{
             }
 
         }
+    }
+    public function add_custom_product(){
+        global $op_warehouse;
+        global $op_woo;
+        $result = array('status' => 0, 'message' => '','data' => array());
+        try{
+            $session_data = $this->_getSessionData();
+            $warehouse_id = isset($session_data['login_warehouse_id']) ? $session_data['login_warehouse_id'] : 0;
+            $product_data = json_decode(stripslashes($_REQUEST['product']),true);
+            $barcode = isset($product_data['barcode']) ? trim($product_data['barcode']) : '';
+            $name = isset($product_data['name']) ? trim($product_data['name']) : '';
+            $qty = isset($product_data['qty']) ? trim($product_data['qty']) : 0;
+            $price = isset($product_data['price']) ? 1 * $product_data['price'] : 0;
+            $description = isset($product_data['description']) ? 1 * $product_data['description'] : '';
+
+            if(!$barcode)
+            {
+                throw new Exception(__('Please enter product barcode','openpos'));
+            }
+            $product_id = $this->_core->getProductIdByBarcode($barcode);
+            if(!$product_id)
+            {
+                $objProduct = new WC_Product();
+                $objProduct->set_price($price);
+                $objProduct->set_regular_price($price);
+                $objProduct->set_name($name);
+                $objProduct->set_description($description);
+                $objProduct->set_stock_quantity(0);
+                $objProduct->set_sku($barcode);
+                $product_id = $objProduct->save();
+                $op_warehouse->set_qty($warehouse_id,$product_id,$qty);
+
+                $barcode_field = $this->settings_api->get_option('barcode_meta_key','openpos_label');
+                update_post_meta($product_id,$barcode_field,$barcode);
+                $status = 'pending';
+                $post = array( 'ID' => $product_id, 'post_status' => $status );
+                wp_update_post($post);
+            }
+
+            $product_post = get_post($product_id);
+            $data = $op_woo->get_product_formatted_data($product_post,$warehouse_id);
+            $result['data'] = $data;
+            $result['status'] = 1;
+            $result = apply_filters('op_get_custom_item_data',$result,$session_data);
+
+        }catch (Exception $e)
+        {
+            $result['status'] = 0;
+            $result['message'] = $e->getMessage();
+        }
+        return $result;
+    }
+    public function search_product(){
+        global $op_warehouse;
+        global $op_woo;
+        $result = array('status' => 0, 'message' => '','data' => array());
+        try{
+            $session_data = $this->_getSessionData();
+            $warehouse_id = isset($session_data['login_warehouse_id']) ? $session_data['login_warehouse_id'] : 0;
+            $term = isset($_REQUEST['term']) ? $_REQUEST['term'] : '' ;
+            if($term)
+            {
+                $data_store = WC_Data_Store::load( 'product' );
+                $ids        = $data_store->search_products( $term, '', false, false, 10 );
+
+
+                $products        = array();
+
+                foreach ( $ids as $product_id ) {
+                    if($product_id)
+                    {
+                            $product_post = get_post($product_id);
+                            if($product_post)
+                            {
+                                $products[] = $op_woo->get_product_formatted_data($product_post,$warehouse_id);
+                            }
+                    }
+                }
+                $result['data'] = $products;
+                $result['status'] = 1;
+                $result = apply_filters('op_get_custom_item_data',$result,$session_data);
+            }
+
+
+
+        }catch (Exception $e)
+        {
+            $result['status'] = 0;
+            $result['message'] = $e->getMessage();
+        }
+        return $result;
     }
 
 

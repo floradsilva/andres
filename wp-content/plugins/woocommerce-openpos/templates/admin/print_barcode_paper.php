@@ -39,12 +39,14 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
     $sheet_space_width = $sheet_width - $sheet_padding_left - $sheet_padding_right + $horizontal_space ;
     $sheet_space_height = $sheet_height - $sheet_padding_top - $sheet_padding_bottom + $vertical_space ;
-    $columns = ceil($sheet_space_width / ($label_width + $horizontal_space));
-    $rows = ceil($sheet_space_height / ($label_height + $vertical_space));
+    $columns = floor($sheet_space_width / ($label_width + $horizontal_space));
+    $rows = floor($sheet_space_height / ($label_height + $vertical_space));
 
-    $truth_label_width = ($sheet_space_width  / $columns )  ;
-    $truth_label_height = ($sheet_space_height  / $rows );
+    $truth_label_width = $label_width;//($sheet_space_width  / $columns )  ;
+    $truth_label_height = $label_height;//($sheet_space_height  / $rows );
 
+    if($rows == 0){ $rows = 1; }
+    if($columns == 0){$columns = 1;}
     $label_per_sheet = $rows * $columns;
     $page = ceil($total / $label_per_sheet);
     $count = 0;
@@ -84,7 +86,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
                         }
                     ?>
-                    <div class="label  <?php echo $count; ?>"  style=" text-align: center; width: <?php echo $truth_label_width.$unit; ?>;height: <?php echo $truth_label_height.$unit; ?>; display: inline-block;overflow: hidden; <?php echo ($j != ($columns - 1))? 'margin-right:'.$horizontal_space.$unit:'';?> " >
+                    <div class="label  <?php echo $count; ?>"  style=" text-align: center;overflow: hidden; width: <?php echo $truth_label_width.$unit; ?>;height: <?php echo $truth_label_height.$unit; ?>; display: inline-block;overflow: hidden; <?php echo ($j != ($columns - 1))? 'margin-right:'.$horizontal_space.$unit:'';?> " >
                         <?php echo $template; ?>
                         
                     </div>
@@ -93,9 +95,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
         <?php if($count == $total){ break; }  endfor; ?>
         </div>
     </div>
-    <?php if($k != $page): ?>
-            <div class="pagebreak"> </div>
-    <?php endif; ?>
+
     <?php if($count == $total){ break; }  endfor; ?>
 </body>
 <?php
@@ -136,7 +136,9 @@ $buffer = str_replace('> <', '><', $buffer);
         .sheet{
             width: 100%;
         }
-        .pagebreak { page-break-before: always; }
+        .label{
+            overflow: hidden;
+        }
     </style>
 </head>
 <?php echo $buffer; ?>

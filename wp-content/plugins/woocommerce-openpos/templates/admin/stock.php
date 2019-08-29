@@ -49,7 +49,10 @@ $warehouses = $op_warehouse->warehouses();
     </form>
     <br class="clear">
 </div>
-
+<form enctype="multipart/form-data"  style="display: none;">
+    <input type="file" id="product_image" name="product_image">
+    <input type="hidden" id="product_image_id" name="product_image_id">
+</form>
 
 <script type="text/javascript">
     (function($) {
@@ -97,14 +100,91 @@ $warehouses = $op_warehouse->warehouses();
 
                     },
                     success:function(data){
-                        alert('Updated');
+
+                        $("#grid-selection").bootgrid('reload');
                     }
                 });
 
             });
+
+            grid.find('.click-edit-price-a').on('click',function(){
+                var parent_div = $(this).closest('.vna-row-price');
+                var id = $(this).data("id");
+                if(parent_div.hasClass('active'))
+                {
+                    var input_price = parent_div.find('input').first().val();
+                    if(input_price.length > 0)
+                    {
+                        $.ajax({
+                            url: "<?php echo admin_url( 'admin-ajax.php' ); ?>",
+                            type: 'post',
+                            dataType: 'json',
+                            data: 'action=op_stock_products_update&field=price&id='+id+'&field_value='+input_price,
+                            beforeSend:function(){
+
+
+                            },
+                            success:function(data){
+
+                                $("#grid-selection").bootgrid('reload');
+                            }
+                        });
+                    }else {
+                        alert('Please enter value');
+                    }
+
+                }else {
+                    parent_div.addClass('active');
+                }
+                console.log($(this));
+            });
+
+            grid.find('.upload-a').on('click',function(){
+                var parent_div = $(this).closest('.vna-cell-image');
+                var id = $(this).data("id");
+                var input_file = parent_div.find('input').first();
+                var img_form = parent_div.find('form').first();
+                $('input[name="product_image_id"]').val(id);
+                $('#product_image').trigger('click');
+            });
+            grid.find('.product-allow-warehouse').on('click',function(){
+                     var checked = $(this).prop('checked');
+                     var input_qty = $(this).closest('p').find('.product-qty-warehouse').first();
+
+
+                     if(checked)
+                     {
+
+                         //input_qty.prop('readonly',false);
+                     }else {
+                         //input_qty.prop('readonly',true);
+                     }
+            });
         });
 
+        $('input#product_image').on('change',function(){
 
+            var files = new FormData();
+
+            files.append('field_value', $('#product_image')[0].files[0]);
+            files.append('id', $('input[name="product_image_id"]').val());
+            files.append('field', 'image');
+            files.append('action', 'op_upload_product_image');
+
+            $.ajax({
+                type: 'post',
+                url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
+                processData: false,
+                contentType: false,
+                data: files,
+                success: function (response) {
+                    $("#grid-selection").bootgrid('reload');
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        })
 
     })( jQuery );
 </script>
@@ -120,5 +200,25 @@ $warehouses = $op_warehouse->warehouses();
     }
     .op-product-grid td{
         vertical-align: middle!important;
+    }
+    .row-price-input,
+    .glyphicon-saved,
+    .vna-row-price.active .glyphicon-pencil,
+    .vna-row-price.active .row-price-span{
+        display: none;
+    }
+    .vna-row-price.active .glyphicon-saved,
+    .vna-row-price.active input.row-price-input{
+        display: block;
+    }
+    .vna-cell-image{
+        position: relative;
+    }
+    .upload-a{
+        position: absolute;
+        right: 0;
+        top:0;
+        outline: none;
+        text-outline: none;
     }
 </style>
