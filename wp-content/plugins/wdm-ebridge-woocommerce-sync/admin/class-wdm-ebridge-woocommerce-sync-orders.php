@@ -157,7 +157,7 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 				$customer = $this->customer_obj->find_ebridge_customer_by_phone_email( $phone, $email );
 
 				if ( ! $customer ) {
-					$customer = $this->customer_obj->create_ebridge_customer_from_order_details( $data, $order );
+					$customer = $this->customer_obj->create_ebridge_customer( $data, $order );
 				}
 			}
 

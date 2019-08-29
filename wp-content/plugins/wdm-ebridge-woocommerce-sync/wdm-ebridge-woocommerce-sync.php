@@ -84,6 +84,12 @@ if ( ! defined( 'WEWS_MAX_NET_QUANTITY' ) ) {
 	define( 'WEWS_MAX_NET_QUANTITY', 100 );
 }
 
+
+// Define WEWS_FETCH_CUSTOMER_SIZE.
+if ( ! defined( 'WEWS_FETCH_CUSTOMER_SIZE' ) ) {
+	define( 'WEWS_FETCH_CUSTOMER_SIZE', 10 );
+}
+
 /**
  * Begins execution of the plugin.
  *
