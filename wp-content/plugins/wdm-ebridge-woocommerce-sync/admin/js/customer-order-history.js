@@ -35,7 +35,7 @@
 					submitHandler: function (form) {
 						event.preventDefault();
 						$( '.import_button' ).prepend( '<div class="loader-container"><div class="loader"></div></div>' );
-						$("div[id^='message']").remove();
+						$("div[class^='message']").remove();
 
 
 						var formData = new FormData( document.getElementById( 'customer_order_history_form' ) );
