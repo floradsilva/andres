@@ -89,7 +89,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Admin {
 
 		wp_register_script( 'customer-order-history', plugin_dir_url( __FILE__ ) . 'js/customer-order-history.js', array( 'jquery' ), $this->version, true );
 
-		if( 'ebridge_sync_customer_order_history_sync' === $_GET['page'] ) {
+		if ( 'ebridge_sync_customer_order_history_sync' === $_GET['page'] ) {
 			wp_enqueue_script( 'customer-order-history' );
 		}
 	}
@@ -152,11 +152,13 @@ class Wdm_Ebridge_Woocommerce_Sync_Admin {
 
 	public function fetch_localized_script_data() {
 		$args = array(
-			'wews_url'        => admin_url( 'admin-ajax.php' ),
-			'update_complete' => __( 'Completed updating elements.', 'wdm-ebridge-woocommerce-sync' ),
-			'delete_complete' => __( 'Completed deleting elements.', 'wdm-ebridge-woocommerce-sync' ),
-			'fetched_msg'     => __( 'Total products fetched', 'wdm-ebridge-woocommerce-sync' ),
-			'updated_msg'     => __( 'Total products updated', 'wdm-ebridge-woocommerce-sync' ),
+			'wews_url'              => admin_url( 'admin-ajax.php' ),
+			'update_complete'       => __( 'Completed updating elements.', 'wdm-ebridge-woocommerce-sync' ),
+			'delete_complete'       => __( 'Completed deleting elements.', 'wdm-ebridge-woocommerce-sync' ),
+			'fetched_msg'           => __( 'Total products fetched', 'wdm-ebridge-woocommerce-sync' ),
+			'updated_msg'           => __( 'Total products updated', 'wdm-ebridge-woocommerce-sync' ),
+			'updated_customers_msg' => __( 'Total customers updated', 'wdm-ebridge-woocommerce-sync' ),
+			'no_customers_msg'      => __( 'No customers to update.', 'wdm-ebridge-woocommerce-sync' ),
 		);
 		return $args;
 	}

@@ -84,7 +84,7 @@ class WEWS_Customer_Order_History_Sync {
 
 		$customers             = $this->customer_obj->get_customers( true );
 		$response['customers'] = $customers;
-		$response['message']   = __( 'The number of customers to update: ' . count( $customers ), 'wdm-ebridge-woocommerce-sync' );
+		$response['message']   = __( 'The number of customers to update: ' . count( $customers ) . '<br />', 'wdm-ebridge-woocommerce-sync' );
 
 		wp_send_json_success( $response );
 	}
@@ -101,17 +101,17 @@ class WEWS_Customer_Order_History_Sync {
 			$customer_order_ids = $this->get_customer_order_history( $ebridge_id );
 
 			if ( isset( $customer_order_ids ) ) {
-				$response['message']            = __( 'Found ' . count( $customer_order_ids ) . ' orders for the customer ' . $customer->user_nicename . 'with ebridge id ' . $ebridge_id . '.', 'wdm-ebridge-woocommerce-sync' );
+				$response['message']            = __( 'Found ' . count( $customer_order_ids ) . ' order(s) for the customer ' . $customer->user_nicename . ' with ebridge id ' . $ebridge_id . '.', 'wdm-ebridge-woocommerce-sync' );
 				$response['customer_order_ids'] = $customer_order_ids;
 				wp_send_json_success( $response );
 			}
 
-			$response['message'] = __( 'Failed to get orders for the user ' . $customer->user_nicename . ' with ebridge id ' . $ebridge_id . '.', 'wdm-ebridge-woocommerce-sync' );
+			$response['message'] = __( 'Failed to get orders for the user ' . $customer->user_nicename . ' with ebridge id ' . $ebridge_id . '.<br />', 'wdm-ebridge-woocommerce-sync' );
 			wp_send_json_error( $response );
 
 		}
 
-		$response['message'] = __( 'Invalid data.', 'wdm-ebridge-woocommerce-sync' );
+		$response['message'] = __( 'Invalid data.<br />', 'wdm-ebridge-woocommerce-sync' );
 
 		wp_send_json_error( $response );
 	}

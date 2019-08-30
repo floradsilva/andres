@@ -52,7 +52,7 @@
 								success: function (response) {
 									console.log(response);
 									if (response.success) {
-										$( '<div id="message-wrap"><h3>Logs:</h3><p id="message">' + response.data.message + '</p></div>' ).insertAfter( '#customer_order_history_form' );
+										$( '<div id="message-wrap"><h3>Logs:</h3><p id="message">' + response.data.message + '<br /></p></div>' ).insertAfter( '#customer_order_history_form' );
 
 										$( '<div id="message-wrap-1"><p id="message-brief"></p></div>' ).insertAfter( '#message-wrap' );
 
@@ -60,37 +60,42 @@
 										var customers = response.data.customers;
 										var total_updated = 0;
 
-										for (index = 0; index < customers.length; index++) {
-											var customer_to_update = customers[index];
-											$.ajax(
-												{
-													url: wews.wews_url,
-													type: 'post',
-													dataType: 'json',
-													data:  {
-														'action': 'get_customer_orders',
-														'customer_id' : customer_to_update['customer_id'],
-														'ebridge_id': customer_to_update['ebridge_id']
-													},
-													success: function (response_updated) {
-														console.log(response_updated);
-														$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight + 2 );
-														if (response_updated.success) {
-															$( '#message' ).append( response_updated.data.message + '<br />' );
-															$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
-														} else {
-															$( '#message' ).append( response_updated.data.message + '<br />' );
-														}
-														if ( total_updated === (customers.length - 1) ) {
-															$( '.loader-container' ).remove();
-															$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
-															$( '#message-brief' ).append( '<br />' + wews.update_complete + '<br />' );
+										if (customers.length) {
+											for (index = 0; index < customers.length; index++) {
+												var customer_to_update = customers[index];
+												$.ajax(
+													{
+														url: wews.wews_url,
+														type: 'post',
+														dataType: 'json',
+														data:  {
+															'action': 'get_customer_orders',
+															'customer_id' : customer_to_update['customer_id'],
+															'ebridge_id': customer_to_update['ebridge_id']
+														},
+														success: function (response_updated) {
+															console.log(response_updated);
+															total_updated++;
+															$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight + 2 );
+															if (response_updated.success) {
+																$( '#message' ).append( response_updated.data.message + '<br />' );
+																$( '#message-brief' ).text( wews.updated_customers_msg + ': ' + total_updated );
+															} else {
+																$( '#message' ).append( response_updated.data.message + '<br />' );
+															}
+															if ( total_updated === (customers.length - 1) ) {
+																$( '.loader-container' ).remove();
+																$( '#message-brief' ).text( wews.updated_customers_msg + ': ' + total_updated );
+																$( '#message-brief' ).append( '<br />' + wews.update_complete + '<br />' );
+															}
 														}
 													}
-												}
-											);
+												);
+											}
+										} else {
+											$( '.loader-container' ).remove();
+											$( '#message-brief' ).text( wews.no_customers_msg + '' );
 										}
-
 
 									} else {
 										$( '<div id="message-wrap"><h3>Logs:</h3><p id="message">' + response.data.message + '</p></div>' ).insertAfter( '#customer_order_history_form' );
