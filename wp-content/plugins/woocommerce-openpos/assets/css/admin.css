@@ -256,3 +256,23 @@ body.op_loading #wrap-loading{
     float:right;
     padding-left: 10px;
 }
+.goto-pos-container {
+    height:40px;
+    padding:5px;
+}
+.goto-pos-container .pull-right a{
+
+    float: right;
+}
+
+.warehouse-product-qty{
+    padding: 5px;
+    background-color: #cac3c363;
+}
+.warehouse-product-qty:nth-child(odd){
+    background-color: #ccc;
+}
+.warehouse-product-qty .form-text-input{
+    width: calc(100% - 30px);
+    margin-right: 5px;
+}

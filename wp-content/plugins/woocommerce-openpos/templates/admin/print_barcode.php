@@ -44,13 +44,13 @@ $unit = $OPENPOS_SETTING->get_option('unit','openpos_label');
                     <td>
                         <select name="unit">
                             <option value="in" <?php echo ($unit == 'in')? 'selected':''; ?>><?php echo __( 'Inch', 'openpos' ); ?></option>
-                            <option value="mm" <?php echo ($unit == 'mm')? 'selected':''; ?>><?php echo __( 'Minimeter', 'openpos' ); ?></option>
+                            <option value="mm" <?php echo ($unit == 'mm')? 'selected':''; ?>><?php echo __( 'Millimeter', 'openpos' ); ?></option>
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <th><?php echo __( 'Sheet Width:', 'openpos' ); ?></th>
-                    <td><input type="text" value="<?php echo $sheet_width; ?>" name="sheet_width"> x <input name="sheet_height" type="number" value="<?php echo $sheet_height; ?>"></td>
+                    <th><?php echo __( 'Sheet Width x Height:', 'openpos' ); ?></th>
+                    <td><input type="text" value="<?php echo $sheet_width; ?>" name="sheet_width"> x <input name="sheet_height" type="text" value="<?php echo $sheet_height; ?>"></td>
                 </tr>
                 <tr>
                     <th><?php echo __( 'Vertical Spacing:', 'openpos' ); ?></th>
@@ -75,7 +75,7 @@ $unit = $OPENPOS_SETTING->get_option('unit','openpos_label');
 
 
                 <tr>
-                    <th><?php echo __( 'Label Size:', 'openpos' ); ?></th>
+                    <th><?php echo __( 'Label Size (w x h):', 'openpos' ); ?></th>
                     <td>
                         <input type="text" name="label_width" value="<?php echo $label_width; ?>"> x <input name="label_height" type="text" value="<?php echo $label_height; ?>">
                     </td>
@@ -91,7 +91,7 @@ $unit = $OPENPOS_SETTING->get_option('unit','openpos_label');
                 </tr>
 
                 <tr>
-                    <th><?php echo __( 'Barcode Image Size:', 'openpos' ); ?></th>
+                    <th><?php echo __( 'Barcode Image Size ( w x h ):', 'openpos' ); ?></th>
                     <td>
                         <input type="text" name="barcode_width" value="<?php echo $barcode_width; ?>"> x <input name="barcode_height" type="text" value="<?php echo $barcode_height; ?>">
                     </td>

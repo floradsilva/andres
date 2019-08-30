@@ -122,6 +122,7 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/pages/class-wdm-ebridge-woocommerce-sync-settings.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/pages/class-wdm-ebridge-woocommerce-sync-product-sync.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wdm-ebridge-woocommerce-sync-orders.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/pages/class-wews-customer-order-history-sync.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
@@ -135,6 +136,8 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/definitions.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wdm-ebridge-woocommerce-sync-products.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wdm-ebridge-sync-customer.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wdm-ebridge-sync-order.php';
+
 
 		$this->loader = new Wdm_Ebridge_Woocommerce_Sync_Loader();
 	}
@@ -165,30 +168,36 @@ class Wdm_Ebridge_Woocommerce_Sync {
 	 */
 	private function define_admin_hooks() {
 
-		$plugin_admin              = new Wdm_Ebridge_Woocommerce_Sync_Admin( $this->get_plugin_name(), $this->get_version() );
-		$plugin_admin_settings     = new Wdm_Ebridge_Woocommerce_Sync_Settings( $this->get_plugin_name(), $this->get_version() );
-		$plugin_admin_product_sync = new Wdm_Ebridge_Woocommerce_Sync_Product_Sync( $this->get_plugin_name(), $this->get_version() );
-		$plugin_admin_order_sync   = new Wdm_Ebridge_Woocommerce_Sync_Orders( $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin                = new Wdm_Ebridge_Woocommerce_Sync_Admin( $this->get_plugin_name(), $this->get_version() );
+		$admin_settings              = new Wdm_Ebridge_Woocommerce_Sync_Settings( $this->get_plugin_name(), $this->get_version() );
+		$product_sync                = new Wdm_Ebridge_Woocommerce_Sync_Product_Sync( $this->get_plugin_name(), $this->get_version() );
+		$order_sync                  = new Wdm_Ebridge_Woocommerce_Sync_Orders( $this->get_plugin_name(), $this->get_version() );
+		$customer_order_history_sync = new WEWS_Customer_Order_History_Sync( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'add_localize_script' );
-		$this->loader->add_action( 'wp_ajax_upload_csv', $plugin_admin_settings, 'upload_csv' );
-		$this->loader->add_action( 'wp_ajax_refresh_product_attributes', $plugin_admin_settings, 'refresh_product_attributes' );
-		$this->loader->add_action( 'wp_ajax_add_connection_settings', $plugin_admin_settings, 'add_connection_settings' );
-		$this->loader->add_action( 'admin_menu', $plugin_admin_settings, 'menu_page', 10 );
-		$this->loader->add_action( 'admin_init', $plugin_admin_settings, 'setup_sections' );
+		$this->loader->add_action( 'wp_ajax_upload_csv', $admin_settings, 'upload_csv' );
+		$this->loader->add_action( 'wp_ajax_refresh_product_attributes', $admin_settings, 'refresh_product_attributes' );
+		$this->loader->add_action( 'wp_ajax_add_connection_settings', $admin_settings, 'add_connection_settings' );
+		$this->loader->add_action( 'admin_menu', $admin_settings, 'menu_page', 10 );
+		$this->loader->add_action( 'admin_init', $admin_settings, 'setup_sections' );
 		$this->loader->add_action( 'init', $plugin_admin, 'create_taxonomy_brand' );
 		// $this->loader->add_action( 'woocommerce_product_data_tabs', $plugin_admin, 'display_product_meta_tabs' );
 		// $this->loader->add_action( 'woocommerce_product_data_panels', $plugin_admin, 'add_additional_product_attributes' );
-		$this->loader->add_action( 'admin_menu', $plugin_admin_product_sync, 'menu_page', 10 );
-		$this->loader->add_action( 'admin_init', $plugin_admin_product_sync, 'setup_sections' );
-		$this->loader->add_action( 'wp_ajax_fetch_products_to_sync', $plugin_admin_product_sync, 'fetch_products_to_sync' );
-		$this->loader->add_action( 'wp_ajax_update_product', $plugin_admin_product_sync, 'update_product' );
-		$this->loader->add_action( 'wp_ajax_delete_product', $plugin_admin_product_sync, 'delete_product' );
-		$this->loader->add_filter( 'bulk_actions-edit-product', $plugin_admin_product_sync, 'register_sync_products_bulk_action' );
-		$this->loader->add_filter( 'handle_bulk_actions-edit-product', $plugin_admin_product_sync, 'sync_products_bulk_action_handler', 10, 3 );
-		$this->loader->add_action( 'woocommerce_checkout_create_order', $plugin_admin_order_sync, 'wews_create_order', 10, 2 );
+		$this->loader->add_action( 'admin_menu', $product_sync, 'menu_page', 10 );
+		$this->loader->add_action( 'admin_init', $product_sync, 'setup_sections' );
+		$this->loader->add_action( 'wp_ajax_fetch_products_to_sync', $product_sync, 'fetch_products_to_sync' );
+		$this->loader->add_action( 'wp_ajax_update_product', $product_sync, 'update_product' );
+		$this->loader->add_action( 'wp_ajax_delete_product', $product_sync, 'delete_product' );
+		$this->loader->add_filter( 'bulk_actions-edit-product', $product_sync, 'register_sync_products_bulk_action' );
+		$this->loader->add_filter( 'handle_bulk_actions-edit-product', $product_sync, 'sync_products_bulk_action_handler', 10, 3 );
+		$this->loader->add_action( 'woocommerce_checkout_create_order', $order_sync, 'wews_create_order', 10, 2 );
+		$this->loader->add_action( 'admin_menu', $customer_order_history_sync, 'menu_page', 10 );
+		$this->loader->add_action( 'admin_init', $customer_order_history_sync, 'setup_sections' );
+		$this->loader->add_action( 'wp_ajax_fetch_customers_to_sync', $customer_order_history_sync, 'fetch_customers_to_sync' );
+		$this->loader->add_action( 'wp_ajax_get_customer_orders', $customer_order_history_sync, 'get_customer_orders' );
+		$this->loader->add_action( 'wp_ajax_sync_order', $customer_order_history_sync, 'sync_order' );
 	}
 
 	/**

@@ -184,66 +184,70 @@
 										var total_updated = 0;
 										var index, i;
 
-										for (index = 0; index < update_ids.length; index++) {
-											const id_to_update = update_ids[index];
+										if ( update_ids.length || delete_ids.length ) {
+											for (index = 0; index < update_ids.length; index++) {
+												const id_to_update = update_ids[index];
+													$.ajax(
+														{
+															url: wews.wews_url,
+															type: 'post',
+															dataType: 'json',
+															data:  {
+																'action': 'update_product',
+																'product_id' : id_to_update,
+															},
+															success: function (response_updated) {
+																total_updated++;
+																$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight + 2 );
+																if (response_updated.success) {
+																	$( '#message' ).append( response_updated.data.message + '<br />' );
+																	$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
+																} else {
+																	$( '#message' ).append( response_updated.data.message + '<br />' );
+																}
+																if ( total_updated === (update_ids.length) ) {
+																	$( '.loader-container' ).remove();
+																	$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
+																	$( '#message-brief' ).append( '<br />' + wews.update_complete + '<br />' );
+																}
+															}
+														}
+													);
+											}
+
+											for (i = 0; i < delete_ids.length; i++) {
+												const id_to_delete = delete_ids[i];
 												$.ajax(
 													{
 														url: wews.wews_url,
 														type: 'post',
 														dataType: 'json',
 														data:  {
-															'action': 'update_product',
-															'product_id' : id_to_update,
+															'action': 'delete_product',
+															'product_id' : id_to_delete,
 														},
-														success: function (response_updated) {
+														success: function (response_deleted) {
 															total_updated++;
-															$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight + 2 );
-															if (response_updated.success) {
-																$( '#message' ).append( response_updated.data.message + '<br />' );
+															$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight );
+															
+															if (response_deleted.success) {
+																$( '#message' ).append( response_deleted.data.message + '<br />' );
 																$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
 															} else {
-																$( '#message' ).append( response_updated.data.message + '<br />' );
+																$( '#message' ).append( response.data.message + '<br />' );
 															}
-															if ( total_updated === (update_ids.length - 1) ) {
-																$( '.loader-container' ).remove();
+
+															if ( total_updated === (update_ids.length + delete_ids.length) ) {
 																$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
-																$( '#message-brief' ).append( '<br />' + wews.update_complete + '<br />' );
+																$( '#message-brief' ).append( wews.delete_complete + '<br />' );
+																$( '.loader-container' ).remove();
 															}
 														}
 													}
 												);
-										}
-
-										for (i = 0; i < delete_ids.length; i++) {
-											const id_to_delete = delete_ids[i];
-											$.ajax(
-												{
-													url: wews.wews_url,
-													type: 'post',
-													dataType: 'json',
-													data:  {
-														'action': 'delete_product',
-														'product_id' : id_to_delete,
-													},
-													success: function (response_deleted) {
-														total_updated++;
-														$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight );
-														
-														if (response_deleted.success) {
-															$( '#message' ).append( response_deleted.data.message + '<br />' );
-															$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
-														} else {
-															$( '#message' ).append( response.data.message + '<br />' );
-														}
-
-														if ( total_updated === (update_ids.length + delete_ids.length - 1) ) {
-															$( '#message-brief' ).text( wews.updated_msg + ': ' + total_updated );
-															$( '#message-brief' ).append( wews.delete_complete + '<br />' );
-															$( '.loader-container' ).remove();
-														}
-													}
-												}
-											);
+											}
+										} else {
+											$( '.loader-container' ).remove();
 										}
 									} else {
 										$( '<div id="message-wrap"><h3>Logs:</h3><p id="message">' + response.data.message + '</p></div>' ).insertAfter( '#product_sync_form' );

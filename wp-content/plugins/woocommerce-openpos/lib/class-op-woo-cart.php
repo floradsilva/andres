@@ -289,5 +289,111 @@ if(!class_exists('OP_Woo_Cart'))
             }
             return array();
         }
+        public function getCartDiscount($cart_data){
+            $result = array();
+            $session = WC()->session;
+            $cart = new WC_Cart();
+            $customer_data = $cart_data['customer'];
+
+            if(!empty($customer_data)) {
+
+                if ($customer_data['id'] && $customer_data['id'] > 0) {
+                    wp_set_current_user($customer_data['id']);
+                }
+
+            }
+            $items = $cart_data['items'];
+            foreach($items as $item)
+            {
+                $product_id = isset($item['product_id']) ? $item['product_id'] : 0;
+                $product_qty = isset($item['qty']) ? $item['qty'] : 0;
+                if($product_id && $product_qty)
+                {
+                    $cart->add_to_cart($product_id,$product_qty);
+                }
+            }
+
+            $post_customer_data = array();
+            if(!empty($customer_data))
+            {
+                $customer = $cart->get_customer();
+
+
+                if($customer_data['email'])
+                {
+                    $customer->set_email($customer_data['email']);
+                    $post_customer_data['billing_email'] = $customer_data['email'];
+                }
+                if($customer_data['firstname'])
+                {
+                    $customer->set_first_name($customer_data['firstname']);
+                    $post_customer_data['billing_first_name'] = $customer_data['firstname'];
+                }
+                if($customer_data['lastname'])
+                {
+                    $customer->set_last_name($customer_data['lastname']);
+                    $post_customer_data['billing_last_name'] = $customer_data['lastname'];
+                }
+                if($customer_data['address'])
+                {
+                    $customer->set_address($customer_data['address']);
+                    $post_customer_data['billing_address_1'] = $customer_data['address'];
+                }
+
+                if($customer_data['address_2'])
+                {
+                    $customer->set_address_2($customer_data['address_2']);
+                    $post_customer_data['billing_address_2'] = $customer_data['address_2'];
+                }
+
+                if($customer_data['state'])
+                {
+                    $customer->set_state($customer_data['state']);
+                    $post_customer_data['billing_state'] = $customer_data['state'];
+                }
+
+                if($customer_data['city'])
+                {
+                    $customer->set_city($customer_data['city']);
+                    $post_customer_data['billing_city'] = $customer_data['city'];
+                }
+
+                if($customer_data['country'])
+                {
+                    $customer->set_country($customer_data['country']);
+                    $post_customer_data['billing_country'] = $customer_data['country'];
+                }
+
+                if($customer_data['postcode'])
+                {
+                    $customer->set_postcode($customer_data['postcode']);
+                    $post_customer_data['billing_postcode'] = $customer_data['postcode'];
+                }
+                WC()->customer = $customer;
+
+            }
+            WC()->session->set('refresh_totals', true);
+            $cart->calculate_totals();
+
+            $post_data = implode('&',$post_customer_data);
+            $_POST['billing_email'] = $customer_data['email'];
+            $_POST['post_data'] = $post_data;
+            $_GET['wc-ajax'] = 'update_order_review';
+
+            $cart->calculate_totals();
+
+            $discount_amount = $cart->get_discount_total();
+
+            if($discount_amount)
+            {
+                $result = array(
+                    'discount_amount' => $discount_amount,
+                    'discount_type' => 'fixed' // percent , fixed
+                );
+            }
+
+            wp_set_current_user(0);
+            return $result;
+        }
     }
 }

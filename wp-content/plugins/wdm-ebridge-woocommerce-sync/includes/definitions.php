@@ -55,3 +55,45 @@ define(
 		'Wyoming'        => 'WY',
 	)
 );
+
+define(
+	'ORDER_TYPE',
+	array(
+		'Order'                => 1,
+		'Invoice'              => 2,
+		'ServiceOrder'         => 4,
+		'Exchange'             => 5,
+		'Layaway'              => 6,
+		'SplitTicket'          => 7,
+		'Quote'                => 8,
+		'Delivery'             => 9,
+		'Pickup'               => 10,
+		'DirectShip'           => 11,
+		'ReturnOrder'          => 12,
+		'TakeWith'             => 13,
+		'MultiShippingMaster'  => 14,
+		'ManufacturerDelivery' => 15,
+		'Void'                 => '',
+	)
+);
+
+define(
+	'ADDRESS_TYPE',
+	array(
+		'Undefined' => 0,
+		'Customer'  => 1,
+		'Billing'   => 2,
+		'Shipping'  => 3,
+	)
+);
+
+
+define(
+	'DELIVERY_STATUS',
+	array(
+		'EST'  => 0,
+		'SCD'  => 1,
+		'CWC'  => 2,
+		'ASAP' => 3,
+	)
+);

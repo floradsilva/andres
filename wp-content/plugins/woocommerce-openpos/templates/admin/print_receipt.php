@@ -3,13 +3,14 @@
 ?>
 <html>
 <head>
+
     <?php
         $handes = array(
             'openpos.admin.receipt.ejs'
         );
         wp_print_scripts($handes);
     ?>
-
+    <link rel="stylesheet" media="print,screen" href="<?php echo OPENPOS_URL.'/pos/font.css'; ?>"/>
     <?php echo $data['html_header']; ?>
 </head>
 <body style="margin:0;">

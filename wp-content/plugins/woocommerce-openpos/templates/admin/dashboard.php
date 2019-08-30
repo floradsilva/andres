@@ -74,8 +74,11 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
     }(jQuery));
 </script>
-<div class="op-dashboard-content">
 
+<div class="op-dashboard-content">
+    <div class="row goto-pos-container">
+        <div class="col-md-4 pull-right"><a href="<?php echo $pos_url; ?>"class="button-primary" target="_blank"><?php echo __('Goto POS','openpos'); ?></a></div>
+    </div>
     <div id="curve_chart"></div>
     <div class="real-content-container">
         <div class="last-orders" >

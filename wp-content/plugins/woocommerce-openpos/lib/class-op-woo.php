@@ -50,6 +50,13 @@ class OP_Woo{
 
 
         }
+        add_filter('product_type_options', array($this,'product_type_options'),10,1);
+
+
+        add_action( 'woocommerce_new_product', array( $this, 'woocommerce_new_product' ), 30,1 );
+        add_action( 'woocommerce_update_product', array( $this, 'woocommerce_update_product' ), 30 ,1);
+
+
     }
 
     public function order_columns_head($defaults){
@@ -258,12 +265,31 @@ class OP_Woo{
         }
 
     }
+
+    public function get_available_variations($variation) {
+        $available_variations = array();
+        $tmp_variable = new WC_Product_Variable();
+        foreach ( $variation->get_children() as $child_id ) {
+            $variation = wc_get_product( $child_id );
+            $available_variations[] = $tmp_variable->get_available_variation( $variation );
+        }
+        $available_variations = array_values( array_filter( $available_variations ) );
+
+        return $available_variations;
+    }
+
     public function get_variations($product_id,$warehouse_id = 0){
         $core = $this->_core;
         $variation = new WC_Product_Variable($product_id);
-        $item_variations = $variation->get_available_variations();
+        if($warehouse_id == 0)
+        {
+            $item_variations = $variation->get_available_variations();
+        }else{
+            $item_variations = $this->get_available_variations($variation);
+        }
+
         $variant_products_with_attribute = array();
-        $variation_attributes          = $variation->get_variation_attributes();
+        $variation_attributes   = $variation->get_variation_attributes();
 
         $price_list = array();
         $variations = array();
@@ -289,13 +315,11 @@ class OP_Woo{
                     'price' => $a_p_price,
                     'attributes' => $a_p['attributes']
                 );
-
-
         }
 
         foreach($variation_attributes as $key => $variants)
         {
-
+            $variants = $this->sortAttributeOptions($key,$variants);
             if(strpos($key,'pa_') === false)
             {
                 $key = strtolower(esc_attr(sanitize_title($key)));
@@ -307,9 +331,6 @@ class OP_Woo{
                 $option_label = $v;
                 $values = array();
                 $values_price = array();
-
-
-
 
 
                 foreach($variant_products_with_attribute as $vp)
@@ -351,6 +372,7 @@ class OP_Woo{
                     'values' => $values,
                     'prices' => $values_price
                 );
+                $option_tmp = apply_filters('op_product_variation_attribute_option_data',$option_tmp);
                 $options[] = $option_tmp;
             }
             $variant = array(
@@ -392,6 +414,8 @@ class OP_Woo{
     }
     public function get_product_formatted_data($_product,$warehouse_id,$ignore_variable = false){
         global $op_warehouse;
+        $setting_tax_class = $this->settings_api->get_option('pos_tax_class','openpos_general');
+        $lang = $this->settings_api->get_option('pos_language','openpos_pos');
         $product_id = $_product->ID;
         $product = wc_get_product($product_id);
         $options = array();
@@ -438,7 +462,9 @@ class OP_Woo{
         }
 
         $group = array();
-        $price_display_html = '';
+
+        $price_display_html = $product->get_price_html();
+        $v_price_display_html = '';
         if(!$ignore_variable)
         {
             switch ($type)
@@ -463,18 +489,26 @@ class OP_Woo{
                             {
                                 $price_list_min = wc_price($price_list_min,array('currency'=> '&nbsp;'));
                                 $price_list_max = wc_price($price_list_max,array('currency'=> '&nbsp;'));
-                                $price_display_html = implode(' - ',array($price_list_min,$price_list_max));
+                                $v_price_display_html = implode(' - ',array($price_list_min,$price_list_max));
                             }else{
-                                $price_display_html = wc_price($price_list_min,array('currency'=> '&nbsp;'));
+                                $v_price_display_html = wc_price($price_list_min,array('currency'=> '&nbsp;'));
                             }
                         }
 
                     }
                     break;
+                default:
+                    if($setting_tax_class != 'op_productax')
+                    {
+                        $price_display_html = wc_price(wc_get_price_excluding_tax($product));
+                    }
+                    break;
             }
         }
-
-        $price_display_html = $product->get_price_html();
+        if($price_display_html == null)
+        {
+            $price_display_html = $v_price_display_html;
+        }
 
         $final_price = $product->get_price();
         if(!$final_price)
@@ -483,7 +517,7 @@ class OP_Woo{
         }
 
         $tax_amount = 0;
-        $setting_tax_class = $this->settings_api->get_option('pos_tax_class','openpos_general');
+
         $tmp_tax_rates = array();
         $tax_rate = array(
                 'code' => 'openpos', // in percentage
@@ -493,7 +527,8 @@ class OP_Woo{
                 'rate_id' => 0,
                 'label' => __('Tax on POS','openpos')
         );
-
+        $price_without_tax = $product->get_price();
+        $price_included_tax = false;
         if(wc_tax_enabled() )
         {
 
@@ -530,9 +565,19 @@ class OP_Woo{
                             $tax_rate['rate'] = $rate['rate'];
                         }
                     }
-                }else{
-                    $tax_rates = $this->getTaxRates( $setting_tax_class );
 
+                    $price_included_tax = wc_prices_include_tax();
+                    if($price_included_tax)
+                    {
+                        $tax_amount = wc_round_tax_total($tax_amount);
+                        $price_without_tax = $final_price - $tax_amount;
+                    }
+
+                }else{
+
+
+                    $tax_rates = $this->getTaxRates( $setting_tax_class );
+                    $price_without_tax = wc_get_price_excluding_tax($product);
                     if(!empty($tax_rates))
                     {
                         $keys = array_keys($tax_rates);
@@ -545,7 +590,7 @@ class OP_Woo{
                         }
                         $rate = $tax_rates[$rate_id];
 
-                        $tax_amount = array_sum(@WC_Tax::calc_tax( $final_price, array($rate_id => $rate), wc_prices_include_tax() ));
+                        $tax_amount = array_sum(@WC_Tax::calc_tax( $price_without_tax, array($rate_id => $rate), false));
 
                         $tax_rate['code'] = $setting_tax_class ? $setting_tax_class.'_'.$rate_id : 'standard'.'_'.$rate_id;
                         $tax_rate['rate_id'] = $rate_id;
@@ -565,26 +610,23 @@ class OP_Woo{
                         {
                             $tax_rate['rate'] = $rate['rate'];
                         }
+                        if($setting_tax_class == 'op_productax')
+                        {
+                            $price_display_html = wc_price($price_without_tax + $tax_amount);
+                        }else{
+                            $price_display_html = wc_price($price_without_tax );
+                        }
+
                     }
                     // custom tax
+
                 }
             }
         }
         $tmp_tax_rates[] = $tax_rate;
-        $price_without_tax = $product->get_price();
 
-        $price_included_tax = false;
 
-        if(wc_tax_enabled())
-        {
 
-            $price_included_tax = wc_prices_include_tax();
-            if($price_included_tax)
-            {
-                    $tax_amount = wc_round_tax_total($tax_amount);
-                    $price_without_tax = $final_price - $tax_amount;
-            }
-        }
 
 
         $display_pos = true;
@@ -599,6 +641,22 @@ class OP_Woo{
             $categories = array();
         }
 
+
+        $show_out_of_stock_setting = $this->settings_api->get_option('pos_display_outofstock','openpos_pos');
+        $stock_status = $product->get_stock_status();
+        if($display_pos && $show_out_of_stock_setting != 'yes' && $manage_stock)
+        {
+            if($qty <= 0 )
+            {
+                $display_pos = false;
+            }
+
+        }
+        if($price_display_html == 'null' || $price_display_html == null)
+        {
+            $price_display_html = ' ';
+        }
+
         $tmp = array(
             'name' => $product->get_name(),
             'id' => $product->get_id(),
@@ -606,7 +664,7 @@ class OP_Woo{
             'sku' => $product->get_sku(),
             'qty' => $qty,
             'manage_stock' => $manage_stock,
-            'stock_status' => $product->get_stock_status(),
+            'stock_status' => $stock_status,
             'barcode' => trim($this->_core->getBarcode($product->get_id())),
             'image' => $image,
             'price' => $price_without_tax,
@@ -618,7 +676,6 @@ class OP_Woo{
             'status' => $product->get_status(),
             'categories' => array_unique($categories),//$product->get_category_ids(),
             'tax' => $tmp_tax_rates,
-//            'tax' => $tax_rate,
             'tax_amount' => $tax_amount,
             'price_included_tax' => $price_included_tax,
             'group_items' => $group,
@@ -630,6 +687,12 @@ class OP_Woo{
             'price_display_html' => $price_display_html,
             'display' => $display_pos
         );
+
+        if($lang == 'vi')
+        {
+            $tmp['search_keyword'] = $this->custom_vnsearch_slug($tmp['name']);
+        }
+
         if($this->settings_api->get_option('pos_change_price','openpos_pos') == 'yes')
         {
             $tmp['allow_change_price'] = true;
@@ -648,7 +711,7 @@ class OP_Woo{
 			WHERE 1=1 AND " . implode( ' AND ', $criteria ) . "
 			GROUP BY tax_rates.tax_rate_id
 			ORDER BY tax_rates.tax_rate_priority
-		" );
+		");
 
         $matched_tax_rates = array();
 
@@ -905,16 +968,19 @@ class OP_Woo{
             }
             $address_1 = $customer->get_shipping_address_1();
             $address_2 = $customer->get_shipping_address_2();
-            $address = '';
-            if($address_1 || $address_2)
+            $address = $address_1;
+            if($address_1 && !$address)
             {
                 $address = $address_1;
-                if(!$address)
-                {
-                    $address = $address_2;
-                }
-            }else{
-                $address = $customer->get_address();
+
+            }
+            if($address_2 && !$address)
+            {
+                $address = $address_2;
+
+            }
+            if(!$address){
+               // $address = $customer->get_address();
             }
             $phone = $customer->get_billing_phone();
             $address = array(
@@ -1266,11 +1332,31 @@ class OP_Woo{
                 'default' => $store_state
             );
         }
+        $countries_obj   = new WC_Countries();
+        $countries   = $countries_obj->__get('countries');
+        $country_options = array();
+        foreach($countries as $key => $country)
+        {
+            $country_options[] = ['value' => $key,'label' => $country];
+        }
+        $select_contry = array(
+            'code' => 'country',
+            'type' => 'select',
+            'label' =>  __('Country','openpos'),
+            'options' => $country_options,
+            'placeholder' => __('Choose Country','openpos'),
+            'description' => '',
+            'default' => $store_country,
+            'allow_shipping' => 'yes',
+            'onchange_load' => true
+        );
+
         $fields = array(
                 $address_2_field,
                 $city_field,
                 $postcode_field,
-                $state_field
+                $state_field,
+                $select_contry
         );
 
         return apply_filters( 'op_customer_addition_fields',$fields );
@@ -1285,8 +1371,13 @@ class OP_Woo{
         }
         return $recipient;
     }
+
+
+
+
     // format order to work with POS
     public function formatWooOrder($order_id){
+
         $order = wc_get_order($order_id);
         $order_number = $order_id;
         if($_pos_order_id = get_post_meta($order_id,'_pos_order_id',true))
@@ -1296,16 +1387,19 @@ class OP_Woo{
         $grand_total = $order->get_total('ar');
 
 
-
         $billing_address = $order->get_address( 'billing' );
 
         $customer_data = array(
                 'id' => $order->get_customer_id(),
+                'group_id' => 0,
                 'name' => implode(' ',array($billing_address['first_name'],$billing_address['last_name'])),
                 'address' => $billing_address['address_1'],
                 'firstname' => $billing_address['first_name'],
                 'lastname' => $billing_address['last_name'],
+                'email' => $billing_address['email'],
+                'phone' => $billing_address['phone'],
         );
+
         $customer_data = array_merge($customer_data,$billing_address);
 
         $item_ids = $order->get_items();
@@ -1320,66 +1414,8 @@ class OP_Woo{
         $qty_allow_refund = false;
         foreach($item_ids as $item_id)
         {
-            $item = $order->get_item($item_id);
 
-            $items_data = $item->get_data();
-
-            $product = $item->get_product();
-
-
-            $refund_qty = $order->get_qty_refunded_for_item( $items_data['id'] );
-            if($refund_qty < 0)
-            {
-                $refund_qty = 0 - $refund_qty;
-            }
-            $refund_total = $order->get_total_refunded_for_item($items_data['id']);
-
-            $items_data['options'] = array();
-            $subtotal = $items_data['subtotal'];
-            $total = $items_data['total'];
-
-            $total_tax = $items_data['total_tax'];
-
-            $discount = ($subtotal   - $total) > 0 ? ($subtotal   - $total) : 0;
-
-
-
-            $item_price = ($subtotal /$items_data['quantity']);
-
-            $item_formatted_data = array(
-                'id' => $items_data['id'],
-                'name' => $items_data['name'],
-                'sub_name' => '',
-                'price' =>  $item_price,
-                'price_incl_tax' =>  $item_price, //
-                'product_id' =>  $items_data['product_id'],
-                'final_price' =>  $item_price,
-                'final_price_incl_tax' =>  $item_price, //
-                'options' => array(),
-                'bundles' =>  array(),
-                'variations' => array(),
-                'discount_amount' =>  $discount,
-                'discount_type' => 'fixed',
-                'final_discount_amount' =>  $discount,
-                'qty' =>  $items_data['quantity'],
-                'refund_qty' =>  $refund_qty,
-                'exchange_qty' =>  0,
-                'tax_amount' =>  $total_tax > 0 ? ($total_tax / $items_data['quantity']) : 0 ,
-                'refund_total' =>  $refund_total,
-                'total_tax'=> $total_tax,
-                'total'=>  $items_data['total'],
-                'total_incl_tax'=>  $items_data['total'], //
-                'product'=> array(),
-                'option_pass' =>  true,
-                'note' => '',
-                'seller_id' => 0,
-                'seller_name' => ''
-            );
-            if(($item_formatted_data['qty'] - $item_formatted_data['refund_qty']) > 0 )
-            {
-                $qty_allow_refund = true;
-            }
-            $items[] = $item_formatted_data;
+            $items[] = $this->formatOrderItem($order,$item_id);
         }
         $user_id = $order->get_meta('_op_sale_by_person_id');
         $sale_person_name = '';
@@ -1431,12 +1467,16 @@ class OP_Woo{
         {
             $allow_refund = false;
         }
+        $allow_checkout = false;
         if($payment_status != 'paid')
         {
             $allow_refund = false;
             $allow_pickup = false;
+            $allow_checkout = true;
         }
         $continue_pay_url = $order->get_checkout_payment_url(false);
+
+
         $result = array(
             'order_number' => $order_number,
             'order_id' => $order_id,
@@ -1452,19 +1492,137 @@ class OP_Woo{
             'final_discount_amount' => (float)$final_discount_amount,
             'discount_amount' => (float)$final_discount_amount,
             'tax_amount' => $tax_amount,
-            'grand_total' => $grand_total,
+            'grand_total' => 1 * $grand_total,
             'created_at' => wc_format_datetime($order->get_date_created()),
             'checkout_url' => $continue_pay_url,
             'allow_refund' => $allow_refund,
             'allow_pickup' => $allow_pickup,
+            'allow_checkout' => $allow_checkout,
             'payment_status' => $payment_status,
             'custom_tax_rate' => '',
             'custom_tax_rates' => array(),
             'note' => '',
+            'status' => $order->get_status(),
             'state' => ($payment_status == 'paid') ? 'completed' : 'pending_payment',
         );
         return apply_filters('op_get_online_order_data',$result);
     }
+
+    public function formatOrderItem($order,$item_id){
+
+        $item = $order->get_item($item_id);
+        $items_data = $item->get_data();
+        $product_data = array();
+        $product_id = isset($items_data['product_id']) ? $items_data['product_id'] : 0;
+        $variation_id = isset($items_data['variation_id']) ? $items_data['variation_id'] : 0;
+        if($variation_id > 0)
+        {
+            $product_id = $variation_id;
+        }
+        $_product = get_post($product_id);
+        if($_product)
+        {
+            $product_data =  $this->get_product_formatted_data($_product,0);
+        }
+        $refund_qty = $order->get_qty_refunded_for_item( $items_data['id'] );
+        if($refund_qty < 0)
+        {
+            $refund_qty = 0 - $refund_qty;
+        }
+
+        $refund_total = $order->get_total_refunded_for_item($items_data['id']);
+
+        $items_data['options'] = array();
+        $subtotal = $items_data['subtotal'];
+        $total = $items_data['total'];
+
+
+        $total_tax = $items_data['total_tax'];
+        $tax_details_data = array();
+        if ( wc_tax_enabled() ) {
+            $order_taxes      = $order->get_taxes();
+
+            foreach($order_taxes as $otax)
+            {
+                $o_tax_data = $otax->get_data();
+                $tmp_tax = array(
+                    'code' => $o_tax_data['rate_code'],
+                    'compound' => $o_tax_data['compound'],
+                    'label' => $o_tax_data['label'],
+                    'rate' => $o_tax_data['rate_percent'],
+                    'rate_id' => $o_tax_data['rate_id'],
+                    'shipping' => false,
+                    'total' => 0
+                );
+                $tax_details_data[] = $tmp_tax;
+            }
+
+        }
+        $tax_details = array();
+        $item_tax_data = $items_data['taxes'];
+        foreach($item_tax_data['total'] as $id => $value)
+        {
+            foreach($tax_details_data as $t_value)
+            {
+                if($t_value['rate_id'] == $id)
+                {
+                    $tmp = $t_value;
+                    $tmp['total'] = 1 * $value;
+                    $tax_details[] = $tmp;
+                }
+            }
+        }
+
+        $discount = ($subtotal   - $total) > 0 ? ($subtotal   - $total) : 0;
+
+        $item_price = $items_data['quantity'] > 0 ? ($subtotal / $items_data['quantity']) : $subtotal;
+
+        $item_tax_amount = ($total_tax > 0 && $items_data['quantity'] > 0 ) ? ($total_tax / $items_data['quantity']) : 0 ;
+        $item_formatted_data = array(
+            'id' => $items_data['id'],
+            'name' => $items_data['name'],
+            'sub_name' => '',
+            'dining' => '',
+            'price' =>  $item_price,
+            'price_incl_tax' =>  ($item_price + $item_tax_amount), //
+            'product_id' =>  $product_id,
+            'final_price' =>  $item_price,
+            'final_price_incl_tax' =>  ($item_price + $item_tax_amount), //
+            'options' => array(),
+            'bundles' =>  array(),
+            'variations' => array(),
+            'discount_amount' =>  $discount,
+            'discount_type' => 'fixed',
+            'final_discount_amount' =>  $discount,
+            'final_discount_amount_incl_tax' =>  $discount,
+            'qty' =>  $items_data['quantity'],
+            'refund_qty' =>  $refund_qty,
+            'exchange_qty' =>  0,
+            'tax_amount' =>  $item_tax_amount,
+            'refund_total' =>  $refund_total,
+            'total_tax'=> $total_tax,
+            'total'=>  ($items_data['subtotal'] - $discount),
+            'total_incl_tax'=>  ($items_data['subtotal_tax'] + $items_data['subtotal_tax']), //
+            'product'=> $product_data,
+            'option_pass' =>  true,
+            'option_total' =>  0,
+            'bundle_total' =>  0,
+            'note' => '',
+            'parent_id' => 0,
+            'seller_id' => 0,
+            'seller_name' => '',
+            'item_type'=> '',
+            'has_custom_discount'=> false,
+            'disable_qty_change'=> true,
+            'read_only'=> true,
+            'promotion_added'=> false,
+            'tax_details'=> $tax_details,
+            'is_exchange'=> false,
+        );
+        return $item_formatted_data;
+    }
+
+
     public function allowRefundOrder($order_id){
         $allow_refund_duration = $this->settings_api->get_option('pos_allow_refund','openpos_general');
         if($allow_refund_duration == 'yes')
@@ -1513,6 +1671,11 @@ class OP_Woo{
         $pos_tax_class = $this->settings_api->get_option('pos_tax_class','openpos_general');
         if($pos_custom_item == 'yes' && $pos_tax_class != 'op_notax')
         {
+            if($pos_tax_class != 'op_productax'){
+
+                $pos_custom_tax_class = $this->settings_api->get_option('pos_tax_class','openpos_general');
+                $pos_custom_tax_rate = $this->settings_api->get_option('pos_tax_rate_id','openpos_general');
+            }
             if($pos_custom_tax_class != 'op_notax' && $pos_custom_tax_rate)
             {
                 $tax_rates = $this->getTaxRates( $pos_custom_tax_class );
@@ -1588,6 +1751,184 @@ class OP_Woo{
         </div>
 
         <?php
+    }
+
+    public function get_countries_and_states() {
+        $countries = WC()->countries->get_countries();
+        if ( ! $countries ) {
+            return array();
+        }
+        $output = array();
+        foreach ( $countries as $key => $value ) {
+            $states = WC()->countries->get_states( $key );
+
+            if ( $states ) {
+                foreach ( $states as $state_key => $state_value ) {
+                    $output[ $key . ':' . $state_key ] = $value . ' - ' . $state_value;
+                }
+            } else {
+                $output[ $key ] = $value;
+            }
+        }
+        return $output;
+    }
+
+    public function getListRestaurantArea(){
+        $result = array(
+                'cook' => array(
+                        'label' => __( 'Kitchen Cook', 'woocommerce' ),
+                        'description' => __( 'Display on Kitchen View', 'woocommerce' ),
+                        'default' => 'yes' //yes or no
+                ),
+                'drink' => array(
+                    'label' => __( 'Bar Drink', 'openpos' ),
+                    'description' => __( 'Display on Bar View', 'woocommerce' )
+                ),
+
+        );
+        return apply_filters('op_list_restaurant_area',$result);
+    }
+
+    public function product_type_options($options)
+    {
+        global $post;
+        $openpos_type = $this->settings_api->get_option('openpos_type','openpos_pos');
+        if($openpos_type == 'restaurant')
+        {
+            $type_options = $this->getListRestaurantArea();
+
+            foreach($type_options as $akey => $aop)
+            {
+                $a_key = '_op_'.$akey;
+                $default_value = isset($aop['default']) ? $aop['default'] : 'no';
+
+                if($post && $post->ID)
+                {
+                    $_op_value = get_post_meta($post->ID,$a_key,true);
+
+                    if($_op_value )
+                    {
+                        if( $_op_value == 'no')
+                        {
+                            $default_value = 'no';
+                        }
+                        if( $_op_value == 'yes')
+                        {
+                            $default_value = 'yes';
+                        }
+                    }
+
+                }
+
+                $options[$a_key] = array(
+                    'id'            => $a_key,
+                    'wrapper_class' => '',
+                    'label'         => $aop['label'],
+                    'description'   => $aop['description'],
+                    'default'       => $default_value,
+                );
+            }
+        }
+        return $options;
+    }
+    public function woocommerce_new_product($product_id){
+
+        $openpos_type = $this->settings_api->get_option('openpos_type','openpos_pos');
+        if($openpos_type == 'restaurant' && $product_id)
+        {
+
+            $type_options = $this->getListRestaurantArea();
+            foreach($type_options as $akey => $aop) {
+                $a_key = '_op_' . $akey;
+                $cook = 'no';
+                if(isset($_REQUEST[$a_key]))
+                {
+                    $op_cook = esc_attr($_REQUEST[$a_key]);
+                    if($op_cook == 'on')
+                    {
+                        $cook = 'yes';
+                    }
+                }
+                update_post_meta($product_id,$a_key,$cook);
+            }
+
+        }
+    }
+
+    public function woocommerce_update_product($product_id){
+
+        $openpos_type = $this->settings_api->get_option('openpos_type','openpos_pos');
+        if($openpos_type == 'restaurant' && $product_id)
+        {
+
+            $type_options = $this->getListRestaurantArea();
+            foreach($type_options as $akey => $aop) {
+                $a_key = '_op_' . $akey;
+                $cook = 'no';
+                if(isset($_REQUEST[$a_key]))
+                {
+                    $op_cook = esc_attr($_REQUEST[$a_key]);
+                    if($op_cook == 'on')
+                    {
+                        $cook = 'yes';
+                    }
+                }
+                update_post_meta($product_id,$a_key,$cook);
+            }
+        }
+    }
+    public function check_product_kitchen_op_type($kitchen_type,$product_id){
+        $result = false;
+        $key = '_op_'.esc_attr($kitchen_type);
+        $post = get_post($product_id);
+        if($post)
+        {
+            if($post->post_parent && $post->post_parent > 0)
+            {
+                $product_id = $post->post_parent;
+            }
+            $_op_type = get_post_meta($product_id,$key,true);
+            if($_op_type == 'yes')
+            {
+                $result = true;
+            }
+        }
+
+        return $result;
+    }
+    public function sortAttributeOptions($attribute_code,$options){
+        if(strpos($attribute_code,'pa_') !== false)
+        {
+            $result = array();
+
+            $terms = get_terms( $attribute_code, array(
+                'hide_empty' => false,
+            ) );
+
+            foreach($terms as $term)
+            {
+                if($term && is_object($term) && in_array($term->slug,$options))
+                {
+                    $result[] = $term->slug;
+                }
+            }
+            return $result;
+        }
+        return $options;
+    }
+    public  function custom_vnsearch_slug($str) {
+        $str = trim(mb_strtolower($str));
+        $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str);
+        $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str);
+        $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str);
+        $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str);
+        $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str);
+        $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str);
+        $str = preg_replace('/(đ)/', 'd', $str);
+        $str = preg_replace('/[^a-z0-9-\s]/', '', $str);
+        $str = preg_replace('/([\s]+)/', ' ', $str);
+        $str = str_replace('  ',' ',$str);
+        return $str;
     }
 
 }

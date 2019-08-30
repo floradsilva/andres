@@ -160,6 +160,7 @@ class Openpos_Core
             $barcode = get_post_meta($productId,$barcode_field,true);
             if($barcode)
             {
+                $barcode = strtolower($barcode);
                 return $barcode;
             }
             $format = '00000000000';
@@ -182,9 +183,14 @@ class Openpos_Core
         $id = (int)$barcode;
         $post = get_post($id);
         $product_id = 0;
-        if($post->post_type == 'product' || $post->post_type == 'product_variation')
+
+        if($id && $post )
         {
-            $product_id = $post->ID;
+            if( $post->post_type == 'product' || $post->post_type == 'product_variation')
+            {
+                $product_id = $post->ID;
+            }
+
         }
         if(!$product_id)
         {
@@ -273,7 +279,8 @@ class Openpos_Core
     public function getPosWarehouseOrderByDate($warehouse_id,$from,$to){
         $config_status = $this->settings_api->get_option('pos_order_status','openpos_general');
 
-        $config_statuses = array('wc-completed');
+        $config_status = array('wc-completed');
+
 
         $post_type = 'shop_order';
         $args = array(
@@ -307,7 +314,7 @@ class Openpos_Core
     {
         $config_status = $this->settings_api->get_option('pos_order_status','openpos_general');
 
-        $config_statuses = array('wc-completed');
+        $config_status = array('wc-completed');
 
         $post_type = 'shop_order';
         $args = array(
@@ -653,7 +660,7 @@ class Openpos_Core
             'frontend_title' => __('Credit Card','openpos'),
             'description' => ''
         );
-        return $payment_options;
+        return  apply_filters('op_addition_payment_methods',$payment_options);
     }
 
     function additionPaymentMethods(){
@@ -686,6 +693,7 @@ class Openpos_Core
     function formatPaymentMethods($methods){
         $payment_methods = array();
         $addition_payments = $this->additionPaymentMethodDetails();
+        $payment_gateways   = WC_Payment_Gateways::instance()->payment_gateways();
         foreach($methods as $code => $title)
         {
             $type = 'offline';
@@ -703,13 +711,29 @@ class Openpos_Core
                 $online_checkout_type = 'inline';
             }
 
+            // Get an instance of the WC_Payment_Gateways object
+            $description = '';
+
+            if(isset($payment_gateways[$code]))
+            {
+                $payment_gateway    = $payment_gateways[$code];
+                if(isset($payment_gateway->instructions))
+                {
+                    $description = $payment_gateway->instructions;
+                }
+            }
+
+            if($code == 'chip_pin')
+            {
+                $description = __('Click Generate to get a reference order number. Then process the payment using your chip & PIN device.','openpos');
+            }
             $payment_method_data = array(
                 'code' => $code,
                 'name' => $title,
                 'type' => $type,
                 'hasRef' => true,
                 'partial' => $allow_partial_payment,
-                'description' => '',
+                'description' => $description,
                 'online_type' => $online_checkout_type
             );
             $payment_methods[] = apply_filters('op_login_format_payment_data',$payment_method_data,$methods);
@@ -948,7 +972,24 @@ class Openpos_Core
             '[customer_email]' => '<%= customer.email %>',
             '[payment_method]' => $payment_methods,
         );
+
+        //receipt css
+
+        $file_name = 'receipt_css.txt';
+        $theme_file_path = rtrim(get_stylesheet_directory(),'/').'/woocommerce-openpos/'.$file_name;
+        if(file_exists($theme_file_path))
+        {
+            $setting['receipt_css'] = $this->_filesystem->get_contents($theme_file_path);
+        }
         // receipt_template_footer
+
+        $file_name = 'receipt_template_footer.txt';
+        $theme_file_path = rtrim(get_stylesheet_directory(),'/').'/woocommerce-openpos/'.$file_name;
+        if(file_exists($theme_file_path))
+        {
+            $setting['receipt_template_footer'] = $this->_filesystem->get_contents($theme_file_path);
+        }
+
         if(isset($setting['receipt_template_footer']))
         {
             $setting['receipt_template_footer'] = str_replace(array_keys($rules), array_values($rules), html_entity_decode($setting['receipt_template_footer']));
@@ -956,6 +997,13 @@ class Openpos_Core
             $setting['receipt_template_footer'] = '';
         }
         //receipt_template_header
+        $file_name = 'receipt_template_header.txt';
+        $theme_file_path = rtrim(get_stylesheet_directory(),'/').'/woocommerce-openpos/'.$file_name;
+        if(file_exists($theme_file_path))
+        {
+            $setting['receipt_template_header'] = $this->_filesystem->get_contents($theme_file_path);
+        }
+
         if(isset($setting['receipt_template_header']))
         {
             $setting['receipt_template_header'] = str_replace(array_keys($rules), array_values($rules), html_entity_decode($setting['receipt_template_header']));
@@ -965,18 +1013,37 @@ class Openpos_Core
 
 
         $file_name = 'receipt_template_body.txt';
-        if($op_incl_tax_mode)
-        {
-            $file_name = 'receipt_incl_tax_template_body.txt';
-        }
+
+
         $file_path = rtrim(OPENPOS_DIR,'/').'/default/'.$file_name;
 
         $theme_file_path = rtrim(get_stylesheet_directory(),'/').'/woocommerce-openpos/'.$file_name;
         if(file_exists($theme_file_path))
         {
             $file_path = $theme_file_path;
+        }else{
+            if($op_incl_tax_mode)
+            {
+                $file_name = 'receipt_incl_tax_template_body.txt';
+                $file_path = rtrim(OPENPOS_DIR,'/').'/default/'.$file_name;
+            }
+        }
+        $_gift_file_name = 'receipt_gift_template_body.txt';
+        $gift_file_path = rtrim(OPENPOS_DIR,'/').'/default/'.$_gift_file_name;
+
+        $gift_theme_file_path = rtrim(get_stylesheet_directory(),'/').'/woocommerce-openpos/'.$_gift_file_name;
+        if(file_exists($gift_theme_file_path))
+        {
+            $gift_file_path = $gift_theme_file_path;
         }
 
+
+        $setting['receipt_gift_template'] = '';
+
+        if(file_exists($gift_file_path))
+        {
+            $setting['receipt_gift_template'] = $this->_filesystem->get_contents($gift_file_path);;
+        }
 
         if($this->_filesystem->is_file($file_path))
         {
@@ -1037,10 +1104,16 @@ class Openpos_Core
             </tr>
             </table>';
         }
-
+        $setting['receipt_css'] = 'html,body{ height: fit-content; }'.$setting['receipt_css'];
         $setting['receipt_template_header'] =  apply_filters('op_receipt_template_header_data',do_shortcode($setting['receipt_template_header']),$setting);
         $setting['receipt_template_footer'] =  apply_filters('op_receipt_template_footer_data',do_shortcode($setting['receipt_template_footer']),$setting);
         $setting['receipt_template'] =  apply_filters('op_receipt_template_data',$receipt_template,$setting);
+
+        $lang = $this->settings_api->get_option('pos_language','openpos_pos');
+        if($lang == 'vi')
+        {
+            $setting['product_search_fields'] = array('search_keyword');
+        }
 
         return $setting;
     }
@@ -1107,6 +1180,12 @@ class Openpos_Core
         }else{
             return $time_str;
         }
+    }
+
+    public function getReceiptFontCss(){
+        $font_css = array();
+        $font_css['receipt_font'] = OPENPOS_URL.'/pos/font.css';
+        return $font_css;
     }
 
 }

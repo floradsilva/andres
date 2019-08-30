@@ -109,18 +109,19 @@ if(!class_exists('OP_Discounts'))
             global $op_session_data;
             $validate = parent::is_coupon_valid($coupon);
             $customer_email = get_post_meta( $coupon->get_id(), 'customer_email', true );
+            $request_params = apply_filters('op_check_coupon_request',$_REQUEST);
+            $cart_data = isset($request_params['cart']) ? json_decode(stripslashes($request_params['cart']),true) : array();
             if($customer_email)
             {
                 $customer_emails = (array) maybe_unserialize($customer_email);
                 if(!empty($customer_emails))
                 {
-                    $request = apply_filters('op_check_coupon_request',$_REQUEST);
-                    if(isset($request['cart']) && $op_session_data)
+
+                    if(!empty($cart_data) && $op_session_data)
                     {
-                        $cart_data = json_decode(stripslashes($request['cart']),true);
                         if(isset($cart_data['customer']) && $cart_data['customer']['email'])
                         {
-                            if(!in_array($cart_data['customer']['email'],$customer_emails))
+                            if(!in_array(strtolower($cart_data['customer']['email']),$customer_emails))
                             {
                                 return new WP_Error(
                                     'invalid_coupon',
@@ -148,7 +149,7 @@ if(!class_exists('OP_Discounts'))
             if($usage_limit_per_user > 0)
             {
 
-                if(!isset($request['customer']))
+                if(!isset($cart_data['customer']))
                 {
                     return new WP_Error(
                         'invalid_coupon',
@@ -158,7 +159,7 @@ if(!class_exists('OP_Discounts'))
                         )
                     );
                 }
-                $customer = $request['customer'];
+                $customer = $cart_data['customer'];
 
                 if(!isset($customer['id']) || !$customer['id'])
                 {

@@ -51,8 +51,6 @@ if(!class_exists('OP_Table'))
         }
         public function tables($warehouse_id = -1 ){
             $result = array();
-
-
             if($warehouse_id >= 0)
             {
                 $posts = get_posts([
@@ -90,6 +88,59 @@ if(!class_exists('OP_Table'))
             }
 
             return $result;
+        }
+        public function takeawayTables($warehouse_id = -1 ){
+
+            $result = array();
+            if ($handle = opendir( $this->_bill_data_path)) {
+
+                while (false !== ($entry = readdir($handle))) {
+
+                    if ($entry != "." && $entry != ".." && strpos($entry,'takeaway') == 0) {
+
+                        if(strpos($entry,'.json') > 0)
+                        {
+                            $table_id = str_replace('.json','',$entry);
+                            $file_path = $this->_bill_data_path.'/'.$entry;
+                            $data = $this->_filesystem->get_contents($file_path);
+
+                            if($data)
+                            {
+                                $result_table = json_decode($data,true);
+                                $desk = $result_table['desk'];
+
+                                if($warehouse_id >= 0 && $desk['warehouse_id'] != $warehouse_id)
+                                {
+                                    continue;
+                                }
+
+                                $result[] = array(
+                                    'id' => $desk['id'],
+                                    'name' => $desk['name'],
+                                    'warehouse' => $desk['warehouse_id'],
+                                    'position' => 0,
+                                    'status' => 'publish',
+                                    'type' => 'takeaway',
+                                );
+
+                            }
+                        }
+                    }
+                }
+                closedir($handle);
+            }
+
+            return $result;
+            /*
+            $result = array(
+                'id' => $id,
+                'name' => $name,
+                'warehouse' => $warehouse,
+                'position' => (int)$position,
+                'status' => $status
+            );
+            */
+
         }
         public function delete($id){
             $post = get_post($id);
@@ -187,10 +238,13 @@ if(!class_exists('OP_Table'))
                     }
 
                 }
-
             }
         }
-        public function update_table_bill_screen($table_id,$table_data){
+        public function update_table_bill_screen($table_id,$table_data,$table_type = 'dine_in'){
+            if($table_type != 'dine_in')
+            {
+                $table_id = $table_type.'-'.$table_id;
+            }
             $register_file = $this->bill_screen_file_path($table_id);
             if(file_exists($register_file))
             {
@@ -214,8 +268,12 @@ if(!class_exists('OP_Table'))
             $url = ltrim($url,'/');
             return $url.'/openpos/tables/'.$table_id.'.json';
         }
-        public function bill_screen_data($table_id)
+        public function bill_screen_data($table_id,$type='dine_in')
         {
+            if($type != 'dine_in')
+            {
+                $table_id = $type.'-'.$table_id;
+            }
             $file_path = $this->bill_screen_file_path($table_id);
             $data = $this->_filesystem->get_contents($file_path);
             $result = array();
@@ -259,7 +317,12 @@ if(!class_exists('OP_Table'))
                 while (false !== ($entry = readdir($handle))) {
 
                     if ($entry != "." && $entry != "..") {
+                        $table_type = 'dine_in';
 
+                        if(strpos($entry,'takeaway') == 0)
+                        {
+                            $table_type = 'takeaway';
+                        }
                         if(strpos($entry,'.json') > 0)
                         {
                             $table_id = str_replace('.json','',$entry);
@@ -279,8 +342,10 @@ if(!class_exists('OP_Table'))
                                         if(isset($_item['done']) && $_item['done'] == 'ready')
                                         {
                                             $result[] = array(
+                                                'id' => $_item['id'],
                                                 'table_id' => $table_id,
                                                 'table_name' => $table_name,
+                                                'table_type' => $table_type,
                                                 'item_name' => $_item['qty'].' x '.$_item['name']
                                             );
                                         }
@@ -289,6 +354,41 @@ if(!class_exists('OP_Table'))
                                 }
 
                             }
+                        }
+                    }
+                }
+                closedir($handle);
+            }
+            return $result;
+        }
+        public function removeJsonTable($table_id){
+
+            $file_path = $this->bill_screen_file_path($table_id);
+
+            if(file_exists($file_path))
+            {
+                unlink($file_path);
+            }
+        }
+        public function clear_takeaway(){
+            $result = array();
+            if ($handle = opendir( $this->_bill_data_path)) {
+
+                while (false !== ($entry = readdir($handle))) {
+
+                    if ($entry != "." && $entry != "..") {
+
+                        if(strpos($entry,'.json') > 0)
+                        {
+                            if(strpos($entry,'takeaway') >= 0)
+                            {
+
+
+                                $file_path = $this->_bill_data_path.'/'.$entry;
+                                unlink($file_path);
+                            }
+
+
                         }
                     }
                 }

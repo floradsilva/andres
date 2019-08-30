@@ -99,10 +99,10 @@ if(isset($_GET['id']) && $id = $_GET['id'])
                         <div class="col-sm-8">
                             <select class="form-control" name="register_mode">
                                 <option <?php echo (!isset($default['register_mode']) || !$default['register_mode'] || $default['register_mode'] == 'cashier'  ) ? 'selected':''; ?> value="cashier"><?php echo __('Cashier Mode','openpos'); ?></option>
-                                <option <?php echo (isset($default['register_mode'] ) && $default['register_mode'] == 'seller') ? 'selected':''; ?> value="seller"><?php echo __('Seller Mode','openpos'); ?></option>
-                                <option <?php echo (isset($default['register_mode'] ) && $default['register_mode'] == 'customer') ? 'selected':''; ?> value="customer"><?php echo __('Customer Mode','openpos'); ?></option>
+                                <option <?php echo (isset($default['register_mode'] ) && $default['register_mode'] == 'seller') ? 'selected':''; ?> value="seller"><?php echo __('Seller Mode - No checkout button','openpos'); ?></option>
+                                <option <?php echo (isset($default['register_mode'] ) && $default['register_mode'] == 'customer') ? 'selected':''; ?> value="customer"><?php echo __('Customer Mode - No checkout button','openpos'); ?></option>
                                 <?php if($openpos_type == 'restaurant'): ?>
-                                <option <?php echo (isset($default['register_mode'] ) && $default['register_mode'] == 'waiter') ? 'selected':''; ?> value="waiter"><?php echo __('Waiter Mode','openpos'); ?></option>
+                                <option <?php echo (isset($default['register_mode'] ) && $default['register_mode'] == 'waiter') ? 'selected':''; ?> value="waiter"><?php echo __('Waiter Mode - No checkout button','openpos'); ?></option>
                                 <?php endif; ?>
                             </select>
                         </div>

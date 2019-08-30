@@ -10,6 +10,7 @@
 
     require_once ($base_dir.'/wp-load.php');
     global $OPENPOS_SETTING;
+    global $OPENPOS_CORE;
 
     $lang = $OPENPOS_SETTING->get_option('pos_language','openpos_pos');
 
@@ -47,6 +48,7 @@
         <?php if($lang): ?>
         var pos_lang = '<?php echo $lang; ?>';
         <?php endif; ?>
+        var pos_receipt_css = <?php echo json_encode($OPENPOS_CORE->getReceiptFontCss()); ?>;
         var global = global || window;
         global.action_url = action_url;
         var Buffer = Buffer || [];

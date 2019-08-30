@@ -5,7 +5,7 @@
  *
  * @since      1.0.0
  * @package    Wdm_Ebridge_Woocommerce_Sync
- * @subpackage Wdm_Ebridge_Woocommerce_Sync/include
+ * @subpackage Wdm_Ebridge_Woocommerce_Sync/includes
  * @author     WisdmLabs <helpdesk@wisdmlabs.com >
  */
 
@@ -163,6 +163,49 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Customer' ) ) {
 					}
 				}
 			}
+		}
+
+
+		public function get_customers( $batched = false ) {
+			$customers = array();
+
+			$args = array(
+				'meta_key' => 'ebridge_customer_id',
+			);
+
+			$ebridge_users = get_users( $args );
+
+			foreach ( $ebridge_users as $key => $ebridge_user ) {
+				$customers[] = array(
+					'customer_id'     => $ebridge_user->ID,
+					'ebridge_id' => get_user_meta( $ebridge_user->ID, 'ebridge_customer_id', true ),
+				);
+			}
+
+			if ( $batched ) {
+				return $this->get_batched_customers( $customers );
+			}
+
+			return $customers;
+		}
+
+
+		public function get_batched_customers( $customers ) {
+			$start          = get_option( 'wews_customer_update_start', 0 );
+			$customer_count = ( count( $customers ) > ( $start + WEWS_FETCH_CUSTOMER_SIZE ) ) ? ( $start + WEWS_FETCH_CUSTOMER_SIZE ) : count( $customers );
+			$batch          = array();
+
+			for ( $i = $start; $i < $customer_count; $i++ ) {
+				$batch[] = $customers[ $i ];
+			}
+
+			if ( $customer_count < count( $customers ) ) {
+				update_option( 'wews_customer_update_start', $customer_count );
+			} else {
+				update_option( 'wews_customer_update_start', 0 );
+			}
+
+			return $batch;
 		}
 	}
 }

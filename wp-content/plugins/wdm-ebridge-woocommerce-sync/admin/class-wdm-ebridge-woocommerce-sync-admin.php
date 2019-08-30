@@ -83,21 +83,15 @@ class Wdm_Ebridge_Woocommerce_Sync_Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Wdm_Ebridge_Woocommerce_Sync_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Wdm_Ebridge_Woocommerce_Sync_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
 		wp_enqueue_script( 'wdm-validator', 'https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js', array( 'jquery' ), null, true );
+
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wdm-ebridge-woocommerce-sync-admin.js', array( 'jquery' ), $this->version, true );
+
+		wp_register_script( 'customer-order-history', plugin_dir_url( __FILE__ ) . 'js/customer-order-history.js', array( 'jquery' ), $this->version, true );
+
+		if ( 'ebridge_sync_customer_order_history_sync' === $_GET['page'] ) {
+			wp_enqueue_script( 'customer-order-history' );
+		}
 	}
 
 	public function create_taxonomy_brand() {
@@ -158,11 +152,14 @@ class Wdm_Ebridge_Woocommerce_Sync_Admin {
 
 	public function fetch_localized_script_data() {
 		$args = array(
-			'wews_url'        => admin_url( 'admin-ajax.php' ),
-			'update_complete' => __( 'Completed updating elements.', 'wdm-ebridge-woocommerce-sync' ),
-			'delete_complete' => __( 'Completed deleting elements.', 'wdm-ebridge-woocommerce-sync' ),
-			'fetched_msg'     => __( 'Total products fetched', 'wdm-ebridge-woocommerce-sync' ),
-			'updated_msg'     => __( 'Total products updated', 'wdm-ebridge-woocommerce-sync' ),
+			'wews_url'              => admin_url( 'admin-ajax.php' ),
+			'update_complete'       => __( 'Completed updating elements.', 'wdm-ebridge-woocommerce-sync' ),
+			'delete_complete'       => __( 'Completed deleting elements.', 'wdm-ebridge-woocommerce-sync' ),
+			'fetched_msg'           => __( 'Total products fetched', 'wdm-ebridge-woocommerce-sync' ),
+			'updated_msg'           => __( 'Total products updated', 'wdm-ebridge-woocommerce-sync' ),
+			'updated_customers_msg' => __( 'Total customers updated', 'wdm-ebridge-woocommerce-sync' ),
+			'updating_customer_msg' => __( 'Updating customer', 'wdm-ebridge-woocommerce-sync' ),
+			'no_customers_msg'      => __( 'No customers to update.', 'wdm-ebridge-woocommerce-sync' ),
 		);
 		return $args;
 	}
