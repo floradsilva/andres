@@ -35,8 +35,8 @@
 					submitHandler: function (form) {
 						event.preventDefault();
 						$( '.import_button' ).prepend( '<div class="loader-container"><div class="loader"></div></div>' );
-						$( "#message-wrap" ).remove();
-						$( "#message-wrap-1" ).remove();
+						$("div[id^='message']").remove();
+
 
 						var formData = new FormData( document.getElementById( 'customer_order_history_form' ) );
 						formData.append( "action", "fetch_customers_to_sync" );
@@ -123,7 +123,7 @@
 															} else {
 																$( '#message' ).append( response_updated.data.message + '<br />' );
 															}
-															if ( total_updated === (customers.length - 1) ) {
+															if ( total_updated === (customers.length) ) {
 																$( '.loader-container' ).remove();
 																$( '#message-brief' ).text( wews.updated_customers_msg + ': ' + total_updated );
 																$( '#message-brief' ).append( '<br />' + wews.update_complete + '<br />' );
