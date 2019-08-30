@@ -5,7 +5,7 @@
  *
  * @since      1.0.0
  * @package    Wdm_Ebridge_Woocommerce_Sync
- * @subpackage Wdm_Ebridge_Woocommerce_Sync/include
+ * @subpackage Wdm_Ebridge_Woocommerce_Sync/includes
  * @author     WisdmLabs <helpdesk@wisdmlabs.com >
  */
 

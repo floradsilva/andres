@@ -136,6 +136,8 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/definitions.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wdm-ebridge-woocommerce-sync-products.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wdm-ebridge-sync-customer.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wdm-ebridge-sync-order.php';
+
 
 		$this->loader = new Wdm_Ebridge_Woocommerce_Sync_Loader();
 	}
@@ -195,6 +197,7 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		$this->loader->add_action( 'admin_init', $customer_order_history_sync, 'setup_sections' );
 		$this->loader->add_action( 'wp_ajax_fetch_customers_to_sync', $customer_order_history_sync, 'fetch_customers_to_sync' );
 		$this->loader->add_action( 'wp_ajax_get_customer_orders', $customer_order_history_sync, 'get_customer_orders' );
+		$this->loader->add_action( 'wp_ajax_sync_order', $customer_order_history_sync, 'sync_order' );
 	}
 
 	/**

@@ -57,8 +57,7 @@
 	display: flex;
 }
 
-#message,
-#message-brief {
+p[id^="message"] {
 	width: 50%;
 	background: white;
 	border: white;

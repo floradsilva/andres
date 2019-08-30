@@ -158,6 +158,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Admin {
 			'fetched_msg'           => __( 'Total products fetched', 'wdm-ebridge-woocommerce-sync' ),
 			'updated_msg'           => __( 'Total products updated', 'wdm-ebridge-woocommerce-sync' ),
 			'updated_customers_msg' => __( 'Total customers updated', 'wdm-ebridge-woocommerce-sync' ),
+			'updating_customer_msg' => __( 'Updating customer', 'wdm-ebridge-woocommerce-sync' ),
 			'no_customers_msg'      => __( 'No customers to update.', 'wdm-ebridge-woocommerce-sync' ),
 		);
 		return $args;

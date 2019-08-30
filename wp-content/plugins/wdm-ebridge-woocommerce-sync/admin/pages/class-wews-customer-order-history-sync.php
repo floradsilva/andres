@@ -42,6 +42,7 @@ class WEWS_Customer_Order_History_Sync {
 		$this->api_url      = get_option( 'ebridge_sync_api_url', '' );
 		$this->api_token    = get_option( 'ebridge_sync_api_token', '' );
 		$this->customer_obj = new Wdm_Ebridge_Woocommerce_Sync_Customer();
+		$this->order_obj    = new Wdm_Ebridge_Woocommerce_Sync_Order();
 		$this->curl_args    = array(
 			'timeout' => 6000,
 		);
@@ -97,12 +98,14 @@ class WEWS_Customer_Order_History_Sync {
 			$customer_id = $_POST['customer_id'];
 			$ebridge_id  = $_POST['ebridge_id'];
 
-			$customer           = get_userdata( $customer_id );
-			$customer_order_ids = $this->get_customer_order_history( $ebridge_id );
+			$customer            = get_userdata( $customer_id );
+			$customer_order_data = $this->get_customer_order_history( $ebridge_id );
 
-			if ( isset( $customer_order_ids ) ) {
-				$response['message']            = __( 'Found ' . count( $customer_order_ids ) . ' order(s) for the customer ' . $customer->user_nicename . ' with ebridge id ' . $ebridge_id . '.', 'wdm-ebridge-woocommerce-sync' );
-				$response['customer_order_ids'] = $customer_order_ids;
+			if ( isset( $customer_order_data ) ) {
+				$response['message']       = __( 'Found ' . count( $customer_order_data ) . ' order(s) for the customer ' . $customer->user_nicename . ' with ebridge id ' . $ebridge_id . '.', 'wdm-ebridge-woocommerce-sync' );
+				$response['order_data']    = $customer_order_data;
+				$response['id']            = $customer_id;
+				$response['customer_name'] = $customer->user_nicename;
 				wp_send_json_success( $response );
 			}
 
@@ -117,8 +120,38 @@ class WEWS_Customer_Order_History_Sync {
 	}
 
 
+	public function sync_order() {
+
+		ini_set( 'display_errors', 1 );
+		ini_set( 'display_startup_errors', 1 );
+		error_reporting( E_ALL );
+
+		$response = array();
+
+		if ( ( isset( $_POST['order_id'] ) && isset( $_POST['order_type'] ) ) ) {
+			$ebridge_order_id   = $_POST['order_id'];
+			$ebridge_order_type = $_POST['order_type'];
+
+			$order_id = $this->order_obj->sync_order( $ebridge_order_id, $ebridge_order_type );
+
+			if ( $order_id ) {
+				$response['message'] = __( 'Updated Ebridge order #' . $ebridge_order_id . ' as Woocommerce Order #' . $order_id . '.', 'wdm-ebridge-woocommerce-sync' );
+				$response['id']      = $order_id;
+				wp_send_json_success( $response );
+			}
+
+			$response['message'] = __( 'Failed to update Ebridge order #' . $ebridge_order_id . '.<br />', 'wdm-ebridge-woocommerce-sync' );
+			wp_send_json_error( $response );
+
+		}
+
+		$response['message'] = __( 'Invalid data.<br />', 'wdm-ebridge-woocommerce-sync' );
+
+		wp_send_json_error( $response );
+	}
+
 	public function get_customer_order_history( $ebridge_id ) {
-		$order_ids = array();
+		$orders = array();
 
 		if ( $this->api_url && $this->api_token ) {
 			$response      = wp_remote_get( $this->api_url . '/' . $this->api_token . '/customers/' . $ebridge_id . '/orders', $this->curl_args );
@@ -128,12 +161,15 @@ class WEWS_Customer_Order_History_Sync {
 				$customer_order_matches = $json_response->customerOrderMatches;
 
 				foreach ( $customer_order_matches as $key => $ebridge_order ) {
-					$order_ids[] = $ebridge_order->orderId;
+					$orders[] = array(
+						'id'   => $ebridge_order->orderId,
+						'type' => $ebridge_order->orderType,
+					);
 				}
 			}
 		}
 
-		return $order_ids;
+		return $orders;
 	}
 
 

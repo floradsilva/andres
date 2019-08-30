@@ -50,19 +50,21 @@
 								cache: false,
 								processData: false,
 								success: function (response) {
-									console.log(response);
+									console.log( response );
 									if (response.success) {
-										$( '<div id="message-wrap"><h3>Logs:</h3><p id="message">' + response.data.message + '<br /></p></div>' ).insertAfter( '#customer_order_history_form' );
+										$( '<div class="message-wrap"><h3>Logs:</h3><p id="message">' + response.data.message + '<br /></p></div>' ).insertAfter( '#customer_order_history_form' );
 
-										$( '<div id="message-wrap-1"><p id="message-brief"></p></div>' ).insertAfter( '#message-wrap' );
+										$( '<div class="message-wrap-1"><p id="message-brief"></p></div>' ).insertAfter( '.message-wrap' );
 
 										var index;
-										var customers = response.data.customers;
+										var customers     = response.data.customers;
 										var total_updated = 0;
 
 										if (customers.length) {
 											for (index = 0; index < customers.length; index++) {
 												var customer_to_update = customers[index];
+												var first              = true;
+
 												$.ajax(
 													{
 														url: wews.wews_url,
@@ -74,11 +76,49 @@
 															'ebridge_id': customer_to_update['ebridge_id']
 														},
 														success: function (response_updated) {
-															console.log(response_updated);
+															console.log( response_updated );
 															total_updated++;
-															$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight + 2 );
+
 															if (response_updated.success) {
-																$( '#message' ).append( response_updated.data.message + '<br />' );
+																if ( first ) {
+																	first = false;
+																	$( '<div class="message-wrapper-' + response_updated.data.id + '"><p id="message-brief-' + response_updated.data.id + '">'+ wews.updating_customer_msg + ': ' + response_updated.data.customer_name + '<br /></p></div>' ).insertAfter( '.message-wrap-1' );
+																} else {
+																	$( '<div class="message-wrapper-' + response_updated.data.id + '"><p id="message-brief-' + response_updated.data.id + '">'+ wews.updating_customer_msg + ': ' + response_updated.data.customer_name + '<br /></p></div>' ).insertAfter( '.message-wrap-1' );
+																}
+
+																// $( '#message-brief-' + response_updated.data.id ).text(  );
+
+																var order_data = response_updated.data.order_data;
+
+																order_data.forEach(
+																	order => {
+																			$.ajax(
+																				{
+																					url: wews.wews_url,
+																					type: 'post',
+																					dataType: 'json',
+																					data:  {
+																						'action': 'sync_order',
+																						'order_id' : order['id'],
+																						'order_type': order['type']
+																					},
+
+																					success: function (response_order) {
+																						console.log( response_order );
+																						if (response_order.success) {
+																							$( '#message-brief-' + response_updated.data.id ).append( response_order.data.message + '<br />' );
+
+																						} else {
+																							$( '#message-brief-' + response_updated.data.id ).append( response_order.data.message + '<br />' );
+																						}
+																					}
+																				}														
+																			);
+																		}
+																);
+
+																$( '#message-brief-' + response_updated.data.id ).append( response_updated.data.message + '<br />' );
 																$( '#message-brief' ).text( wews.updated_customers_msg + ': ' + total_updated );
 															} else {
 																$( '#message' ).append( response_updated.data.message + '<br />' );
@@ -98,7 +138,7 @@
 										}
 
 									} else {
-										$( '<div id="message-wrap"><h3>Logs:</h3><p id="message">' + response.data.message + '</p></div>' ).insertAfter( '#customer_order_history_form' );
+										$( '<div class="message-wrap"><h3>Logs:</h3><p id="message">' + response.data.message + '</p></div>' ).insertAfter( '#customer_order_history_form' );
 									}
 								}
 							}
