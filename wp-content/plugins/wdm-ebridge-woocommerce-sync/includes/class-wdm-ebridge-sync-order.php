@@ -115,7 +115,7 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Order' ) ) {
 			$this->set_shipping_address( $order, $order_data );
 			$order->add_order_note( $order_data->shippingInstructions );
 			$order->update_meta_data( 'ebridge_order_id', $order_data->orderId );
-			$order->update_meta_data( 'ebridge_order_type', $order_data->orderType );
+			$order->update_meta_data( 'ebridge_order_type', Wews_Helper_Functions::get_order_type_num_to_str( $order_data->orderType ) );
 			// $order->update_meta_data( 'ebridge_order_total', $order_data->total );
 			$order->update_meta_data( 'ebridge_order_customerId', $order_data->customerId );
 			$order->update_meta_data( 'ebridge_locationId', $order_data->locationId );
@@ -129,27 +129,106 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Order' ) ) {
 			$order->update_meta_data( 'ebridge_deliveryTime', $order_data->deliveryTime );
 
 			$order = $this->update_special_information( $order, $order_data->specialOrderInformation );
-			$this->map_line_item_data($order, $order_data->lineItems);
+			$this->map_line_item_data( $order, $order_data->lineItems );
+			$this->set_totals( $order, $order_data );
 			// $order->set_date_created( $order_data->orderDate );
+			// $order->maybe_set_date_completed();
 
-			// set_customer_id( integer $value )
+			$customer = Wdm_Ebridge_Woocommerce_Sync_Customer::get_user_by_ebridge_id( $order_data->customerId );
+
+			if ( $customer ) {
+				$order->set_customer_id( $customer->ID );
+			}
 			$order->save();
 
 			return $order;
 		}
 
 
-		public function map_line_item_data($order, $line_items) {
+		public function set_totals( $order, $order_data ) {
+			$totals        = $order_data->orderTotals;
+			$balance       = $totals->balance;
+			$invoice_total = $totals->invoiceTotal;
+
+			if ( $balance === $invoice_total ) {
+				$order->update_status( 'pending' );
+			} elseif ( 0 === intval( $balance ) ) {
+				$order->update_status( 'completed' );
+			}
+
+			$order->update_meta_data( 'order_balance', $totals->balance );
+
+			if ( $totals->discount ) {
+				$order->set_discount_total( $totals->discount );
+				$order->update_meta_data( 'order_discount', $totals->discount );
+			}
+
+			if ( $totals->delivery ) {
+				$fee = new stdClass();
+
+				$fee->name      = 'Delivery Charges';
+				$fee->amount    = $totals->delivery;
+				$fee->taxable   = false;
+				$fee->tax_class = '';
+
+				$delivery_item_id = $order->add_fee( $fee );
+
+				$order->update_meta_data( 'order_delivery', $totals->delivery );
+			}
+
+			if ( $totals->fees ) {
+				$fee = new stdClass();
+
+				$fee->name      = 'Fees';
+				$fee->amount    = $totals->fees;
+				$fee->taxable   = false;
+				$fee->tax_class = '';
+
+				$fee_item_id = $$order->add_fee( $fee );
+				$order->update_meta_data( 'order_fees', $totals->fees );
+			}
+
+			if ( $totals->install ) {
+				$fee = new stdClass();
+
+				$fee->name      = 'Installation Charges';
+				$fee->amount    = $totals->install;
+				$fee->taxable   = false;
+				$fee->tax_class = '';
+
+				$installation_item_id = $order->add_fee( $fee );
+				$order->update_meta_data( 'order_installation_charges', $totals->install );
+			}
+
+			if ( $totals->tax ) {
+				$fee = new stdClass();
+
+				$fee->name      = 'Tax';
+				$fee->amount    = $totals->tax;
+				$fee->taxable   = false;
+				$fee->tax_class = '';
+
+				$tax_item_id = $order->add_fee( $fee );
+
+				$order->update_meta_data( 'order_tax', $totals->tax );
+			}
+
+			$order->update_meta_data( 'order_total', $totals->invoiceTotal );
+			$order->calculate_totals();
+		}
+
+
+		public function map_line_item_data( $order, $line_items ) {
 			$order->remove_order_items();
 
-			foreach ($line_items as $index => $line_item) {
+			foreach ( $line_items as $index => $line_item ) {
 				// foreach ($line_item as $key => $value) {
-				// 	$order->update_meta_data( 'ebridge_line_item_' . $index . '_' . $key, $value );
+				// $order->update_meta_data( 'ebridge_line_item_' . $index . '_' . $key, $value );
 				// }
 
-				$sku = $line_item->id;
+				$sku        = $line_item->id;
 				$product_id = wc_get_product_id_by_sku( $sku );
-				$item_id = $order->add_product(
+				$item_id    = $order->add_product(
 					wc_get_product( $product_id ),
 					$line_item->quantity,
 					[
@@ -160,7 +239,6 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Order' ) ) {
 			}
 
 			$order->set_currency( 'USD' );
-			$order->calculate_totals();
 		}
 
 
