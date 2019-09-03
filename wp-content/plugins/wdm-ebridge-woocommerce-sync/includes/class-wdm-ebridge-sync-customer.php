@@ -177,8 +177,8 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Customer' ) ) {
 
 			foreach ( $ebridge_users as $key => $ebridge_user ) {
 				$customers[] = array(
-					'customer_id'     => $ebridge_user->ID,
-					'ebridge_id' => get_user_meta( $ebridge_user->ID, 'ebridge_customer_id', true ),
+					'customer_id' => $ebridge_user->ID,
+					'ebridge_id'  => get_user_meta( $ebridge_user->ID, 'ebridge_customer_id', true ),
 				);
 			}
 
@@ -206,6 +206,22 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Customer' ) ) {
 			}
 
 			return $batch;
+		}
+
+
+		public static function get_user_by_ebridge_id( $ebridge_customer_id ) {
+			$args = array(
+				'meta_key'   => 'ebridge_customer_id',
+				'meta_value' => $ebridge_customer_id,
+			);
+
+			$ebridge_users = get_users( $args );
+
+			if ( count( $ebridge_users > 0 ) ) {
+				return $ebridge_users[0];
+			}
+
+			return false;
 		}
 	}
 }
