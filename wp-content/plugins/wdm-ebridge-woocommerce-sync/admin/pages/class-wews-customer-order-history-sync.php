@@ -121,11 +121,6 @@ class WEWS_Customer_Order_History_Sync {
 
 
 	public function sync_order() {
-
-		ini_set( 'display_errors', 1 );
-		ini_set( 'display_startup_errors', 1 );
-		error_reporting( E_ALL );
-
 		$response = array();
 
 		if ( ( isset( $_POST['order_id'] ) && isset( $_POST['order_type'] ) ) ) {
