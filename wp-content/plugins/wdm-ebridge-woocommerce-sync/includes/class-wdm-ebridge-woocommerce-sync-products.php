@@ -377,15 +377,15 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			$product->set_height( $product_obj->dimension->height );
 		}
 
-		if ( isset( $product_obj->beginningPromoDate ) ) {
-			$start_date = $this->get_date_time_object( $product_obj->beginningPromoDate );
-			$product->set_date_on_sale_from( $start_date );
-		}
+		// if ( isset( $product_obj->beginningPromoDate ) ) {
+		// 	$start_date = $this->get_date_time_object( $product_obj->beginningPromoDate );
+		// 	$product->set_date_on_sale_from( $start_date );
+		// }
 
-		if ( isset( $product_obj->endingPromoDate ) ) {
-			$end_date = $this->get_date_time_object( $product_obj->endingPromoDate );
-			$product->set_date_on_sale_to( $end_date );
-		}
+		// if ( isset( $product_obj->endingPromoDate ) ) {
+		// 	$end_date = $this->get_date_time_object( $product_obj->endingPromoDate );
+		// 	$product->set_date_on_sale_to( $end_date );
+		// }
 
 		if ( $product->is_type( 'bundle' ) ) {
 			$product = $this->set_product_availability( $product, $product_obj );
