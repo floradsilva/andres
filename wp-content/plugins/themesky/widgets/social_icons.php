@@ -22,7 +22,6 @@ if( !class_exists('TS_Social_Icons_Widget') ){
 			
 			$facebook_url 		= $instance['facebook_url'];
 			$twitter_url 		= $instance['twitter_url'];
-			$google_plus_url 	= $instance['google_plus_url'];
 			$flickr_url 		= $instance['flickr_url'];
 			$vimeo_url 			= $instance['vimeo_url'];
 			$feedburner_url 	= $instance['feedburner_url'];
@@ -58,9 +57,6 @@ if( !class_exists('TS_Social_Icons_Widget') ){
 					<?php endif; ?>
 					<?php if( $twitter_url !== "" ): ?>
 						<li class="twitter"><a href="<?php echo esc_url($twitter_url); ?>" target="_blank" title="<?php echo (!$show_tooltip)?esc_html__('Follow us', 'themesky'):''; ?>" ><i class="fa fa-twitter"></i><span class="ts-tooltip social-tooltip"><?php esc_html_e('Twitter', 'themesky'); ?></span></a></li>
-					<?php endif; ?>
-					<?php if( $google_plus_url !== "" ): ?>
-						<li class="google-plus"><a href="<?php echo esc_url($google_plus_url); ?>" target="_blank" title="<?php echo (!$show_tooltip)?esc_html__('Join our circle', 'themesky'):''; ?>"  ><i class="fa fa-google-plus"></i><span class="ts-tooltip social-tooltip"><?php esc_html_e('Google Plus', 'themesky'); ?></span></a></li>
 					<?php endif; ?>
 					<?php if( $flickr_url !== "" ): ?>
 						<li class="flickr"><a href="<?php echo esc_url($flickr_url); ?>" target="_blank" title="<?php echo (!$show_tooltip)?esc_html__('See Us', 'themesky'):''; ?>" ><i class="fa fa-flickr"></i><span class="ts-tooltip social-tooltip"><?php esc_html_e('Flickr', 'themesky'); ?></span></a></li>
@@ -98,8 +94,7 @@ if( !class_exists('TS_Social_Icons_Widget') ){
 			$instance['title'] 				= $new_instance['title'];
 			$instance['desc'] 				=  $new_instance['desc'];
 			$instance['facebook_url'] 		=  $new_instance['facebook_url'];
-			$instance['twitter_url'] 		=  $new_instance['twitter_url'];		
-			$instance['google_plus_url'] 	=  $new_instance['google_plus_url'];		
+			$instance['twitter_url'] 		=  $new_instance['twitter_url'];			
 			$instance['flickr_url'] 		=  $new_instance['flickr_url'];		
 			$instance['vimeo_url'] 			=  $new_instance['vimeo_url'];		
 			$instance['feedburner_url'] 	=  $new_instance['feedburner_url'];
@@ -122,7 +117,6 @@ if( !class_exists('TS_Social_Icons_Widget') ){
 				,'desc'				=> ''
 				,'facebook_url' 	=> ''
 				,'twitter_url' 		=> ''
-				,'google_plus_url' 	=> ''
 				,'flickr_url' 		=> ''
 				,'vimeo_url'		=> '' 
 				,'feedburner_url' 	=> ''
@@ -163,10 +157,6 @@ if( !class_exists('TS_Social_Icons_Widget') ){
 			<p>
 				<label for="<?php echo $this->get_field_id('twitter_url'); ?>"><?php esc_html_e('Twitter URL', 'themesky'); ?></label>
 				<input class="widefat" type="text" id="<?php echo $this->get_field_id('twitter_url'); ?>" name="<?php echo $this->get_field_name('twitter_url'); ?>" value="<?php echo esc_attr($instance['twitter_url']); ?>" />
-			</p>
-			<p>
-				<label for="<?php echo $this->get_field_id('google_plus_url'); ?>"><?php esc_html_e('Google Plus URL', 'themesky'); ?></label>
-				<input class="widefat" type="text" id="<?php echo $this->get_field_id('google_plus_url'); ?>" name="<?php echo $this->get_field_name('google_plus_url'); ?>" value="<?php echo esc_attr($instance['google_plus_url']); ?>" />
 			</p>
 			<p>
 				<label for="<?php echo $this->get_field_id('flickr_url'); ?>"><?php esc_html_e('Flickr URL', 'themesky'); ?></label>

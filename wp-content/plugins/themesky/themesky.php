@@ -3,7 +3,7 @@
  * Plugin Name: ThemeSky
  * Plugin URI: http://theme-sky.com
  * Description: Add shortcodes and custom post types for BoxShop Theme
- * Version: 1.0.9
+ * Version: 1.1.0
  * Author: ThemeSky Team
  * Author URI: http://theme-sky.com
  */

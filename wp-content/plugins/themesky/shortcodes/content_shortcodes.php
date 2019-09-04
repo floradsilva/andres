@@ -47,7 +47,6 @@ function ts_team_member_shortcode($atts){
 			
 			$facebook_link = get_post_meta($post->ID, 'ts_facebook_link', true);
 			$twitter_link = get_post_meta($post->ID, 'ts_twitter_link', true);
-			$google_plus_link = get_post_meta($post->ID, 'ts_google_plus_link', true);
 			$linkedin_link = get_post_meta($post->ID, 'ts_linkedin_link', true);
 			$rss_link = get_post_meta($post->ID, 'ts_rss_link', true);
 			$dribbble_link = get_post_meta($post->ID, 'ts_dribbble_link', true);
@@ -63,9 +62,6 @@ function ts_team_member_shortcode($atts){
 			}
 			if( $twitter_link ){
 				$social_content .= '<a class="twitter" href="'.esc_url($twitter_link).'" target="'.$target.'"><i class="fa fa-twitter"></i></a>';
-			}
-			if( $google_plus_link ){
-				$social_content .= '<a class="google" href="'.esc_url($google_plus_link).'" target="'.$target.'"><i class="fa fa-google-plus"></i></a>';
 			}
 			if( $linkedin_link ){
 				$social_content .= '<a class="linked" href="'.esc_url($linkedin_link).'" target="'.$target.'"><i class="fa fa-linkedin"></i></a>';
