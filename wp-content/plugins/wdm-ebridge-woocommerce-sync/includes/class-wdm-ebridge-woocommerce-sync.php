@@ -135,9 +135,9 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/definitions.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wdm-ebridge-woocommerce-sync-products.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wdm-ebridge-sync-customer.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wdm-ebridge-sync-order.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wews-helper-functions.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wdm-ebridge-woocommerce-sync-customer.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wdm-ebridge-woocommerce-sync-order.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wdm-ebridge-woocommerce-sync-helper-functions.php';
 	
 		$this->loader = new Wdm_Ebridge_Woocommerce_Sync_Loader();
 	}
