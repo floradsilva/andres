@@ -395,6 +395,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 			if ( is_numeric( $net_quantity ) ) {
 				$product->set_manage_stock( true );
 				$product->set_stock_quantity( $net_quantity );
+			} else {
+				$product->set_backorders( 'notify' );
 			}
 
 			if ( isset( $product_obj->inventory->locations ) ) {
@@ -841,6 +843,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 				if ( $backorders ) {
 					$product->set_backorders( 'notify' );
 				}
+			} else {
+				$product->set_backorders( 'notify' );
 			}
 		}
 
