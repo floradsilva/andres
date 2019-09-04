@@ -89,7 +89,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Admin {
 
 		wp_register_script( 'customer-order-history', plugin_dir_url( __FILE__ ) . 'js/customer-order-history.js', array( 'jquery' ), $this->version, true );
 
-		if ( 'ebridge_sync_customer_order_history_sync' === $_GET['page'] ) {
+		if ( ( isset( $_GET['page'] ) ) && ( 'ebridge_sync_customer_order_history_sync' === $_GET['page'] ) ) {
 			wp_enqueue_script( 'customer-order-history' );
 		}
 	}

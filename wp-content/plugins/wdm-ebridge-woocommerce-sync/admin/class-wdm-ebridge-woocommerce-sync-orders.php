@@ -289,8 +289,10 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 			$cart_item = array();
 			$items = $order->get_items( 'line_item' );
 
+			echo "<pre>";
 			
 			foreach ($items as $item) {
+
 				$product        = $item->get_product();
 				
 				$cart_item['description'] = $product->get_name();
@@ -310,8 +312,13 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 				// $cart_item['deliveryStockLocationId'] = "";
 				
 				$cart_item_data[] = $cart_item;
-			}
 
+			echo "------------item-------------";
+			print_r( $item );
+			echo "------------------------------";
+			}
+			echo "</pre>";
+			die;
 			// {
 			// 	"configurationOptions":[{
 			// 		"cost":12678967.543233,
