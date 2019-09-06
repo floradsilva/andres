@@ -57,7 +57,7 @@ define(
 );
 
 define(
-	'ORDER_TYPE',
+	'ORDER_STATUS',
 	array(
 		'Order'                => 1,
 		'Invoice'              => 2,
@@ -95,5 +95,57 @@ define(
 		'SCD'  => 1,
 		'CWC'  => 2,
 		'ASAP' => 3,
+	)
+);
+
+
+define(
+	'ORDER_TYPE_ORDER_DETAILS',
+	array(
+		'Open Sales Order'      => 1,
+		'Delivered Sales Order' => 2,
+		'Gift Certificate'      => 3,
+		'Void'                  => 4,
+	)
+);
+
+
+define(
+	'ORDER_TYPE',
+	array(
+		'Order'            => 1,
+		'Gift Certificate' => 3,
+	)
+);
+
+
+define(
+	'ORDER_STATUS_TO_TYPE',
+	array(
+		'Order'                => 1,
+		'Invoice'              => '',
+		'ServiceOrder'         => '',
+		'Exchange'             => '',
+		'Layaway'              => '',
+		'SplitTicket'          => '',
+		'Quote'                => '',
+		'Delivery'             => 1,
+		'Pickup'               => 1,
+		'DirectShip'           => '',
+		'ReturnOrder'          => '',
+		'TakeWith'             => '',
+		'MultiShippingMaster'  => '',
+		'ManufacturerDelivery' => '',
+		'Void'                 => '',
+	)
+);
+
+
+define(
+	'VALID_ORDER_STATUSES',
+	array(
+		'Order',
+		'Delivery',
+		'Pickup',
 	)
 );

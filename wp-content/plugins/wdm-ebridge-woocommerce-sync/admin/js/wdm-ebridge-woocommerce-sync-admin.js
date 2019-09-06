@@ -264,6 +264,10 @@
 			var selected_products_count = url.searchParams.get( "product_id_count" );
 
 			if (selected_products_count) {
+
+				$( '.import_button' ).prepend( '<div class="loader-container"><div class="loader"></div></div>' );
+				$( "#message-wrap" ).remove();
+
 				var update_ids    = [];
 				var total_updated = 0;
 
@@ -286,7 +290,10 @@
 										'product_id' : id_to_update,
 									},
 									success: function (response) {
-										total_updated++;										
+										total_updated++;
+										if (total_updated === update_ids.length ) {
+											$( '.loader-container' ).remove();
+										}									
 										$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight + 2 );
 										if (response.success) {
 											$( '#message' ).append( response.data.message + '<br />' );

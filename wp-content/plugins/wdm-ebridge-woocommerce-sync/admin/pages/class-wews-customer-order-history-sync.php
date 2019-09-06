@@ -126,6 +126,7 @@ class WEWS_Customer_Order_History_Sync {
 		if ( ( isset( $_POST['order_id'] ) && isset( $_POST['order_type'] ) ) ) {
 			$ebridge_order_id   = $_POST['order_id'];
 			$ebridge_order_type = $_POST['order_type'];
+			$ebridge_order_type = Wews_Helper_Functions::get_order_type_str_to_num( $ebridge_order_type, ORDER_TYPE );
 
 			$order_id = $this->order_obj->sync_order( $ebridge_order_id, $ebridge_order_type );
 
@@ -168,28 +169,34 @@ class WEWS_Customer_Order_History_Sync {
 	}
 
 
-	// public function register_sync_products_bulk_action( $bulk_actions ) {
-	// $bulk_actions['wews_sync'] = __( 'Sync', 'wdm-ebridge-woocommerce-sync' );
-	// return $bulk_actions;
-	// }
+	public function register_sync_orders_bulk_action( $bulk_actions ) {
+		$bulk_actions['wews_order_sync'] = __( 'Sync', 'wdm-ebridge-woocommerce-sync' );
+		return $bulk_actions;
+	}
 
 
-	// public function sync_products_bulk_action_handler( $redirect_to, $doaction, $product_ids ) {
-	// if ( $doaction !== 'wews_sync' ) {
-	// return $redirect_to;
-	// }
+	public function sync_orders_bulk_action_handler( $redirect_to, $doaction, $order_ids ) {
+		if ( $doaction !== 'wews_order_sync' ) {
+			return $redirect_to;
+		}
 
-	// $skus = array();
+		$order_types       = array();
+		$ebridge_order_ids = array();
 
-	// foreach ( $product_ids as $key => $product_id ) {
-	// $product = new WC_Product( $product_id );
-	// $skus[]  = $product->get_sku();
-	// }
-	// $redirect_to = admin_url() . 'admin.php?page=ebridge_sync_product_sync';
+		foreach ( $order_ids as $key => $order_id ) {
+			$order            = new WC_Order( $order_id );
+			$ebridge_order_id = $order->get_meta( 'ebridge_order_id', true );
+			if ( isset( $ebridge_order_id ) ) {
+				$ebridge_order_ids[] = $ebridge_order_id;
+				$order_types[]       = $order->get_meta( 'ebridge_order_type', true );
+			}
+		}
 
-	// $redirect_to = add_query_arg( 'product_ids', $skus, $redirect_to );
-	// $redirect_to = add_query_arg( 'product_id_count', count( $skus ), $redirect_to );
+		$redirect_to = admin_url() . 'admin.php?page=ebridge_sync_customer_order_history_sync';
+		$redirect_to = add_query_arg( 'order_ids', $ebridge_order_ids, $redirect_to );
+		$redirect_to = add_query_arg( 'order_types', $order_types, $redirect_to );
+		$redirect_to = add_query_arg( 'order_id_count', count( $order_ids ), $redirect_to );
 
-	// return $redirect_to;
-	// }
+		return $redirect_to;
+	}
 }

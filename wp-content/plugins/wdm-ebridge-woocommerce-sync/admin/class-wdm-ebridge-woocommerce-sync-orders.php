@@ -330,10 +330,9 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 
 		public function map_order_data( $ebridge_order, $order ) {
 			$order->add_meta_data( 'ebridge_order_id', $ebridge_order->orderId );
-			$order->add_meta_data( 'ebridge_order_type', $ebridge_order->orderType );
+			$order->add_meta_data( 'ebridge_order_type', Wews_Helper_Functions::get_order_type_num_to_str( $ebridge_order->orderType, ORDER_TYPE ) );
 			$order->add_meta_data( 'ebridge_order_total', $ebridge_order->total );
 			$order->add_meta_data( 'ebridge_order_customerId', $ebridge_order->customerId );
 		}
 	}
-
 }

@@ -198,6 +198,8 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		$this->loader->add_action( 'wp_ajax_fetch_customers_to_sync', $customer_order_history_sync, 'fetch_customers_to_sync' );
 		$this->loader->add_action( 'wp_ajax_get_customer_orders', $customer_order_history_sync, 'get_customer_orders' );
 		$this->loader->add_action( 'wp_ajax_sync_order', $customer_order_history_sync, 'sync_order' );
+		$this->loader->add_filter( 'bulk_actions-edit-shop_order', $customer_order_history_sync, 'register_sync_orders_bulk_action' );
+		$this->loader->add_filter( 'handle_bulk_actions-edit-shop_order', $customer_order_history_sync, 'sync_orders_bulk_action_handler', 10, 3 );
 	}
 
 	/**

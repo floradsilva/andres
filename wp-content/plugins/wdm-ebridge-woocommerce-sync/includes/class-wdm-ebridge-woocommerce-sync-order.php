@@ -69,7 +69,7 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Order' ) ) {
 
 			if ( ! is_numeric( $ebridge_order_type ) ) {
 				$ebridge_order_type = ucfirst( strtolower( $ebridge_order_type ) );
-				$order_types        = ORDER_TYPE;
+				$order_types        = ORDER_STATUS;
 				$ebridge_order_type = $order_types[ $ebridge_order_type ];
 			}
 
@@ -93,17 +93,20 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Order' ) ) {
 			$order_data = $this->get_order_data( $ebridge_order_id, $ebridge_order_type );
 
 			if ( $order_data ) {
-				$order = $this->find_order_by_ebridge_order_id( $ebridge_order_id );
+				if ( Wews_Helper_Functions::is_valid_order_type( $order_data->orderType ) ) {
 
-				if ( ! $order ) {
-					$order = new WC_Order();
-					$order->add_meta_data( 'ebridge_order_id', $ebridge_order_id );
-					$order->save();
+					$order = $this->find_order_by_ebridge_order_id( $ebridge_order_id );
+
+					if ( ! $order ) {
+						$order = new WC_Order();
+						$order->add_meta_data( 'ebridge_order_id', $ebridge_order_id );
+						$order->save();
+					}
+
+					$order = $this->sync_order_data( $order, $order_data );
+
+					return $order->get_id();
 				}
-
-				$order = $this->sync_order_data( $order, $order_data );
-
-				return $order->get_id();
 			}
 
 			return false;
@@ -111,11 +114,15 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Order' ) ) {
 
 
 		public function sync_order_data( $order, $order_data ) {
+			$ebridge_order_type = Wews_Helper_Functions::get_order_type_from_status_str( $order_data->orderType, ORDER_STATUS );
+
+			$order->update_meta_data( 'ebridge_order_type', $ebridge_order_type );
+
 			$this->set_billing_address( $order, $order_data );
 			$this->set_shipping_address( $order, $order_data );
 			$order->add_order_note( $order_data->shippingInstructions );
 			$order->update_meta_data( 'ebridge_order_id', $order_data->orderId );
-			$order->update_meta_data( 'ebridge_order_type', Wews_Helper_Functions::get_order_type_num_to_str( $order_data->orderType ) );
+			$order->update_meta_data( 'ebridge_order_type_details', Wews_Helper_Functions::get_order_type_num_to_str( $order_data->orderType, ORDER_STATUS ) );
 			// $order->update_meta_data( 'ebridge_order_total', $order_data->total );
 			$order->update_meta_data( 'ebridge_order_customerId', $order_data->customerId );
 			$order->update_meta_data( 'ebridge_locationId', $order_data->locationId );
@@ -351,7 +358,7 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Order' ) ) {
 		 * @param array $query_vars - Query vars from WC_Order_Query.
 		 * @return array modified $query
 		 */
-		function handle_ebridge_meta_query( $query, $query_vars ) {
+		public function handle_ebridge_meta_query( $query, $query_vars ) {
 			if ( ! empty( $query_vars['ebridge_order_id'] ) ) {
 				$query['meta_query'][] = array(
 					'key'   => 'ebridge_order_id',

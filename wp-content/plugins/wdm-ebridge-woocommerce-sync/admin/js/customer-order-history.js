@@ -146,6 +146,56 @@
 					}
 				}
 			);
+
+			var url_string            = window.location.href
+			var url                   = new URL( url_string );
+			var selected_orders_count = url.searchParams.get( "order_id_count" );
+
+			if ( selected_orders_count ) {
+
+				$( '.import_button' ).prepend( '<div class="loader-container"><div class="loader"></div></div>' );
+				$("div[class^='message']").remove();
+
+				var update_ids    = [];
+				var order_types   = [];
+				var total_updated = 0;
+
+				for (let index = 0; index < selected_orders_count; index++) {
+					update_ids[index]  = url.searchParams.get( "order_ids[" + index + "]" );
+					order_types[index] = url.searchParams.get( "order_types[" + index + "]" );
+				}
+
+				if (update_ids.length) {
+					$( '<div class="message-wrap"><h3>Logs:</h3><p id="message">' + wews.updating_order_msg + '<br /></p></div>' ).insertAfter( '#customer_order_history_form' );
+
+					for (let index = 0; index < update_ids.length; index++) {
+						const id_to_update = update_ids[index];
+						const order_type   = order_types[index];
+						console.log(order_type);
+						$.ajax(
+							{
+								url: wews.wews_url,
+								type: 'post',
+								dataType: 'json',
+								data:  {
+									'action': 'sync_order',
+									'order_id' : id_to_update,
+									'order_type': order_type
+								},
+
+								success: function (response_order) {
+									total_updated++;
+									$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight + 2 );
+									if (total_updated === update_ids.length ) {
+										$( '.loader-container' ).remove();
+									}
+									$( '#message' ).append( '<br />' + response_order.data.message + '<br />' );
+								}
+							}														
+						);
+					}										
+				}
+			}
 		}
 	);
 })( jQuery );
