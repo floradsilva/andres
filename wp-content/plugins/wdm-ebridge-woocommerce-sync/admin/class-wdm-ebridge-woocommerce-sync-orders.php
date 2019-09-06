@@ -144,7 +144,7 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 				$current_user = get_user_by( 'id', $current_user_id );
 				$phone        = get_user_meta( $current_user_id, 'phone_number', true );
 				$email        = $current_user->user_email;
-				$customer        = get_user_meta( $current_user_id, 'ebridge_customer_id', true );
+				$customer     = get_user_meta( $current_user_id, 'ebridge_customer_id', true );
 			}
 
 			if ( ( ! ( isset( $customer ) ) ) || ( ! $customer ) ) {
@@ -172,12 +172,12 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 
 				$order_json                   = array();
 				$order_json['billingAddress'] = $this->get_billing_address_data( $order, $data, $customer );
-				$order_json['cartItems'] = $this->get_cart_item_data( $order, $data, $customer );
-				$order_json['cellPhone'] = isset( $data['billing_phone'] ) ? $data['billing_phone'] : '';
-				$order_json['charges']   = $this->get_delivery_and_installation_charges( $order, $data, $customer );
-				$order_json['customerId'] = $customer;
-				$order_json['emailAddress'] = isset( $data['billing_email'] ) ? $data['billing_email'] : '';
-				$order_json['salesTax']        = 0;
+				$order_json['cartItems']      = $this->get_cart_item_data( $order, $data, $customer );
+				$order_json['cellPhone']      = isset( $data['billing_phone'] ) ? $data['billing_phone'] : '';
+				$order_json['charges']        = $this->get_delivery_and_installation_charges( $order, $data, $customer );
+				$order_json['customerId']     = $customer;
+				$order_json['emailAddress']   = isset( $data['billing_email'] ) ? $data['billing_email'] : '';
+				$order_json['salesTax']       = 0;
 				// $order_json['sellLocationId']  = '99';
 				// $order_json['shipLocationId']  = '99';
 				$order_json['shippingAddress'] = $this->get_shipping_address_data( $order, $data, $customer );
@@ -205,13 +205,7 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 				// $order_json['staffId']              = 'String content';
 				// $order_json['workPhone'] = isset( $data['billing_phone'] ) ? $data['billing_phone'] : '';
 
-				echo "<pre>";
-				echo "===================order_json=================<br>";
-				print_r( $order_json );
-				echo "================================================<br>";
-				echo "</pre>";
-				die;
-	
+
 				$response = wp_remote_post(
 					$url,
 					array(
@@ -225,14 +219,13 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 
 				$json_response = json_decode( wp_remote_retrieve_body( $response ) );
 
-
 				if ( ( 200 == wp_remote_retrieve_response_code( $response ) ) && ( 0 === $json_response->status ) ) {
 					$order_details = $json_response->salesOrderCreationResponse->createdSalesOrders;
-					$this->map_order_data( $order_details[0], $order );		
+					$this->map_order_data( $order_details[0], $order );
 					return $order_details[0]->orderId;
 				}
 			}
-			
+
 			return false;
 		}
 
@@ -296,44 +289,39 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 			$cart_item_data = array();
 
 			$cart_item = array();
-			$items = $order->get_items( 'line_item' );
+			$items     = $order->get_items( 'line_item' );
 
-			echo "<pre>";
-			echo "===================items=================<br>";
-			var_dump( $items );
-			echo "================================================<br>";
-			echo "</pre>";
-			die;
+			foreach ( $items as $item ) {
+				if ( 0 !== intval( $item->get_subtotal() ) ) {
+					$product = $item->get_product();
 
-			foreach ($items as $item) {
-				$product        = $item->get_product();
-				
-				$cart_item['description'] = $product->get_name();
-				$cart_item['id'] = $product->get_sku();				
-				$cart_item['lineItemDeliveryType'] = 2;
-				$cart_item['price'] = $product->get_price();
-				$cart_item['quantity'] = $item->get_quantity();
-				$cart_item['lineItemCommentData'] = "WooCommerce Order";
-				// $cart_item['vendorModelOverride'] = "";
-				// $cart_item['asIsSerialNumber'] = "";
-				// $cart_item['externalIdentifier'] = "";
-				// $cart_item['isStockSameAsShip'] = "";
-				// $cart_item['kitId'] = "";
-				// $cart_item['lineDiscountCode'] = "";
-				// $cart_item['pickupStockLocationId'] = "";
-				// $cart_item['configurationOptions'] = "";
-				// $cart_item['deliveryStockLocationId'] = "";
-				
-				$cart_item_data[] = $cart_item;
+					$cart_item['description']          = $product->get_name();
+					$cart_item['id']                   = $product->get_sku();
+					$cart_item['lineItemDeliveryType'] = 2;
+					$cart_item['price']                = $product->get_price();
+					$cart_item['quantity']             = $item->get_quantity();
+					$cart_item['lineItemCommentData']  = 'WooCommerce Order';
+					// $cart_item['vendorModelOverride'] = "";
+					// $cart_item['asIsSerialNumber'] = "";
+					// $cart_item['externalIdentifier'] = "";
+					// $cart_item['isStockSameAsShip'] = "";
+					// $cart_item['kitId'] = "";
+					// $cart_item['lineDiscountCode'] = "";
+					// $cart_item['pickupStockLocationId'] = "";
+					// $cart_item['configurationOptions'] = "";
+					// $cart_item['deliveryStockLocationId'] = "";
+
+					$cart_item_data[] = $cart_item;
+				}
 			}
 
 			// {
-			// 	"configurationOptions":[{
-			// 		"cost":12678967.543233,
-			// 		"optionType":"String content",
-			// 		"price":12678967.543233,
-			// 		"value":"String content"
-			// 	}],
+			// "configurationOptions":[{
+			// "cost":12678967.543233,
+			// "optionType":"String content",
+			// "price":12678967.543233,
+			// "value":"String content"
+			// }],
 			// }
 
 			return $cart_item_data;
@@ -344,7 +332,7 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 			$order->add_meta_data( 'ebridge_order_id', $ebridge_order->orderId );
 			$order->add_meta_data( 'ebridge_order_type', $ebridge_order->orderType );
 			$order->add_meta_data( 'ebridge_order_total', $ebridge_order->total );
-			$order->add_meta_data( 'ebridge_order_customerId', $ebridge_order->customerId );			
+			$order->add_meta_data( 'ebridge_order_customerId', $ebridge_order->customerId );
 		}
 	}
 
