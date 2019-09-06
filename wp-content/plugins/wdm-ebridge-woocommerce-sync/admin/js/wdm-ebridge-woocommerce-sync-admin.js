@@ -286,7 +286,8 @@
 										'product_id' : id_to_update,
 									},
 									success: function (response) {
-										total_updated++;
+										total_updated++;										
+										$( '#message' ).scrollTop( $( '#message' )[0].scrollHeight + 2 );
 										if (response.success) {
 											$( '#message' ).append( response.data.message + '<br />' );
 										} else {

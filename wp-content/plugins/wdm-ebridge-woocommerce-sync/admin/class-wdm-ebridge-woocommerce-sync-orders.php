@@ -111,6 +111,8 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 					if ( is_numeric( $net_quantity ) ) {
 						$product->set_manage_stock( true );
 						$product->set_stock_quantity( $net_quantity );
+					} else {
+						$product->set_backorders( 'notify' );
 					}
 
 					if ( isset( $ebridge_product->inventory->locations ) ) {
@@ -203,6 +205,13 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 				// $order_json['staffId']              = 'String content';
 				// $order_json['workPhone'] = isset( $data['billing_phone'] ) ? $data['billing_phone'] : '';
 
+				echo "<pre>";
+				echo "===================order_json=================<br>";
+				print_r( $order_json );
+				echo "================================================<br>";
+				echo "</pre>";
+				die;
+	
 				$response = wp_remote_post(
 					$url,
 					array(
@@ -288,7 +297,14 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 
 			$cart_item = array();
 			$items = $order->get_items( 'line_item' );
-			
+
+			echo "<pre>";
+			echo "===================items=================<br>";
+			var_dump( $items );
+			echo "================================================<br>";
+			echo "</pre>";
+			die;
+
 			foreach ($items as $item) {
 				$product        = $item->get_product();
 				
