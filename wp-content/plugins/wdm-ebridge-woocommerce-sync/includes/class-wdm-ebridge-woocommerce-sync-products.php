@@ -721,7 +721,21 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		if ( ! $product_id ) {
 			$product = new WC_Product_Bundle( 0 );
 		} else {
+
 			$product = wc_get_product( $product_id );
+			
+			if( ! $product->is_type( 'bundle' ) ) {
+				$product->delete(true);
+
+				// Delete parent product transients.
+				if ($parent_id = wp_get_post_parent_id($product_id)) {
+					wc_delete_product_transients($parent_id);
+				}
+
+				delete_option( 'product_' . $product_id );
+
+				$product = new WC_Product_Bundle( 0 );
+			}
 
 			$current_child_products = wc_pb_get_bundled_product_map( $product );
 

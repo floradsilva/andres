@@ -288,7 +288,6 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Orders' ) ) {
 
 			$cart_item = array();
 			$items = $order->get_items( 'line_item' );
-
 			
 			foreach ($items as $item) {
 				$product        = $item->get_product();
