@@ -131,7 +131,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Product_Sync {
 			$product    = $this->products->create_product( $product_id );
 
 			if ( $product ) {
-				if ( $product === true ) {
+				if ( ! is_numeric( $product ) ) {
 					$response['message'] = __( "Updating product {$product_id}.", 'wdm-ebridge-woocommerce-sync' );
 					wp_send_json_success( $response );
 				}

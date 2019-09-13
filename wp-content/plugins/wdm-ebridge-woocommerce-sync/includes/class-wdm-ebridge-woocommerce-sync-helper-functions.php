@@ -75,5 +75,46 @@ if ( ! class_exists( 'Wews_Helper_Functions' ) ) {
 
 			return false;
 		}
+
+
+
+		/**
+		 * Clear all the products and related data
+		 *
+		 * @since    1.0.0
+		 * @param    Array $args    Arguments to wc_get_products
+		 */
+
+		public static function clear_products_data( $args ) {
+			$products = wc_get_products( $args );
+
+			foreach ( $products as $key => $product ) {
+				$sku        = $product->get_sku();
+				$product_id = $product->get_id();
+
+				$deleted = delete_option( 'product_' . $sku );
+
+				if ( $deleted ) {
+					echo '<pre>';
+					print_r( $sku );
+					echo '</pre>';
+				}
+
+				$product->delete( true );
+
+				if ( $parent_id = wp_get_post_parent_id( $product_id ) ) {
+					wc_delete_product_transients( $parent_id );
+				}
+			}
+
+			delete_option( 'wews_product_update_start' );
+			delete_option( 'wews_product_delete_start' );
+			delete_option( 'wews_customer_update_start' );
+			delete_option( 'wews_product_all_update_start' );
+			delete_option( 'wews_product_all_delete_start' );
+			delete_option( 'ebridge_sync_last_updated_date' );
+			delete_option( 'ebridge_sync_last_updated_time' );
+			delete_option( 'ebridge_sync_web_server_time_zone_offset' );
+		}
 	}
 }
