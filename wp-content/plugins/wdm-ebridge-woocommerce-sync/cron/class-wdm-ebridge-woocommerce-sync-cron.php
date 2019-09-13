@@ -1,3 +1,4 @@
+#!/usr/bin/php
 <?php
 
 /**
@@ -68,28 +69,34 @@ class Wdm_Ebridge_Woocommerce_Sync_Cron {
 	 */
 	public function __construct() {
 		// include_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
-		include_once $_SERVER['PWD'] . '/wp-load.php';
-		include_once WEWS_PLUGIN_PATH . 'includes/class-wdm-ebridge-woocommerce-sync-categories.php';
-		include_once WEWS_PLUGIN_PATH . 'includes/class-wdm-ebridge-woocommerce-sync-products.php';
+		// include_once $_SERVER['PWD'] . '/wp-load.php';
+		$old_url = dirname(__FILE__, 2);
+		$new_url = str_replace(DIRECTORY_SEPARATOR . 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'wdm-ebridge-woocommerce-sync', '', $old_url);
+
+		require($new_url . DIRECTORY_SEPARATOR . 'wp-load.php');
+
+		include_once plugin_dir_path( __DIR__ ) . 'includes/class-wdm-ebridge-woocommerce-sync-categories.php';
+		include_once plugin_dir_path( __DIR__ ) . 'includes/class-wdm-ebridge-woocommerce-sync-products.php';
 
 		$this->api_url   = get_option( 'ebridge_sync_api_url', '' );
 		$this->api_token = get_option( 'ebridge_sync_api_token', '' );
-		add_action( 'http_api_curl', array( $this, 'sar_custom_curl_timeout' ), 9999, 1 );
+		add_action( 'http_api_curl', array( $this, 'wdm_custom_curl_timeout' ), 9999, 1 );
 
 		$categories_sync      = new Wdm_Ebridge_Woocommerce_Sync_Categories();
 		$added_web_categories = $categories_sync->add_webcategories();
 		$added_brands         = $categories_sync->add_brands();
 
-		$products_sync  = new Wdm_Ebridge_Woocommerce_Sync_Products();
-		$added_products = $products_sync->update_products();
+		// $products_sync  = new Wdm_Ebridge_Woocommerce_Sync_Products();
+		// $added_products = $products_sync->update_products();
+
+		echo '<pre>';
 
 		echo __( $added_web_categories['success_count'] . ' WebCategories added.<br />', 'wdm-ebridge-woocommerce-sync' );
 		echo __( $added_brands['success_count'] . ' Brands added.<br />', 'wdm-ebridge-woocommerce-sync' );
-		echo __( $added_products['success_count'] . ' Products updated.<br />', 'wdm-ebridge-woocommerce-sync' );
-		echo '<pre>';
-		print_r( $added_web_categories );
-		print_r( $added_brands );
-		print_r( $added_products );
+		// echo __( $added_products['success_count'] . ' Products updated.<br />', 'wdm-ebridge-woocommerce-sync' );
+		// print_r( $added_web_categories );
+		// print_r( $added_brands );
+		// print_r( $added_products );
 		echo '</pre>';
 	}
 
@@ -99,7 +106,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Cron {
 	 * @since    1.0.0
 	 * @param      string $handle       The name of this plugin.
 	 */
-	public function sar_custom_curl_timeout( $handle ) {
+	public function wdm_custom_curl_timeout( $handle ) {
 		curl_setopt( $handle, CURLOPT_CONNECTTIMEOUT, 1000 );
 		curl_setopt( $handle, CURLOPT_TIMEOUT, 1000 );
 	}
