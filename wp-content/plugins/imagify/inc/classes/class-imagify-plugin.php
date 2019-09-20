@@ -42,6 +42,8 @@ class Imagify_Plugin {
 	public function init() {
 		$this->include_files();
 
+		class_alias( '\\Imagify\\Traits\\InstanceGetterTrait', '\\Imagify\\Traits\\FakeSingletonTrait' );
+
 		Imagify_Auto_Optimization::get_instance()->init();
 		Imagify_Options::get_instance()->init();
 		Imagify_Data::get_instance()->init();
@@ -50,6 +52,7 @@ class Imagify_Plugin {
 		Imagify_Cron_Library_Size::get_instance()->init();
 		Imagify_Cron_Rating::get_instance()->init();
 		Imagify_Cron_Sync_Files::get_instance()->init();
+		\Imagify\Auth\Basic::get_instance()->init();
 		\Imagify\Job\MediaOptimization::get_instance()->init();
 		\Imagify\Stats\OptimizedMediaWithoutWebp::get_instance()->init();
 
@@ -58,6 +61,8 @@ class Imagify_Plugin {
 			Imagify_Admin_Ajax_Post::get_instance()->init();
 			Imagify_Settings::get_instance()->init();
 			Imagify_Views::get_instance()->init();
+			\Imagify\Imagifybeat\Core::get_instance()->init();
+			\Imagify\Imagifybeat\Actions::get_instance()->init();
 		}
 
 		if ( ! wp_doing_ajax() ) {
@@ -121,7 +126,6 @@ class Imagify_Plugin {
 		}
 
 		require_once $inc_path . 'admin/upgrader.php';
-		require_once $inc_path . 'admin/heartbeat.php';
 		require_once $inc_path . 'admin/upload.php';
 		require_once $inc_path . 'admin/media.php';
 		require_once $inc_path . 'admin/meta-boxes.php';

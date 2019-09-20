@@ -3,8 +3,8 @@ Contributors: webvitaly
 Donate link: http://web-profile.net/donate/
 Tags: spam, spammer, comment, comments, comment-spam, antispam, anti-spam, block-spam, spam-free, spambot, spam-bot, bot
 Requires at least: 3.3
-Tested up to: 5.1
-Stable tag: 5.4
+Tested up to: 5.2
+Stable tag: 5.5
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 
@@ -12,9 +12,9 @@ No spam in comments. No captcha.
 
 == Description ==
 
-* **[Anti-spam Pro](http://codecanyon.net/item/antispam-pro/6491169?ref=webvitalii "Upgrade to Pro")** |
-* **[Anti-spam](http://web-profile.net/wordpress/plugins/anti-spam/ "Plugin page")** |
-* **[Donate](http://web-profile.net/donate/ "Support the development")** |
+* **[Anti-spam Pro](http://codecanyon.net/item/antispam-pro/6491169?ref=webvitalii "Upgrade to Pro")**
+* **[Anti-spam](http://web-profile.net/wordpress/plugins/anti-spam/ "Plugin page")**
+* **[Donate](http://web-profile.net/donate/ "Support the development")**
 * **[GitHub](https://github.com/webvitalii/anti-spam "Fork")**
 
 
@@ -121,6 +121,10 @@ The plugin is pretty small and easy to read.
 
 
 == Changelog ==
+
+= 5.5 =
+* Code cleanup
+* Removed dismissible notice
 
 = 5.4 =
 * Updated dismissible notice

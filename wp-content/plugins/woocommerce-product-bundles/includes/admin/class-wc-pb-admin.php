@@ -197,6 +197,7 @@ class WC_PB_Admin {
 			$params = array(
 				'edit_bundle_nonce'     => wp_create_nonce( 'wc_bundles_edit_bundle' ),
 				'is_wc_version_gte_3_4' => WC_PB_Core_Compatibility::is_wc_version_gte( '3.4' ) ? 'yes' : 'no',
+				'is_wc_version_gte_3_6' => WC_PB_Core_Compatibility::is_wc_version_gte( '3.6' ) ? 'yes' : 'no',
 				'i18n_configure'        => __( 'Configure', 'woocommerce-product-bundles' ),
 				'i18n_edit'             => __( 'Edit', 'woocommerce-product-bundles' ),
 				'i18n_form_error'       => __( 'Failed to initialize form. If this issue persists, please reload the page and try again.', 'woocommerce-product-bundles' ),

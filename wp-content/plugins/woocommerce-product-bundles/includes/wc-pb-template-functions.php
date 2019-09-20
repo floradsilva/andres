@@ -409,11 +409,17 @@ function wc_pb_template_bundled_item_product_details( $bundled_item, $bundle ) {
 
 			if ( ! $do_ajax && empty( $variations ) ) {
 
+				$is_out_of_stock = sizeof( $variations ) === 0 && false === $bundled_item->is_in_stock();
+
 				// Unavailable Product template.
 				wc_get_template( 'single-product/bundled-product-unavailable.php', array(
 					'bundled_item'        => $bundled_item,
 					'bundle'              => $bundle,
-					'custom_product_data' => apply_filters( 'woocommerce_bundled_product_custom_data', array(), $bundled_item )
+					'custom_product_data' => apply_filters( 'woocommerce_bundled_product_custom_data', array(
+						'is_unavailable'  => 'yes',
+						'is_out_of_stock' => $is_out_of_stock ? 'yes' : 'no',
+						'is_required'     => $bundled_item->get_quantity( 'min', array( 'check_optional' => true ) ) > 0 ? 'yes' : 'no'
+					), $bundled_item )
 				), false, WC_PB()->plugin_path() . '/templates/' );
 
 			} else {
@@ -445,7 +451,10 @@ function wc_pb_template_bundled_item_product_details( $bundled_item, $bundle ) {
 		wc_get_template( 'single-product/bundled-product-unavailable.php', array(
 			'bundled_item'        => $bundled_item,
 			'bundle'              => $bundle,
-			'custom_product_data' => apply_filters( 'woocommerce_bundled_product_custom_data', array(), $bundled_item )
+			'custom_product_data' => apply_filters( 'woocommerce_bundled_product_custom_data', array(
+				'is_unavailable'  => 'yes',
+				'is_required'     => $bundled_item->get_quantity( 'min', array( 'check_optional' => true ) ) > 0 ? 'yes' : 'no'
+			), $bundled_item )
 		), false, WC_PB()->plugin_path() . '/templates/' );
 	}
 }

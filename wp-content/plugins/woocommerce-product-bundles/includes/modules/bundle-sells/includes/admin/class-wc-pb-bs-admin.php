@@ -52,7 +52,7 @@ class WC_PB_BS_Admin {
 		<div class="options_group hide_if_grouped hide_if_external hide_if_bundle">
 			<p class="form-field ">
 				<label for="crosssell_ids"><?php _e( 'Bundle-sells', 'woocommerce-product-bundles' ); ?></label>
-				<select class="wc-product-search" multiple="multiple" style="width: 50%;" id="bundle_sell_ids" name="bundle_sell_ids[]" data-placeholder="<?php esc_attr_e( 'Search for a product&hellip;', 'woocommerce' ); ?>" data-action="woocommerce_json_search_bundle_sells" data-exclude="<?php echo intval( $product_object->get_id() ); ?>" data-limit="100">
+				<select class="wc-product-search" multiple="multiple" style="width: 50%;" id="bundle_sell_ids" name="bundle_sell_ids[]" data-placeholder="<?php esc_attr_e( 'Search for a product&hellip;', 'woocommerce' ); ?>" data-action="woocommerce_json_search_bundle_sells" data-exclude="<?php echo intval( $product_object->get_id() ); ?>" data-limit="100" data-sortable="true">
 					<?php
 
 						$product_ids = WC_PB_BS_Product::get_bundle_sell_ids( $product_object, 'edit' );

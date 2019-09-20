@@ -44,7 +44,7 @@ class WP extends AbstractBulk {
 		] );
 		$ids          = $wpdb->get_col( $wpdb->prepare( // WPCS: unprepared SQL ok.
 			"
-			SELECT p.ID
+			SELECT DISTINCT p.ID
 			FROM $wpdb->posts AS p
 				$nodata_join
 			LEFT JOIN $wpdb->postmeta AS mt1
@@ -63,7 +63,6 @@ class WP extends AbstractBulk {
 				AND p.post_type = 'attachment'
 				AND p.post_status IN ( $statuses )
 				$nodata_where
-			GROUP BY p.ID
 			ORDER BY
 				CASE mt1.meta_value
 					WHEN 'already_optimized' THEN 2
@@ -175,10 +174,17 @@ class WP extends AbstractBulk {
 	 * Get ids of all optimized media without webp versions.
 	 *
 	 * @since  1.9
+	 * @since  1.9.5 The method doesn't return the IDs directly anymore.
 	 * @access public
 	 * @author Grégory Viguier
 	 *
-	 * @return array A list of media IDs.
+	 * @return array {
+	 *     @type array $ids    A list of media IDs.
+	 *     @type array $errors {
+	 *         @type array $no_file_path A list of media IDs.
+	 *         @type array $no_backup    A list of media IDs.
+	 *     }
+	 * }
 	 */
 	public function get_optimized_media_ids_without_webp() {
 		global $wpdb;
@@ -203,23 +209,31 @@ class WP extends AbstractBulk {
 				ON ( p.ID = mt2.post_id AND mt2.meta_key = '_imagify_data' )
 			WHERE
 				p.post_mime_type IN ( $mime_types )
-				AND mt1.meta_value = 'success'
+				AND ( mt1.meta_value = 'success' OR mt1.meta_value = 'already_optimized' )
 				AND mt2.meta_value NOT LIKE %s
 				AND p.post_type = 'attachment'
 				AND p.post_status IN ( $statuses )
 				$nodata_where
 			ORDER BY p.ID DESC
 			LIMIT 0, %d",
-			'%' . $wpdb->esc_like( '"full' . $webp_suffix . '";a:4:{s:7:"success";b:1;' ) . '%',
+			'%' . $wpdb->esc_like( $webp_suffix . '";a:4:{s:7:"success";b:1;' ) . '%',
 			imagify_get_unoptimized_attachment_limit()
 		) );
 
 		$wpdb->flush();
 		unset( $mime_types, $statuses, $webp_suffix );
-		$ids = array_filter( array_map( 'absint', $ids ) );
+
+		$ids  = array_filter( array_map( 'absint', $ids ) );
+		$data = [
+			'ids'    => [],
+			'errors' => [
+				'no_file_path' => [],
+				'no_backup'    => [],
+			],
+		];
 
 		if ( ! $ids ) {
-			return [];
+			return $data;
 		}
 
 		$metas = \Imagify_DB::get_metas( [
@@ -239,17 +253,18 @@ class WP extends AbstractBulk {
 		 */
 		do_action( 'imagify_bulk_generate_webp_before_file_existence_tests', $ids, $metas, 'wp' );
 
-		$data = [];
-
 		foreach ( $ids as $i => $id ) {
 			if ( empty( $metas['filenames'][ $id ] ) ) {
-				// Problem.
+				// Problem. Should not happen, thanks to the wpdb query.
+				$data['errors']['no_file_path'][] = $id;
 				continue;
 			}
 
 			$file_path = get_imagify_attached_file( $metas['filenames'][ $id ] );
 
-			if ( ! $file_path || ! $this->filesystem->exists( $file_path ) ) {
+			if ( ! $file_path ) {
+				// Main file not found.
+				$data['errors']['no_file_path'][] = $id;
 				continue;
 			}
 
@@ -257,10 +272,11 @@ class WP extends AbstractBulk {
 
 			if ( ! $this->filesystem->exists( $backup_path ) ) {
 				// No backup, no webp.
+				$data['errors']['no_backup'][] = $id;
 				continue;
 			}
 
-			$data[] = $id;
+			$data['ids'][] = $id;
 		} // End foreach().
 
 		return $data;
@@ -297,12 +313,12 @@ class WP extends AbstractBulk {
 				ON ( p.ID = mt2.post_id AND mt2.meta_key = '_imagify_data' )
 			WHERE
 				p.post_mime_type IN ( $mime_types )
-				AND mt1.meta_value = 'success'
+				AND ( mt1.meta_value = 'success' OR mt1.meta_value = 'already_optimized' )
 				AND mt2.meta_value NOT LIKE %s
 				AND p.post_type = 'attachment'
 				AND p.post_status IN ( $statuses )
 				$nodata_where",
-			'%' . $wpdb->esc_like( '"full' . $webp_suffix . '";a:4:{s:7:"success";b:1;' ) . '%'
+			'%' . $wpdb->esc_like( $webp_suffix . '";a:4:{s:7:"success";b:1;' ) . '%'
 		) );
 	}
 

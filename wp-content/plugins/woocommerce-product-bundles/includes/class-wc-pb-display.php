@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Product Bundle display functions and filters.
  *
  * @class    WC_PB_Display
- * @version  5.10.1
+ * @version  5.12.0
  */
 class WC_PB_Display {
 
@@ -99,6 +99,9 @@ class WC_PB_Display {
 
 		// Modify structured data.
 		add_filter( 'woocommerce_structured_data_product_offer', array( $this, 'structured_product_data' ), 10, 2 );
+
+		// Replace 'in_stock' post class with 'insufficient_stock' and 'out_of_stock' post class.
+		add_filter( 'woocommerce_post_class', array( $this, 'post_classes' ), 10, 2 );
 
 		/*
 		 * Cart.
@@ -385,6 +388,29 @@ class WC_PB_Display {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Replace 'in_stock' post class with 'insufficient_stock' and 'out_of_stock' post class.
+	 *
+	 * @since  5.11.2
+	 *
+	 * @param  array       $classes
+	 * @param  WC_Product  $product
+	 * @return array
+	 */
+	public function post_classes( $classes, $product ) {
+
+		if ( ! $product->is_type( 'bundle' ) ) {
+			return $classes;
+		}
+
+		if ( in_array( 'instock', $classes ) && 'outofstock' === $product->get_bundled_items_stock_status() ) {
+			$classes = array_diff( $classes, array( 'instock' ) );
+			$classes = array_merge( $classes, array( 'outofstock', 'insufficientstock' ) );
+		}
+
+		return $classes;
 	}
 
 	/*
@@ -1138,6 +1164,23 @@ class WC_PB_Display {
 					$qty = '';
 				}
 			}
+
+		} elseif ( $bundle_container_item = wc_pb_get_bundled_cart_item_container( $cart_item ) ) {
+
+			if ( ! empty( $cart_item[ 'line_subtotal' ] ) ) {
+				return $qty;
+			}
+
+			$bundled_item_id = $cart_item[ 'bundled_item_id' ];
+			$bundled_item    = $bundle_container_item[ 'data' ]->get_bundled_item( $cart_item[ 'bundled_item_id' ] );
+
+			if ( ! $bundled_item ) {
+				return $qty;
+			}
+
+			if ( ! $bundled_item->is_priced_individually() && ! WC_Product_Bundle::group_mode_has( $bundle_container_item[ 'data' ]->get_group_mode(), 'parent_cart_widget_item_meta' ) ) {
+				$qty = '';
+			}
 		}
 
 		return $qty;
@@ -1168,6 +1211,23 @@ class WC_PB_Display {
 				if ( ! empty( $bundled_item_keys ) ) {
 					$name = WC_PB_Helpers::format_product_shop_title( $name, $cart_item[ 'quantity' ] );
 				}
+			}
+
+		} elseif ( $bundle_container_item = wc_pb_get_bundled_cart_item_container( $cart_item ) ) {
+
+			if ( ! empty( $cart_item[ 'line_subtotal' ] ) ) {
+				return $name;
+			}
+
+			$bundled_item_id = $cart_item[ 'bundled_item_id' ];
+			$bundled_item    = $bundle_container_item[ 'data' ]->get_bundled_item( $cart_item[ 'bundled_item_id' ] );
+
+			if ( ! $bundled_item ) {
+				return $name;
+			}
+
+			if ( ! $bundled_item->is_priced_individually() && ! WC_Product_Bundle::group_mode_has( $bundle_container_item[ 'data' ]->get_group_mode(), 'parent_cart_widget_item_meta' ) ) {
+				$name = WC_PB_Helpers::format_product_shop_title( $name, $cart_item[ 'quantity' ] );
 			}
 		}
 
@@ -1359,8 +1419,8 @@ class WC_PB_Display {
 						$cloned_item = clone $item;
 
 						foreach ( $children as $child ) {
-							$cloned_item->set_subtotal( $cloned_item->get_subtotal( 'edit' ) + $child->get_subtotal( 'edit' ) );
-							$cloned_item->set_subtotal_tax( $cloned_item->get_subtotal_tax( 'edit' ) + $child->get_subtotal_tax( 'edit' ) );
+							$cloned_item->set_subtotal( $cloned_item->get_subtotal( 'edit' ) + round( $child->get_subtotal( 'edit' ), wc_get_price_decimals() ) );
+							$cloned_item->set_subtotal_tax( $cloned_item->get_subtotal_tax( 'edit' ) + round( $child->get_subtotal_tax( 'edit' ), wc_get_price_decimals() ) );
 						}
 
 						$cloned_item->child_subtotals_added = 'yes';
@@ -1545,7 +1605,7 @@ class WC_PB_Display {
 
 		if ( $product->is_type( 'bundle' ) ) {
 
-			if ( ! $product->is_in_stock() || $product->requires_input() ) {
+			if ( ! $product->is_in_stock() || $product->has_options() ) {
 				$link = str_replace( array( 'product_type_bundle', 'ajax_add_to_cart' ), array( 'product_type_bundle product_type_bundle_input_required', '' ), $link );
 			}
 		}

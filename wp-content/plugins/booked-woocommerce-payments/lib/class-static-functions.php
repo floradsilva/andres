@@ -492,6 +492,11 @@ class Booked_WC_Functions {
 			$first_name = esc_attr($_POST['booked_appt_name']);
 			$last_name = ( isset($_POST['booked_appt_surname']) && $_POST['booked_appt_surname'] ? esc_attr($_POST['booked_appt_surname']) : false );
 			$email = $_POST['booked_appt_email'];
+		elseif ($customer_type == 'current' && is_user_logged_in() ):
+			$_this_user = wp_get_current_user();
+			$first_name = $_this_user->user_firstname;
+			$last_name = $_this_user->user_lastname;
+			$email = $_this_user->user_email;
 		endif;
 
 		if ( isset( $email ) ):
@@ -527,7 +532,7 @@ class Booked_WC_Functions {
 		}
 
 		// remove cart functionality
-		remove_action('booked_new_appointment_created', array('Booked_WC_Functions', 'booked_new_appointment_created'), 10, 1);
+		remove_action('booked_new_appointment_created', array('Booked_WC_Functions', 'booked_new_appointment_created'), 15, 1);
 
 		// turn the wp_insert_post to act as wp_update_post
 		add_filter('booked_new_appointment_args', array('Booked_WC_Functions', 'booked_new_appointment_args_on_date_change'), 10, 1);

@@ -8,7 +8,7 @@
  * @version 3.4.0
  */
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Add a item to an order (for example a line item).
@@ -19,27 +19,26 @@ defined('ABSPATH') || exit;
  * @throws Exception        When `WC_Data_Store::load` validation fails.
  * @return int|bool         Item ID or false
  */
-function wc_add_order_item($order_id, $item_array)
-{
-    $order_id = absint($order_id);
+function wc_add_order_item( $order_id, $item_array ) {
+	$order_id = absint( $order_id );
 
-    if (! $order_id) {
-        return false;
-    }
+	if ( ! $order_id ) {
+		return false;
+	}
 
-    $defaults = array(
-        'order_item_name' => '',
-        'order_item_type' => 'line_item',
-    );
+	$defaults = array(
+		'order_item_name' => '',
+		'order_item_type' => 'line_item',
+	);
 
-    $item_array = wp_parse_args($item_array, $defaults);
-    $data_store = WC_Data_Store::load('order-item');
-    $item_id    = $data_store->add_order_item($order_id, $item_array);
-    $item       = WC_Order_Factory::get_order_item($item_id);
+	$item_array = wp_parse_args( $item_array, $defaults );
+	$data_store = WC_Data_Store::load( 'order-item' );
+	$item_id    = $data_store->add_order_item( $order_id, $item_array );
+	$item       = WC_Order_Factory::get_order_item( $item_id );
 
-    do_action('woocommerce_new_order_item', $item_id, $item, $order_id);
+	do_action( 'woocommerce_new_order_item', $item_id, $item, $order_id );
 
-    return $item_id;
+	return $item_id;
 }
 
 /**
@@ -52,18 +51,17 @@ function wc_add_order_item($order_id, $item_array)
  * @throws Exception     When `WC_Data_Store::load` validation fails.
  * @return bool          True if successfully updated, false otherwise.
  */
-function wc_update_order_item($item_id, $args)
-{
-    $data_store = WC_Data_Store::load('order-item');
-    $update     = $data_store->update_order_item($item_id, $args);
+function wc_update_order_item( $item_id, $args ) {
+	$data_store = WC_Data_Store::load( 'order-item' );
+	$update     = $data_store->update_order_item( $item_id, $args );
 
-    if (false === $update) {
-        return false;
-    }
+	if ( false === $update ) {
+		return false;
+	}
 
-    do_action('woocommerce_update_order_item', $item_id, $args);
+	do_action( 'woocommerce_update_order_item', $item_id, $args );
 
-    return true;
+	return true;
 }
 
 /**
@@ -74,23 +72,22 @@ function wc_update_order_item($item_id, $args)
  * @throws Exception    When `WC_Data_Store::load` validation fails.
  * @return bool
  */
-function wc_delete_order_item($item_id)
-{
-    $item_id = absint($item_id);
+function wc_delete_order_item( $item_id ) {
+	$item_id = absint( $item_id );
 
-    if (! $item_id) {
-        return false;
-    }
+	if ( ! $item_id ) {
+		return false;
+	}
 
-    $data_store = WC_Data_Store::load('order-item');
+	$data_store = WC_Data_Store::load( 'order-item' );
 
-    do_action('woocommerce_before_delete_order_item', $item_id);
+	do_action( 'woocommerce_before_delete_order_item', $item_id );
 
-    $data_store->delete_order_item($item_id);
+	$data_store->delete_order_item( $item_id );
 
-    do_action('woocommerce_delete_order_item', $item_id);
+	do_action( 'woocommerce_delete_order_item', $item_id );
 
-    return true;
+	return true;
 }
 
 /**
@@ -104,14 +101,13 @@ function wc_delete_order_item($item_id)
  * @throws Exception         When `WC_Data_Store::load` validation fails.
  * @return bool
  */
-function wc_update_order_item_meta($item_id, $meta_key, $meta_value, $prev_value = '')
-{
-    $data_store = WC_Data_Store::load('order-item');
-    if ($data_store->update_metadata($item_id, $meta_key, $meta_value, $prev_value)) {
-        WC_Cache_Helper::incr_cache_prefix('object_' . $item_id); // Invalidate cache.
-        return true;
-    }
-    return false;
+function wc_update_order_item_meta( $item_id, $meta_key, $meta_value, $prev_value = '' ) {
+	$data_store = WC_Data_Store::load( 'order-item' );
+	if ( $data_store->update_metadata( $item_id, $meta_key, $meta_value, $prev_value ) ) {
+		WC_Cache_Helper::incr_cache_prefix( 'object_' . $item_id ); // Invalidate cache.
+		return true;
+	}
+	return false;
 }
 
 /**
@@ -125,16 +121,15 @@ function wc_update_order_item_meta($item_id, $meta_key, $meta_value, $prev_value
  * @throws Exception         When `WC_Data_Store::load` validation fails.
  * @return int               New row ID or 0.
  */
-function wc_add_order_item_meta($item_id, $meta_key, $meta_value, $unique = false)
-{
-    $data_store = WC_Data_Store::load('order-item');
-    $meta_id    = $data_store->add_metadata($item_id, $meta_key, $meta_value, $unique);
+function wc_add_order_item_meta( $item_id, $meta_key, $meta_value, $unique = false ) {
+	$data_store = WC_Data_Store::load( 'order-item' );
+	$meta_id    = $data_store->add_metadata( $item_id, $meta_key, $meta_value, $unique );
 
-    if ($meta_id) {
-        WC_Cache_Helper::incr_cache_prefix('object_' . $item_id); // Invalidate cache.
-        return $meta_id;
-    }
-    return 0;
+	if ( $meta_id ) {
+		WC_Cache_Helper::incr_cache_prefix( 'object_' . $item_id ); // Invalidate cache.
+		return $meta_id;
+	}
+	return 0;
 }
 
 /**
@@ -148,14 +143,13 @@ function wc_add_order_item_meta($item_id, $meta_key, $meta_value, $unique = fals
  * @throws Exception         When `WC_Data_Store::load` validation fails.
  * @return bool
  */
-function wc_delete_order_item_meta($item_id, $meta_key, $meta_value = '', $delete_all = false)
-{
-    $data_store = WC_Data_Store::load('order-item');
-    if ($data_store->delete_metadata($item_id, $meta_key, $meta_value, $delete_all)) {
-        WC_Cache_Helper::incr_cache_prefix('object_' . $item_id); // Invalidate cache.
-        return true;
-    }
-    return false;
+function wc_delete_order_item_meta( $item_id, $meta_key, $meta_value = '', $delete_all = false ) {
+	$data_store = WC_Data_Store::load( 'order-item' );
+	if ( $data_store->delete_metadata( $item_id, $meta_key, $meta_value, $delete_all ) ) {
+		WC_Cache_Helper::incr_cache_prefix( 'object_' . $item_id ); // Invalidate cache.
+		return true;
+	}
+	return false;
 }
 
 /**
@@ -168,10 +162,9 @@ function wc_delete_order_item_meta($item_id, $meta_key, $meta_value = '', $delet
  * @throws Exception      When `WC_Data_Store::load` validation fails.
  * @return mixed
  */
-function wc_get_order_item_meta($item_id, $key, $single = true)
-{
-    $data_store = WC_Data_Store::load('order-item');
-    return $data_store->get_metadata($item_id, $key, $single);
+function wc_get_order_item_meta( $item_id, $key, $single = true ) {
+	$data_store = WC_Data_Store::load( 'order-item' );
+	return $data_store->get_metadata( $item_id, $key, $single );
 }
 
 /**
@@ -182,8 +175,7 @@ function wc_get_order_item_meta($item_id, $key, $single = true)
  * @throws Exception    When `WC_Data_Store::load` validation fails.
  * @return int
  */
-function wc_get_order_id_by_order_item_id($item_id)
-{
-    $data_store = WC_Data_Store::load('order-item');
-    return $data_store->get_order_id_by_order_item_id($item_id);
+function wc_get_order_id_by_order_item_id( $item_id ) {
+	$data_store = WC_Data_Store::load( 'order-item' );
+	return $data_store->get_order_id_by_order_item_id( $item_id );
 }

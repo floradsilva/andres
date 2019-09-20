@@ -364,10 +364,14 @@ class Finder
             $this->client_start_dp = DatePoint::fromStr( $this->last_fetched_slot[0][2] )->toClientTz()->modify( 'tomorrow' );
         } else {
             // Requested date.
-            $this->client_start_dp = DatePoint::fromStrInClientTz( $this->selected_date ?: $this->userData->getDateFrom() );
-            if ( $this->show_calendar ) {
-                $this->client_start_dp = $this->client_start_dp->modify( 'first day of this month midnight' );
+            if ( $this->show_calendar && ( $this->selected_date > $this->userData->getDateFrom() ) ) {
+                // Example case:
+                // The client chose the 3rd day of the following month on time step.
+                $this->client_start_dp = DatePoint::fromStrInClientTz( $this->selected_date )->modify( 'first day of this month midnight' );
+            } else {
+                $this->client_start_dp = DatePoint::fromStrInClientTz( $this->userData->getDateFrom() );
             }
+
             if ( $this->client_start_dp->lt( $min_start ) ) {
                 $this->client_start_dp = $min_start->toClientTz();
             }
@@ -464,11 +468,22 @@ class Finder
             // Staff preference order
             $query->addSelect( '1 AS position' );
         }
+
+        // Calculate the days in the past which need to be taken in consideration for staff preference period.
+        $staff_preference_period_before = 0;
+
         $rows = $query->fetchArray();
         foreach ( $rows as $row ) {
             $staff_id = $row['staff_id'];
             if ( ! isset ( $this->staff[ $staff_id ] ) ) {
                 $this->staff[ $staff_id ] = new Staff();
+            }
+            $staff_preference_settings = (array) json_decode( $row['staff_preference_settings'], true );
+            if (
+                $row['staff_preference'] == Lib\Entities\Service::PREFERRED_LEAST_OCCUPIED_FOR_PERIOD ||
+                $row['staff_preference'] == Lib\Entities\Service::PREFERRED_MOST_OCCUPIED_FOR_PERIOD
+            ) {
+                $staff_preference_period_before = max( $staff_preference_period_before, $staff_preference_settings['period']['before'] );
             }
             $this->staff[ $staff_id ]->addService(
                 $row['service_id'],
@@ -477,7 +492,7 @@ class Finder
                 $row['capacity_min'],
                 $row['capacity_max'],
                 $row['staff_preference'],
-                (array) json_decode( $row['staff_preference_settings'], true ),
+                $staff_preference_settings,
                 $row['position']
             );
         }
@@ -577,7 +592,7 @@ class Finder
             ->whereRaw( 'DATE_ADD(a.end_date, INTERVAL (' . Lib\Proxy\Shared::prepareStatement( 0, 'COALESCE(s.padding_right,0)', 'Service' ) . ' + %d) SECOND) >= %s',
                 array(
                     $padding_left,
-                    $this->start_dp->format( 'Y-m-d' ),
+                    $this->start_dp->modify( sprintf( '-%d days', $staff_preference_period_before) )->format( 'Y-m-d' ),
                 ) )
             ->groupBy( 'a.id' )
             ->fetchArray();

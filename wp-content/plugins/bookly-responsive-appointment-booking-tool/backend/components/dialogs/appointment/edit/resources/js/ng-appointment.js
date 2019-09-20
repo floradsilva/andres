@@ -227,7 +227,7 @@
             setEndTimeBasedOnService : function() {
                 ds.form.end_time_data = ds.getDataForEndTime();
                 var d = ds.form.service ? ds.form.service.duration * ds.form.service.units_min : ds.data.time_interval;
-                if (d < 86400) {
+                if (d < 86400 || parseInt(ds.form.service.units_max) > 1) {
                     ds.form.end_time = ds.findTime('end', moment(ds.form.start_time.value, 'HH:mm').add(d, 'seconds').format('HH:mm'));
                 }
             },
@@ -503,6 +503,7 @@
             callback = _callback;
         };
 
+        var checkErrorsXhr = null;
         var checkAppointmentErrors = function() {
             if ($scope.form.staff) {
                 var dates = $scope.dataSource.getStartAndEndDates(),
@@ -531,7 +532,12 @@
                     });
                 });
 
-                jQuery.post(
+                if (checkErrorsXhr != null) {
+                    checkErrorsXhr.abort();
+                    checkErrorsXhr = null;
+                }
+
+                checkErrorsXhr = jQuery.post(
                     ajaxurl,
                     {
                         action         : 'bookly_check_appointment_errors',
@@ -1152,7 +1158,7 @@
                 month   = m.format('M'),
                 day     = m.format('DD');
 
-            return BooklyL10nAppDialog.dateOptions.dayNamesMin[weekday] + ', ' + BooklyL10nAppDialog.dateOptions.monthNamesShort[month-1] + ' ' + day;
+            return BooklyL10nAppDialog.datePicker.dayNamesShort[weekday] + ', ' + BooklyL10nAppDialog.datePicker.monthNamesShort[month-1] + ' ' + day;
         };
         $scope.schFormatTime = function(slots, options) {
             for (var i = 0; i < options.length; ++ i) {
@@ -1257,7 +1263,7 @@
                 return item.deleted;
             });
         };
-        $scope.schDateOptions = jQuery.extend({}, BooklyL10nAppDialog.dateOptions, {dateFormat: 'D, M dd, yy'});
+        $scope.schDatePickerOptions = jQuery.extend({}, BooklyL10nAppDialog.datePicker, {dateFormat: 'D, M dd, yy'});
         $scope.schViewSeries = function ( customer ) {
             jQuery(document.body).trigger( 'recurring_appointments.series_dialog', [ customer.series_id, function (event) {
                 // Switch to the event owner tab.
@@ -1268,7 +1274,7 @@
         /**
          * Datepicker options.
          */
-        $scope.dateOptions = BooklyL10nAppDialog.dateOptions;
+        $scope.datePickerOptions = BooklyL10nAppDialog.datePicker;
     });
 
     /**
@@ -1341,6 +1347,9 @@
  * @param function callback
  */
 var showAppointmentDialog = function (appointment_id, staff_id, start_date, callback) {
+    if (jQuery.fn.tooltip.Constructor.VERSION.split('.')[0] === '4') {
+        jQuery('#bookly-tbs .modal.fade').removeClass('fade');
+    }
     var $dialog = jQuery('#bookly-appointment-dialog');
     var $scope = angular.element($dialog[0]).scope();
     $scope.$apply(function ($scope) {

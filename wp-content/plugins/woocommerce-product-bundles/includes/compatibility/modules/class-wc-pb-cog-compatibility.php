@@ -15,14 +15,33 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Cost of Goods Compatibility.
  *
- * @since  4.11.4
+ * @version  5.11.0
  */
 class WC_PB_COG_Compatibility {
 
+	/**
+	 * Initialize integration.
+	 */
 	public static function init() {
 
-		// Cost of Goods support.
-		add_filter( 'wc_cost_of_goods_set_order_item_cost_meta_item_cost', array( __CLASS__, 'cost_of_goods_set_order_item_bundled_item_cost' ), 10, 3 );
+		// Filter parent/child cost meta.
+		add_filter( 'wc_cost_of_goods_set_order_item_cost_meta_item_cost', array( __CLASS__, 'set_bundled_order_item_cost' ), 10, 3 );
+
+		// Update bundled item cost meta when calling 'WC_PB_Order::add_bundle_to_order'.
+		add_filter( 'woocommerce_bundle_added_to_order', array( __CLASS__, 'set_bundle_added_to_order_item_cost' ), 10, 2 );
+	}
+
+	/**
+	 * Update bundled item cost meta when calling 'WC_PB_Order::add_bundle_to_order'.
+	 *
+	 * @since  5.11.0
+	 *
+	 * @param  WC_Order_Item  $container_order_item
+	 * @param  WC_Order       $order
+	 * @return void
+	 */
+	public static function set_bundle_added_to_order_item_cost( $container_order_item, $order ) {
+		wc_cog()->set_order_cost_meta( $order->get_id(), true );
 	}
 
 	/**
@@ -33,7 +52,7 @@ class WC_PB_COG_Compatibility {
 	 * @param  WC_Order  $order
 	 * @return double
 	 */
-	public static function cost_of_goods_set_order_item_bundled_item_cost( $cost, $item, $order ) {
+	public static function set_bundled_order_item_cost( $cost, $item, $order ) {
 
 		if ( $parent_item = wc_pb_get_bundled_order_item_container( $item, $order ) ) {
 

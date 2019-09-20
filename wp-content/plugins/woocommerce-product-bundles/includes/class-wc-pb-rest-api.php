@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Add custom REST API fields.
  *
  * @class    WC_PB_REST_API
- * @version  5.8.1
+ * @version  5.11.1
  */
 class WC_PB_REST_API {
 
@@ -823,10 +823,31 @@ class WC_PB_REST_API {
 				$bundle   = $item->get_product();
 				$quantity = $item->get_quantity();
 
-				$items_to_remove[] = $item;
+				// Preserve props and meta.
 
-				WC_PB()->order->add_bundle_to_order( $bundle, $order, $quantity, array( 'configuration' => $apply_configuration ) );
+				$args = array(
+					'configuration' => $apply_configuration,
+					'meta_data'     => $item->get_meta_data()
+				);
+
+				foreach ( $item->get_data_keys() as $key ) {
+
+					$fn = 'get_' . $key;
+
+					if ( in_array( $key, array( 'name', 'tax_class', 'subtotal', 'subtotal_tax', 'total', 'total_tax', 'taxes' ) ) && is_callable( array( $item, $fn ) ) ) {
+						$args[ $key ] = $item->$fn( 'edit' );
+					}
+				}
+
+				// Add new configuration.
+
+				$result = WC_PB()->order->add_bundle_to_order( $bundle, $order, $quantity, $args );
+
 				$item->delete_meta_data( '_bundle_configuration' );
+
+				if ( ! is_wp_error( $result ) ) {
+					$items_to_remove[] = $item;
+				}
 			}
 		}
 
@@ -975,7 +996,6 @@ class WC_PB_REST_API {
 
 				} else {
 
-					wc_clear_notices();
 					$message = __( 'The submitted bundle configuration could not be added to this order.', 'woocommerce-product-bundles' );
 					throw new WC_REST_Exception( 'woocommerce_rest_invalid_bundle_configuration', $message, 400 );
 				}

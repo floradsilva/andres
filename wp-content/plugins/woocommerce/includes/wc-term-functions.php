@@ -8,7 +8,7 @@
  * @version 2.1.0
  */
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Change get terms defaults for attributes to order by the sorting setting, or default to menu_order for sortable taxonomies.
@@ -19,33 +19,32 @@ defined('ABSPATH') || exit;
  * @param array $taxonomies An array of taxonomies.
  * @return array
  */
-function wc_change_get_terms_defaults($defaults, $taxonomies)
-{
-    if (is_array($taxonomies) && 1 < count($taxonomies)) {
-        return $defaults;
-    }
-    $taxonomy = is_array($taxonomies) ? (string) current($taxonomies) : $taxonomies;
-    $orderby  = 'name';
+function wc_change_get_terms_defaults( $defaults, $taxonomies ) {
+	if ( is_array( $taxonomies ) && 1 < count( $taxonomies ) ) {
+		return $defaults;
+	}
+	$taxonomy = is_array( $taxonomies ) ? (string) current( $taxonomies ) : $taxonomies;
+	$orderby  = 'name';
 
-    if (taxonomy_is_product_attribute($taxonomy)) {
-        $orderby = wc_attribute_orderby($taxonomy);
-    } elseif (in_array($taxonomy, apply_filters('woocommerce_sortable_taxonomies', array( 'product_cat' )), true)) {
-        $orderby = 'menu_order';
-    }
+	if ( taxonomy_is_product_attribute( $taxonomy ) ) {
+		$orderby = wc_attribute_orderby( $taxonomy );
+	} elseif ( in_array( $taxonomy, apply_filters( 'woocommerce_sortable_taxonomies', array( 'product_cat' ) ), true ) ) {
+		$orderby = 'menu_order';
+	}
 
-    // Change defaults. Invalid values will be changed later @see wc_change_pre_get_terms.
-    // These are in place so we know if a specific order was requested.
-    switch ($orderby) {
-        case 'menu_order':
-        case 'name_num':
-        case 'parent':
-            $defaults['orderby'] = $orderby;
-            break;
-    }
+	// Change defaults. Invalid values will be changed later @see wc_change_pre_get_terms.
+	// These are in place so we know if a specific order was requested.
+	switch ( $orderby ) {
+		case 'menu_order':
+		case 'name_num':
+		case 'parent':
+			$defaults['orderby'] = $orderby;
+			break;
+	}
 
-    return $defaults;
+	return $defaults;
 }
-add_filter('get_terms_defaults', 'wc_change_get_terms_defaults', 10, 2);
+add_filter( 'get_terms_defaults', 'wc_change_get_terms_defaults', 10, 2 );
 
 /**
  * Adds support to get_terms for menu_order argument.
@@ -53,39 +52,38 @@ add_filter('get_terms_defaults', 'wc_change_get_terms_defaults', 10, 2);
  * @since 3.6.0
  * @param WP_Term_Query $terms_query Instance of WP_Term_Query.
  */
-function wc_change_pre_get_terms($terms_query)
-{
-    $args = &$terms_query->query_vars;
+function wc_change_pre_get_terms( $terms_query ) {
+	$args = &$terms_query->query_vars;
 
-    // Put back valid orderby values.
-    if ('menu_order' === $args['orderby']) {
-        $args['orderby']               = 'name';
-        $args['force_menu_order_sort'] = true;
-    }
+	// Put back valid orderby values.
+	if ( 'menu_order' === $args['orderby'] ) {
+		$args['orderby']               = 'name';
+		$args['force_menu_order_sort'] = true;
+	}
 
-    if ('name_num' === $args['orderby']) {
-        $args['orderby']            = 'name';
-        $args['force_numeric_name'] = true;
-    }
+	if ( 'name_num' === $args['orderby'] ) {
+		$args['orderby']            = 'name';
+		$args['force_numeric_name'] = true;
+	}
 
-    // When COUNTING, disable custom sorting.
-    if ('count' === $args['fields']) {
-        return;
-    }
+	// When COUNTING, disable custom sorting.
+	if ( 'count' === $args['fields'] ) {
+		return;
+	}
 
-    // Support menu_order arg used in previous versions.
-    if (! empty($args['menu_order'])) {
-        $args['order']                 = 'DESC' === strtoupper($args['menu_order']) ? 'DESC' : 'ASC';
-        $args['force_menu_order_sort'] = true;
-    }
+	// Support menu_order arg used in previous versions.
+	if ( ! empty( $args['menu_order'] ) ) {
+		$args['order']                 = 'DESC' === strtoupper( $args['menu_order'] ) ? 'DESC' : 'ASC';
+		$args['force_menu_order_sort'] = true;
+	}
 
-    if (! empty($args['force_menu_order_sort'])) {
-        $args['orderby']  = 'meta_value_num';
-        $args['meta_key'] = 'order'; // phpcs:ignore
-        $terms_query->meta_query->parse_query_vars($args);
-    }
+	if ( ! empty( $args['force_menu_order_sort'] ) ) {
+		$args['orderby']  = 'meta_value_num';
+		$args['meta_key'] = 'order'; // phpcs:ignore
+		$terms_query->meta_query->parse_query_vars( $args );
+	}
 }
-add_action('pre_get_terms', 'wc_change_pre_get_terms', 10, 1);
+add_action( 'pre_get_terms', 'wc_change_pre_get_terms', 10, 1 );
 
 /**
  * Adjust term query to handle custom sorting parameters.
@@ -95,30 +93,29 @@ add_action('pre_get_terms', 'wc_change_pre_get_terms', 10, 1);
  * @param array $args       Arguments.
  * @return array
  */
-function wc_terms_clauses($clauses, $taxonomies, $args)
-{
-    global $wpdb;
+function wc_terms_clauses( $clauses, $taxonomies, $args ) {
+	global $wpdb;
 
-    // No need to filter when counting.
-    if (strpos($clauses['fields'], 'COUNT(*)') !== false) {
-        return $clauses;
-    }
+	// No need to filter when counting.
+	if ( strpos( $clauses['fields'], 'COUNT(*)' ) !== false ) {
+		return $clauses;
+	}
 
-    // Force numeric sort if using name_num custom sorting param.
-    if (! empty($args['force_numeric_name'])) {
-        $clauses['orderby'] = str_replace('ORDER BY t.name', 'ORDER BY t.name+0', $clauses['orderby']);
-    }
+	// Force numeric sort if using name_num custom sorting param.
+	if ( ! empty( $args['force_numeric_name'] ) ) {
+		$clauses['orderby'] = str_replace( 'ORDER BY t.name', 'ORDER BY t.name+0', $clauses['orderby'] );
+	}
 
-    // For sorting, force left join in case order meta is missing.
-    if (! empty($args['force_menu_order_sort'])) {
-        $clauses['join']    = str_replace("INNER JOIN {$wpdb->termmeta} ON ( t.term_id = {$wpdb->termmeta}.term_id )", "LEFT JOIN {$wpdb->termmeta} ON ( t.term_id = {$wpdb->termmeta}.term_id AND {$wpdb->termmeta}.meta_key='order')", $clauses['join']);
-        $clauses['where']   = str_replace("{$wpdb->termmeta}.meta_key = 'order'", "( {$wpdb->termmeta}.meta_key = 'order' OR {$wpdb->termmeta}.meta_key IS NULL )", $clauses['where']);
-        $clauses['orderby'] = 'DESC' === $args['order'] ? str_replace('meta_value+0', 'meta_value+0 DESC, t.name', $clauses['orderby']) : str_replace('meta_value+0', 'meta_value+0 ASC, t.name', $clauses['orderby']);
-    }
+	// For sorting, force left join in case order meta is missing.
+	if ( ! empty( $args['force_menu_order_sort'] ) ) {
+		$clauses['join']    = str_replace( "INNER JOIN {$wpdb->termmeta} ON ( t.term_id = {$wpdb->termmeta}.term_id )", "LEFT JOIN {$wpdb->termmeta} ON ( t.term_id = {$wpdb->termmeta}.term_id AND {$wpdb->termmeta}.meta_key='order')", $clauses['join'] );
+		$clauses['where']   = str_replace( "{$wpdb->termmeta}.meta_key = 'order'", "( {$wpdb->termmeta}.meta_key = 'order' OR {$wpdb->termmeta}.meta_key IS NULL )", $clauses['where'] );
+		$clauses['orderby'] = 'DESC' === $args['order'] ? str_replace( 'meta_value+0', 'meta_value+0 DESC, t.name', $clauses['orderby'] ) : str_replace( 'meta_value+0', 'meta_value+0 ASC, t.name', $clauses['orderby'] );
+	}
 
-    return $clauses;
+	return $clauses;
 }
-add_filter('terms_clauses', 'wc_terms_clauses', 99, 3);
+add_filter( 'terms_clauses', 'wc_terms_clauses', 99, 3 );
 
 /**
  * Helper to get cached object terms and filter by field using wp_list_pluck().
@@ -131,16 +128,15 @@ add_filter('terms_clauses', 'wc_terms_clauses', 99, 3);
  * @param  string $index_key Index key name.
  * @return array
  */
-function wc_get_object_terms($object_id, $taxonomy, $field = null, $index_key = null)
-{
-    // Test if terms exists. get_the_terms() return false when it finds no terms.
-    $terms = get_the_terms($object_id, $taxonomy);
+function wc_get_object_terms( $object_id, $taxonomy, $field = null, $index_key = null ) {
+	// Test if terms exists. get_the_terms() return false when it finds no terms.
+	$terms = get_the_terms( $object_id, $taxonomy );
 
-    if (! $terms || is_wp_error($terms)) {
-        return array();
-    }
+	if ( ! $terms || is_wp_error( $terms ) ) {
+		return array();
+	}
 
-    return is_null($field) ? $terms : wp_list_pluck($terms, $field, $index_key);
+	return is_null( $field ) ? $terms : wp_list_pluck( $terms, $field, $index_key );
 }
 
 /**
@@ -153,21 +149,20 @@ function wc_get_object_terms($object_id, $taxonomy, $field = null, $index_key = 
  * @param  array  $args       Query arguments.
  * @return array
  */
-function _wc_get_cached_product_terms($product_id, $taxonomy, $args = array())
-{
-    $cache_key   = 'wc_' . $taxonomy . md5(wp_json_encode($args));
-    $cache_group = WC_Cache_Helper::get_cache_prefix('product_' . $product_id) . $product_id;
-    $terms       = wp_cache_get($cache_key, $cache_group);
+function _wc_get_cached_product_terms( $product_id, $taxonomy, $args = array() ) {
+	$cache_key   = 'wc_' . $taxonomy . md5( wp_json_encode( $args ) );
+	$cache_group = WC_Cache_Helper::get_cache_prefix( 'product_' . $product_id ) . $product_id;
+	$terms       = wp_cache_get( $cache_key, $cache_group );
 
-    if (false !== $terms) {
-        return $terms;
-    }
+	if ( false !== $terms ) {
+		return $terms;
+	}
 
-    $terms = wp_get_post_terms($product_id, $taxonomy, $args);
+	$terms = wp_get_post_terms( $product_id, $taxonomy, $args );
 
-    wp_cache_add($cache_key, $terms, $cache_group);
+	wp_cache_add( $cache_key, $terms, $cache_group );
 
-    return $terms;
+	return $terms;
 }
 
 /**
@@ -178,13 +173,12 @@ function _wc_get_cached_product_terms($product_id, $taxonomy, $args = array())
  * @param  array  $args       Query arguments.
  * @return array
  */
-function wc_get_product_terms($product_id, $taxonomy, $args = array())
-{
-    if (! taxonomy_exists($taxonomy)) {
-        return array();
-    }
+function wc_get_product_terms( $product_id, $taxonomy, $args = array() ) {
+	if ( ! taxonomy_exists( $taxonomy ) ) {
+		return array();
+	}
 
-    return apply_filters('woocommerce_get_product_terms', _wc_get_cached_product_terms($product_id, $taxonomy, $args), $product_id, $taxonomy, $args);
+	return apply_filters( 'woocommerce_get_product_terms', _wc_get_cached_product_terms( $product_id, $taxonomy, $args ), $product_id, $taxonomy, $args );
 }
 
 /**
@@ -194,16 +188,15 @@ function wc_get_product_terms($product_id, $taxonomy, $args = array())
  * @param  WP_Post $b Second item to compare.
  * @return int
  */
-function _wc_get_product_terms_name_num_usort_callback($a, $b)
-{
-    $a_name = (float) $a->name;
-    $b_name = (float) $b->name;
+function _wc_get_product_terms_name_num_usort_callback( $a, $b ) {
+	$a_name = (float) $a->name;
+	$b_name = (float) $b->name;
 
-    if (abs($a_name - $b_name) < 0.001) {
-        return 0;
-    }
+	if ( abs( $a_name - $b_name ) < 0.001 ) {
+		return 0;
+	}
 
-    return ($a_name < $b_name) ? -1 : 1;
+	return ( $a_name < $b_name ) ? -1 : 1;
 }
 
 /**
@@ -213,12 +206,11 @@ function _wc_get_product_terms_name_num_usort_callback($a, $b)
  * @param  WP_Post $b Second item to compare.
  * @return int
  */
-function _wc_get_product_terms_parent_usort_callback($a, $b)
-{
-    if ($a->parent === $b->parent) {
-        return 0;
-    }
-    return ($a->parent < $b->parent) ? 1 : -1;
+function _wc_get_product_terms_parent_usort_callback( $a, $b ) {
+	if ( $a->parent === $b->parent ) {
+		return 0;
+	}
+	return ( $a->parent < $b->parent ) ? 1 : -1;
 }
 
 /**
@@ -226,35 +218,34 @@ function _wc_get_product_terms_parent_usort_callback($a, $b)
  *
  * @param array $args Args to control display of dropdown.
  */
-function wc_product_dropdown_categories($args = array())
-{
-    global $wp_query;
+function wc_product_dropdown_categories( $args = array() ) {
+	global $wp_query;
 
-    $args = wp_parse_args(
-        $args,
-        array(
-            'pad_counts'         => 1,
-            'show_count'         => 1,
-            'hierarchical'       => 1,
-            'hide_empty'         => 1,
-            'show_uncategorized' => 1,
-            'orderby'            => 'name',
-            'selected'           => isset($wp_query->query_vars['product_cat']) ? $wp_query->query_vars['product_cat'] : '',
-            'show_option_none'   => __('Select a category', 'woocommerce'),
-            'option_none_value'  => '',
-            'value_field'        => 'slug',
-            'taxonomy'           => 'product_cat',
-            'name'               => 'product_cat',
-            'class'              => 'dropdown_product_cat',
-        )
-    );
+	$args = wp_parse_args(
+		$args,
+		array(
+			'pad_counts'         => 1,
+			'show_count'         => 1,
+			'hierarchical'       => 1,
+			'hide_empty'         => 1,
+			'show_uncategorized' => 1,
+			'orderby'            => 'name',
+			'selected'           => isset( $wp_query->query_vars['product_cat'] ) ? $wp_query->query_vars['product_cat'] : '',
+			'show_option_none'   => __( 'Select a category', 'woocommerce' ),
+			'option_none_value'  => '',
+			'value_field'        => 'slug',
+			'taxonomy'           => 'product_cat',
+			'name'               => 'product_cat',
+			'class'              => 'dropdown_product_cat',
+		)
+	);
 
-    if ('order' === $args['orderby']) {
-        $args['orderby']  = 'meta_value_num';
-        $args['meta_key'] = 'order'; // phpcs:ignore
-    }
+	if ( 'order' === $args['orderby'] ) {
+		$args['orderby']  = 'meta_value_num';
+		$args['meta_key'] = 'order'; // phpcs:ignore
+	}
 
-    wp_dropdown_categories($args);
+	wp_dropdown_categories( $args );
 }
 
 /**
@@ -264,22 +255,21 @@ function wc_product_dropdown_categories($args = array())
  *
  * @return mixed
  */
-function wc_walk_category_dropdown_tree()
-{
-    $args = func_get_args();
+function wc_walk_category_dropdown_tree() {
+	$args = func_get_args();
 
-    if (! class_exists('WC_Product_Cat_Dropdown_Walker', false)) {
-        include_once WC()->plugin_path() . '/includes/walkers/class-wc-product-cat-dropdown-walker.php';
-    }
+	if ( ! class_exists( 'WC_Product_Cat_Dropdown_Walker', false ) ) {
+		include_once WC()->plugin_path() . '/includes/walkers/class-wc-product-cat-dropdown-walker.php';
+	}
 
-    // The user's options are the third parameter.
-    if (empty($args[2]['walker']) || ! is_a($args[2]['walker'], 'Walker')) {
-        $walker = new WC_Product_Cat_Dropdown_Walker();
-    } else {
-        $walker = $args[2]['walker'];
-    }
+	// The user's options are the third parameter.
+	if ( empty( $args[2]['walker'] ) || ! is_a( $args[2]['walker'], 'Walker' ) ) {
+		$walker = new WC_Product_Cat_Dropdown_Walker();
+	} else {
+		$walker = $args[2]['walker'];
+	}
 
-    return call_user_func_array(array( &$walker, 'walk' ), $args);
+	return call_user_func_array( array( &$walker, 'walk' ), $args );
 }
 
 /**
@@ -291,16 +281,15 @@ function wc_walk_category_dropdown_tree()
  * @param string $wp_db_version The new $wp_db_version.
  * @param string $wp_current_db_version The old (current) $wp_db_version.
  */
-function wc_taxonomy_metadata_migrate_data($wp_db_version, $wp_current_db_version)
-{
-    if ($wp_db_version >= 34370 && $wp_current_db_version < 34370) {
-        global $wpdb;
-        if ($wpdb->query("INSERT INTO {$wpdb->termmeta} ( term_id, meta_key, meta_value ) SELECT woocommerce_term_id, meta_key, meta_value FROM {$wpdb->prefix}woocommerce_termmeta;")) {
-            $wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}woocommerce_termmeta");
-        }
-    }
+function wc_taxonomy_metadata_migrate_data( $wp_db_version, $wp_current_db_version ) {
+	if ( $wp_db_version >= 34370 && $wp_current_db_version < 34370 ) {
+		global $wpdb;
+		if ( $wpdb->query( "INSERT INTO {$wpdb->termmeta} ( term_id, meta_key, meta_value ) SELECT woocommerce_term_id, meta_key, meta_value FROM {$wpdb->prefix}woocommerce_termmeta;" ) ) {
+			$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}woocommerce_termmeta" );
+		}
+	}
 }
-add_action('wp_upgrade', 'wc_taxonomy_metadata_migrate_data', 10, 2);
+add_action( 'wp_upgrade', 'wc_taxonomy_metadata_migrate_data', 10, 2 );
 
 /**
  * Move a term before the a given element of its hierarchy level.
@@ -312,54 +301,53 @@ add_action('wp_upgrade', 'wc_taxonomy_metadata_migrate_data', 10, 2);
  * @param mixed  $terms    List of terms. (default: null).
  * @return int
  */
-function wc_reorder_terms($the_term, $next_id, $taxonomy, $index = 0, $terms = null)
-{
-    if (! $terms) {
-        $terms = get_terms($taxonomy, 'hide_empty=0&parent=0&menu_order=ASC');
-    }
-    if (empty($terms)) {
-        return $index;
-    }
+function wc_reorder_terms( $the_term, $next_id, $taxonomy, $index = 0, $terms = null ) {
+	if ( ! $terms ) {
+		$terms = get_terms( $taxonomy, 'hide_empty=0&parent=0&menu_order=ASC' );
+	}
+	if ( empty( $terms ) ) {
+		return $index;
+	}
 
-    $id = intval($the_term->term_id);
+	$id = intval( $the_term->term_id );
 
-    $term_in_level = false; // Flag: is our term to order in this level of terms.
+	$term_in_level = false; // Flag: is our term to order in this level of terms.
 
-    foreach ($terms as $term) {
-        $term_id = intval($term->term_id);
+	foreach ( $terms as $term ) {
+		$term_id = intval( $term->term_id );
 
-        if ($term_id === $id) { // Our term to order, we skip.
-            $term_in_level = true;
-            continue; // Our term to order, we skip.
-        }
-        // the nextid of our term to order, lets move our term here.
-        if (null !== $next_id && $term_id === $next_id) {
-            $index++;
-            $index = wc_set_term_order($id, $index, $taxonomy, true);
-        }
+		if ( $term_id === $id ) { // Our term to order, we skip.
+			$term_in_level = true;
+			continue; // Our term to order, we skip.
+		}
+		// the nextid of our term to order, lets move our term here.
+		if ( null !== $next_id && $term_id === $next_id ) {
+			$index++;
+			$index = wc_set_term_order( $id, $index, $taxonomy, true );
+		}
 
-        // Set order.
-        $index++;
-        $index = wc_set_term_order($term_id, $index, $taxonomy);
+		// Set order.
+		$index++;
+		$index = wc_set_term_order( $term_id, $index, $taxonomy );
 
-        /**
-         * After a term has had it's order set.
-        */
-        do_action('woocommerce_after_set_term_order', $term, $index, $taxonomy);
+		/**
+		 * After a term has had it's order set.
+		*/
+		do_action( 'woocommerce_after_set_term_order', $term, $index, $taxonomy );
 
-        // If that term has children we walk through them.
-        $children = get_terms($taxonomy, "parent={$term_id}&hide_empty=0&menu_order=ASC");
-        if (! empty($children)) {
-            $index = wc_reorder_terms($the_term, $next_id, $taxonomy, $index, $children);
-        }
-    }
+		// If that term has children we walk through them.
+		$children = get_terms( $taxonomy, "parent={$term_id}&hide_empty=0&menu_order=ASC" );
+		if ( ! empty( $children ) ) {
+			$index = wc_reorder_terms( $the_term, $next_id, $taxonomy, $index, $children );
+		}
+	}
 
-    // No nextid meaning our term is in last position.
-    if ($term_in_level && null === $next_id) {
-        $index = wc_set_term_order($id, $index + 1, $taxonomy, true);
-    }
+	// No nextid meaning our term is in last position.
+	if ( $term_in_level && null === $next_id ) {
+		$index = wc_set_term_order( $id, $index + 1, $taxonomy, true );
+	}
 
-    return $index;
+	return $index;
 }
 
 /**
@@ -371,27 +359,27 @@ function wc_reorder_terms($the_term, $next_id, $taxonomy, $index = 0, $terms = n
  * @param bool   $recursive Recursive (default: false).
  * @return int
  */
-function wc_set_term_order($term_id, $index, $taxonomy, $recursive = false)
-{
-    $term_id = (int) $term_id;
-    $index   = (int) $index;
+function wc_set_term_order( $term_id, $index, $taxonomy, $recursive = false ) {
 
-    update_term_meta($term_id, 'order', $index);
+	$term_id = (int) $term_id;
+	$index   = (int) $index;
 
-    if (! $recursive) {
-        return $index;
-    }
+	update_term_meta( $term_id, 'order', $index );
 
-    $children = get_terms($taxonomy, "parent=$term_id&hide_empty=0&menu_order=ASC");
+	if ( ! $recursive ) {
+		return $index;
+	}
 
-    foreach ($children as $term) {
-        $index++;
-        $index = wc_set_term_order($term->term_id, $index, $taxonomy, true);
-    }
+	$children = get_terms( $taxonomy, "parent=$term_id&hide_empty=0&menu_order=ASC" );
 
-    clean_term_cache($term_id, $taxonomy);
+	foreach ( $children as $term ) {
+		$index++;
+		$index = wc_set_term_order( $term->term_id, $index, $taxonomy, true );
+	}
 
-    return $index;
+	clean_term_cache( $term_id, $taxonomy );
+
+	return $index;
 }
 
 /**
@@ -402,98 +390,97 @@ function wc_set_term_order($term_id, $index, $taxonomy, $recursive = false)
  * @param bool   $callback                    Callback.
  * @param bool   $terms_are_term_taxonomy_ids If terms are from term_taxonomy_id column.
  */
-function _wc_term_recount($terms, $taxonomy, $callback = true, $terms_are_term_taxonomy_ids = true)
-{
-    global $wpdb;
+function _wc_term_recount( $terms, $taxonomy, $callback = true, $terms_are_term_taxonomy_ids = true ) {
+	global $wpdb;
 
-    // Standard callback.
-    if ($callback) {
-        _update_post_term_count($terms, $taxonomy);
-    }
+	// Standard callback.
+	if ( $callback ) {
+		_update_post_term_count( $terms, $taxonomy );
+	}
 
-    $exclude_term_ids            = array();
-    $product_visibility_term_ids = wc_get_product_visibility_term_ids();
+	$exclude_term_ids            = array();
+	$product_visibility_term_ids = wc_get_product_visibility_term_ids();
 
-    if ($product_visibility_term_ids['exclude-from-catalog']) {
-        $exclude_term_ids[] = $product_visibility_term_ids['exclude-from-catalog'];
-    }
+	if ( $product_visibility_term_ids['exclude-from-catalog'] ) {
+		$exclude_term_ids[] = $product_visibility_term_ids['exclude-from-catalog'];
+	}
 
-    if ('yes' === get_option('woocommerce_hide_out_of_stock_items') && $product_visibility_term_ids['outofstock']) {
-        $exclude_term_ids[] = $product_visibility_term_ids['outofstock'];
-    }
+	if ( 'yes' === get_option( 'woocommerce_hide_out_of_stock_items' ) && $product_visibility_term_ids['outofstock'] ) {
+		$exclude_term_ids[] = $product_visibility_term_ids['outofstock'];
+	}
 
-    $query = array(
-        'fields' => "
+	$query = array(
+		'fields' => "
 			SELECT COUNT( DISTINCT ID ) FROM {$wpdb->posts} p
 		",
-        'join'   => '',
-        'where'  => "
+		'join'   => '',
+		'where'  => "
 			WHERE 1=1
 			AND p.post_status = 'publish'
 			AND p.post_type = 'product'
 
 		",
-    );
+	);
 
-    if (count($exclude_term_ids)) {
-        $query['join']  .= " LEFT JOIN ( SELECT object_id FROM {$wpdb->term_relationships} WHERE term_taxonomy_id IN ( " . implode(',', array_map('absint', $exclude_term_ids)) . ' ) ) AS exclude_join ON exclude_join.object_id = p.ID';
-        $query['where'] .= ' AND exclude_join.object_id IS NULL';
-    }
+	if ( count( $exclude_term_ids ) ) {
+		$query['join']  .= " LEFT JOIN ( SELECT object_id FROM {$wpdb->term_relationships} WHERE term_taxonomy_id IN ( " . implode( ',', array_map( 'absint', $exclude_term_ids ) ) . ' ) ) AS exclude_join ON exclude_join.object_id = p.ID';
+		$query['where'] .= ' AND exclude_join.object_id IS NULL';
+	}
 
-    // Pre-process term taxonomy ids.
-    if (! $terms_are_term_taxonomy_ids) {
-        // We passed in an array of TERMS in format id=>parent.
-        $terms = array_filter((array) array_keys($terms));
-    } else {
-        // If we have term taxonomy IDs we need to get the term ID.
-        $term_taxonomy_ids = $terms;
-        $terms             = array();
-        foreach ($term_taxonomy_ids as $term_taxonomy_id) {
-            $term    = get_term_by('term_taxonomy_id', $term_taxonomy_id, $taxonomy->name);
-            $terms[] = $term->term_id;
-        }
-    }
+	// Pre-process term taxonomy ids.
+	if ( ! $terms_are_term_taxonomy_ids ) {
+		// We passed in an array of TERMS in format id=>parent.
+		$terms = array_filter( (array) array_keys( $terms ) );
+	} else {
+		// If we have term taxonomy IDs we need to get the term ID.
+		$term_taxonomy_ids = $terms;
+		$terms             = array();
+		foreach ( $term_taxonomy_ids as $term_taxonomy_id ) {
+			$term    = get_term_by( 'term_taxonomy_id', $term_taxonomy_id, $taxonomy->name );
+			$terms[] = $term->term_id;
+		}
+	}
 
-    // Exit if we have no terms to count.
-    if (empty($terms)) {
-        return;
-    }
+	// Exit if we have no terms to count.
+	if ( empty( $terms ) ) {
+		return;
+	}
 
-    // Ancestors need counting.
-    if (is_taxonomy_hierarchical($taxonomy->name)) {
-        foreach ($terms as $term_id) {
-            $terms = array_merge($terms, get_ancestors($term_id, $taxonomy->name));
-        }
-    }
+	// Ancestors need counting.
+	if ( is_taxonomy_hierarchical( $taxonomy->name ) ) {
+		foreach ( $terms as $term_id ) {
+			$terms = array_merge( $terms, get_ancestors( $term_id, $taxonomy->name ) );
+		}
+	}
 
-    // Unique terms only.
-    $terms = array_unique($terms);
+	// Unique terms only.
+	$terms = array_unique( $terms );
 
-    // Count the terms.
-    foreach ($terms as $term_id) {
-        $terms_to_count = array( absint($term_id) );
+	// Count the terms.
+	foreach ( $terms as $term_id ) {
+		$terms_to_count = array( absint( $term_id ) );
 
-        if (is_taxonomy_hierarchical($taxonomy->name)) {
-            // We need to get the $term's hierarchy so we can count its children too.
-            $children = get_term_children($term_id, $taxonomy->name);
+		if ( is_taxonomy_hierarchical( $taxonomy->name ) ) {
+			// We need to get the $term's hierarchy so we can count its children too.
+			$children = get_term_children( $term_id, $taxonomy->name );
 
-            if ($children && ! is_wp_error($children)) {
-                $terms_to_count = array_unique(array_map('absint', array_merge($terms_to_count, $children)));
-            }
-        }
+			if ( $children && ! is_wp_error( $children ) ) {
+				$terms_to_count = array_unique( array_map( 'absint', array_merge( $terms_to_count, $children ) ) );
+			}
+		}
 
-        // Generate term query.
-        $term_query          = $query;
-        $term_query['join'] .= " INNER JOIN ( SELECT object_id FROM {$wpdb->term_relationships} INNER JOIN {$wpdb->term_taxonomy} using( term_taxonomy_id ) WHERE term_id IN ( " . implode(',', array_map('absint', $terms_to_count)) . ' ) ) AS include_join ON include_join.object_id = p.ID';
+		// Generate term query.
+		$term_query          = $query;
+		$term_query['join'] .= " INNER JOIN ( SELECT object_id FROM {$wpdb->term_relationships} INNER JOIN {$wpdb->term_taxonomy} using( term_taxonomy_id ) WHERE term_id IN ( " . implode( ',', array_map( 'absint', $terms_to_count ) ) . ' ) ) AS include_join ON include_join.object_id = p.ID';
 
-        // Get the count.
-        $count = $wpdb->get_var(implode(' ', $term_query)); // WPCS: unprepared SQL ok.
+		// Get the count.
+		$count = $wpdb->get_var( implode( ' ', $term_query ) ); // WPCS: unprepared SQL ok.
 
-        // Update the count.
-        update_term_meta($term_id, 'product_count_' . $taxonomy->name, absint($count));
-    }
+		// Update the count.
+		update_term_meta( $term_id, 'product_count_' . $taxonomy->name, absint( $count ) );
+	}
 
-    delete_transient('wc_term_counts');
+	delete_transient( 'wc_term_counts' );
 }
 
 /**
@@ -501,37 +488,36 @@ function _wc_term_recount($terms, $taxonomy, $callback = true, $terms_are_term_t
  *
  * @param int $product_id Product ID.
  */
-function wc_recount_after_stock_change($product_id)
-{
-    if ('yes' !== get_option('woocommerce_hide_out_of_stock_items')) {
-        return;
-    }
+function wc_recount_after_stock_change( $product_id ) {
+	if ( 'yes' !== get_option( 'woocommerce_hide_out_of_stock_items' ) ) {
+		return;
+	}
 
-    $product_terms = get_the_terms($product_id, 'product_cat');
+	$product_terms = get_the_terms( $product_id, 'product_cat' );
 
-    if ($product_terms) {
-        $product_cats = array();
+	if ( $product_terms ) {
+		$product_cats = array();
 
-        foreach ($product_terms as $term) {
-            $product_cats[ $term->term_id ] = $term->parent;
-        }
+		foreach ( $product_terms as $term ) {
+			$product_cats[ $term->term_id ] = $term->parent;
+		}
 
-        _wc_term_recount($product_cats, get_taxonomy('product_cat'), false, false);
-    }
+		_wc_term_recount( $product_cats, get_taxonomy( 'product_cat' ), false, false );
+	}
 
-    $product_terms = get_the_terms($product_id, 'product_tag');
+	$product_terms = get_the_terms( $product_id, 'product_tag' );
 
-    if ($product_terms) {
-        $product_tags = array();
+	if ( $product_terms ) {
+		$product_tags = array();
 
-        foreach ($product_terms as $term) {
-            $product_tags[ $term->term_id ] = $term->parent;
-        }
+		foreach ( $product_terms as $term ) {
+			$product_tags[ $term->term_id ] = $term->parent;
+		}
 
-        _wc_term_recount($product_tags, get_taxonomy('product_tag'), false, false);
-    }
+		_wc_term_recount( $product_tags, get_taxonomy( 'product_tag' ), false, false );
+	}
 }
-add_action('woocommerce_product_set_stock_status', 'wc_recount_after_stock_change');
+add_action( 'woocommerce_product_set_stock_status', 'wc_recount_after_stock_change' );
 
 
 /**
@@ -542,37 +528,36 @@ add_action('woocommerce_product_set_stock_status', 'wc_recount_after_stock_chang
  * @param string|array $taxonomies Single taxonomy or list of taxonomies.
  * @return array
  */
-function wc_change_term_counts($terms, $taxonomies)
-{
-    if (is_admin() || is_ajax()) {
-        return $terms;
-    }
+function wc_change_term_counts( $terms, $taxonomies ) {
+	if ( is_admin() || is_ajax() ) {
+		return $terms;
+	}
 
-    if (! isset($taxonomies[0]) || ! in_array($taxonomies[0], apply_filters('woocommerce_change_term_counts', array( 'product_cat', 'product_tag' )), true)) {
-        return $terms;
-    }
+	if ( ! isset( $taxonomies[0] ) || ! in_array( $taxonomies[0], apply_filters( 'woocommerce_change_term_counts', array( 'product_cat', 'product_tag' ) ), true ) ) {
+		return $terms;
+	}
 
-    $o_term_counts = get_transient('wc_term_counts');
-    $term_counts   = $o_term_counts;
+	$o_term_counts = get_transient( 'wc_term_counts' );
+	$term_counts   = $o_term_counts;
 
-    foreach ($terms as &$term) {
-        if (is_object($term)) {
-            $term_counts[ $term->term_id ] = isset($term_counts[ $term->term_id ]) ? $term_counts[ $term->term_id ] : get_term_meta($term->term_id, 'product_count_' . $taxonomies[0], true);
+	foreach ( $terms as &$term ) {
+		if ( is_object( $term ) ) {
+			$term_counts[ $term->term_id ] = isset( $term_counts[ $term->term_id ] ) ? $term_counts[ $term->term_id ] : get_term_meta( $term->term_id, 'product_count_' . $taxonomies[0], true );
 
-            if ('' !== $term_counts[ $term->term_id ]) {
-                $term->count = absint($term_counts[ $term->term_id ]);
-            }
-        }
-    }
+			if ( '' !== $term_counts[ $term->term_id ] ) {
+				$term->count = absint( $term_counts[ $term->term_id ] );
+			}
+		}
+	}
 
-    // Update transient.
-    if ($term_counts !== $o_term_counts) {
-        set_transient('wc_term_counts', $term_counts, DAY_IN_SECONDS * 30);
-    }
+	// Update transient.
+	if ( $term_counts !== $o_term_counts ) {
+		set_transient( 'wc_term_counts', $term_counts, DAY_IN_SECONDS * 30 );
+	}
 
-    return $terms;
+	return $terms;
 }
-add_filter('get_terms', 'wc_change_term_counts', 10, 2);
+add_filter( 'get_terms', 'wc_change_term_counts', 10, 2 );
 
 /**
  * Return products in a given term, and cache value.
@@ -583,16 +568,15 @@ add_filter('get_terms', 'wc_change_term_counts', 10, 2);
  * @param string $taxonomy Taxonomy.
  * @return array
  */
-function wc_get_term_product_ids($term_id, $taxonomy)
-{
-    $product_ids = get_term_meta($term_id, 'product_ids', true);
+function wc_get_term_product_ids( $term_id, $taxonomy ) {
+	$product_ids = get_term_meta( $term_id, 'product_ids', true );
 
-    if (false === $product_ids || ! is_array($product_ids)) {
-        $product_ids = get_objects_in_term($term_id, $taxonomy);
-        update_term_meta($term_id, 'product_ids', $product_ids);
-    }
+	if ( false === $product_ids || ! is_array( $product_ids ) ) {
+		$product_ids = get_objects_in_term( $term_id, $taxonomy );
+		update_term_meta( $term_id, 'product_ids', $product_ids );
+	}
 
-    return $product_ids;
+	return $product_ids;
 }
 
 /**
@@ -605,16 +589,15 @@ function wc_get_term_product_ids($term_id, $taxonomy)
  * @param bool   $append     Whether to append new terms to the old terms.
  * @param array  $old_tt_ids Old array of term taxonomy IDs.
  */
-function wc_clear_term_product_ids($object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids)
-{
-    foreach ($old_tt_ids as $term_id) {
-        delete_term_meta($term_id, 'product_ids');
-    }
-    foreach ($tt_ids as $term_id) {
-        delete_term_meta($term_id, 'product_ids');
-    }
+function wc_clear_term_product_ids( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
+	foreach ( $old_tt_ids as $term_id ) {
+		delete_term_meta( $term_id, 'product_ids' );
+	}
+	foreach ( $tt_ids as $term_id ) {
+		delete_term_meta( $term_id, 'product_ids' );
+	}
 }
-add_action('set_object_terms', 'wc_clear_term_product_ids', 10, 6);
+add_action( 'set_object_terms', 'wc_clear_term_product_ids', 10, 6 );
 
 /**
  * Get full list of product visibilty term ids.
@@ -622,36 +605,35 @@ add_action('set_object_terms', 'wc_clear_term_product_ids', 10, 6);
  * @since  3.0.0
  * @return int[]
  */
-function wc_get_product_visibility_term_ids()
-{
-    if (! taxonomy_exists('product_visibility')) {
-        wc_doing_it_wrong(__FUNCTION__, 'wc_get_product_visibility_term_ids should not be called before taxonomies are registered (woocommerce_after_register_post_type action).', '3.1');
-        return array();
-    }
-    return array_map(
-        'absint',
-        wp_parse_args(
-            wp_list_pluck(
-                get_terms(
-                    array(
-                        'taxonomy'   => 'product_visibility',
-                        'hide_empty' => false,
-                    )
-                ),
-                'term_taxonomy_id',
-                'name'
-            ),
-            array(
-                'exclude-from-catalog' => 0,
-                'exclude-from-search'  => 0,
-                'featured'             => 0,
-                'outofstock'           => 0,
-                'rated-1'              => 0,
-                'rated-2'              => 0,
-                'rated-3'              => 0,
-                'rated-4'              => 0,
-                'rated-5'              => 0,
-            )
-        )
-    );
+function wc_get_product_visibility_term_ids() {
+	if ( ! taxonomy_exists( 'product_visibility' ) ) {
+		wc_doing_it_wrong( __FUNCTION__, 'wc_get_product_visibility_term_ids should not be called before taxonomies are registered (woocommerce_after_register_post_type action).', '3.1' );
+		return array();
+	}
+	return array_map(
+		'absint',
+		wp_parse_args(
+			wp_list_pluck(
+				get_terms(
+					array(
+						'taxonomy'   => 'product_visibility',
+						'hide_empty' => false,
+					)
+				),
+				'term_taxonomy_id',
+				'name'
+			),
+			array(
+				'exclude-from-catalog' => 0,
+				'exclude-from-search'  => 0,
+				'featured'             => 0,
+				'outofstock'           => 0,
+				'rated-1'              => 0,
+				'rated-2'              => 0,
+				'rated-3'              => 0,
+				'rated-4'              => 0,
+				'rated-5'              => 0,
+			)
+		)
+	);
 }

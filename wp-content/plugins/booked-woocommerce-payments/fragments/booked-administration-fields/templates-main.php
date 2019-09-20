@@ -4,7 +4,7 @@ if ( $field_type==='paid-service-label' ):
 	?>
 	<li class="ui-state-default">
 		<i class="main-handle booked-icon booked-icon-bars"></i>
-		<small><?php _e('Paid Service Selector', 'booked-woocommerce-payments'); ?></small>
+		<small><?php _e('Product Selector', 'booked-woocommerce-payments'); ?></small>
 
 		<p>
 			<input class="cf-required-checkbox"<?php if ($is_required): echo ' checked="checked"'; endif; ?> type="checkbox" name="required---<?php echo $numbers_only; ?>" id="required---<?php echo $numbers_only; ?>">

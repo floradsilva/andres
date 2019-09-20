@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Functions for WC core back-compatibility.
  *
  * @class    WC_PB_Core_Compatibility
- * @version  5.7.7
+ * @version  5.11.1
  */
 class WC_PB_Core_Compatibility {
 
@@ -468,5 +468,16 @@ class WC_PB_Core_Compatibility {
 	public static function log( $message, $level, $context ) {
 		$logger = wc_get_logger();
 		$logger->log( $level, $message, array( 'source' => $context ) );
+	}
+
+	/**
+	 * Back-compat wrapper for 'is_rest_api_request'.
+	 *
+	 * @since  5.11.1
+	 *
+	 * @return boolean
+	 */
+	public static function is_rest_api_request() {
+		return method_exists( WC(), 'is_rest_api_request' ) ? WC()->is_rest_api_request() : defined( 'REST_REQUEST' );
 	}
 }

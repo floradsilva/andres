@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<span class="bundled-item-product-id">#<span class="bundled-product-id"><?php echo $product_id; ?></span></span>
 		<span class="bundled-item-title-inner"><strong class="item-title"><?php echo $title; ?></strong></span>
 		<?php
-			echo ( false !== $item_id && 'in_stock' !== $stock_status ) ? sprintf( '<div class="tips bundled-item-status bundled-item-status--%s" data-tip="%s"></div>', $stock_status, $stock_status_label ) : '';
+			echo ( false !== $item_id && 'in_stock' !== $stock_status ) ? sprintf( '<div class="woocommerce-help-tip bundled-item-status bundled-item-status--%s" data-tip="%s"></div>', $stock_status, $stock_status_label ) : '';
 		?>
 		<div class="handle">
 			<?php

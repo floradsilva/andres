@@ -1,5 +1,21 @@
 *** Changelog ***
 
+= 1.4.14 - 2019-xx-xx =
+* Fix - Google Analytics JS URL missing quotes.
+
+= 1.4.13 - 2019-09-03 =
+* Tweak - Make Google Analytics JS script URL filterable.
+
+= 1.4.12 - 2019-08-13 =
+* Tweak - WC 3.7 compatibility.
+
+= 1.4.11 - 2019-08-02 =
+* Add - Filter to bypass "send pageview" for users whom want to use separate standard GA. `wc_goole_analytics_send_pageview`.
+* Fix - Revert last release due to it causing ecommerce tracking to be disabled when standard tracking is disabled.
+
+= 1.4.10 - 2019-07-10 =
+* Fix - Ensure universal analytics pageview doesn’t occur if standard tracking is disabled.
+ 
 = 1.4.9 - 2019-04-16 =
 * Tweak - WC 3.6 compatibility.
 

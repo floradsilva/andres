@@ -70,7 +70,6 @@ spl_autoload_register(function($class) {
 
         'WP_Job' => 'includes/vendor/queue/classes/wp-job.php',
         'WP_Queue' => 'includes/vendor/queue/classes/wp-queue.php',
-        'WP_Http_Worker' => 'includes/vendor/queue/classes/worker/wp-http-worker.php',
         'WP_Worker' => 'includes/vendor/queue/classes/worker/wp-worker.php',
         'Queue_Command' => 'includes/vendor/queue/classes/cli/queue-command.php',
     );
@@ -93,11 +92,11 @@ function mailchimp_environment_variables() {
     return (object) array(
         'repo' => 'master',
         'environment' => 'production', // staging or production
-        'version' => '2.1.16',
+        'version' => '2.2.2',
         'php_version' => phpversion(),
         'wp_version' => (empty($wp_version) ? 'Unknown' : $wp_version),
         'wc_version' => function_exists('WC') ? WC()->version : null,
-        'logging' => ($o && is_array($o) && isset($o['mailchimp_logging'])) ? $o['mailchimp_logging'] : 'debug',
+        'logging' => ($o && is_array($o) && isset($o['mailchimp_logging'])) ? $o['mailchimp_logging'] : 'standard',
     );
 }
 
@@ -170,7 +169,18 @@ if (!function_exists( 'wp_queue')) {
  * @param bool $force_now
  */
 function mailchimp_handle_or_queue(WP_Job $job, $delay = 0, $force_now = false)
-{
+{   
+    if ($job instanceof \MailChimp_WooCommerce_Single_Order && isset($job->order_id)) {
+        // if this is a order process already queued - just skip this
+        if (get_site_transient("mailchimp_order_being_processed_{$job->order_id}") == true) {
+            mailchimp_debug('order_sync.skip', "Order {$job->order_id} already added successfully to queue. Skipping.");
+            return;
+        }
+        // tell the system the order is already queued for processing in this saving process - and we don't need to process it again.
+        set_site_transient( "mailchimp_order_being_processed_{$job->order_id}", true, 30);
+        mailchimp_debug('order_sync.transient', "transient set for order {$job->order_id}");
+    }
+
     wp_queue($job, $delay);
 
     // force now is used during the sync.
@@ -285,6 +295,23 @@ function mailchimp_get_list_id() {
  */
 function mailchimp_get_store_id() {
     $store_id = mailchimp_get_data('store_id', false);
+    $api = mailchimp_get_api();
+    if (mailchimp_is_configured()) {
+        // let's retrieve the store for this domain, through the API
+        $store = $api->getStore($store_id, false);
+        // if there's no store, try to fetch from mc a store related to the current domain
+        if (!$store) {
+            $stores = $api->stores();
+            //iterate thru stores, find correct store ID and save it to db
+            foreach ($stores as $mc_store) {
+                if ($mc_store->getDomain() === get_option('siteurl')) {
+                    update_option('mailchimp-woocommerce-store_id', $mc_store->getId(), 'yes');
+                    $store_id = $mc_store->getId();
+                }
+            }
+        }
+    }
+
     if (empty($store_id)) {
         mailchimp_set_data('store_id', $store_id = uniqid(), 'yes');
     }
@@ -302,10 +329,13 @@ function mailchimp_get_user_tags_to_update() {
     }
 
     $tags = explode(',', $tags);
-    
+
     foreach ($tags as $tag) {
         $formatted_tags[] = array("name" => $tag, "status" => 'active');
     }
+
+    // apply filter to user custom tags addition/removal
+    $formatted_tags = apply_filters('mailchimp_user_tags', $formatted_tags);
     
     return $formatted_tags;
 }
@@ -893,7 +923,7 @@ function mailchimp_woocommerce_check_if_http_worker_fails() {
     if (!mailchimp_should_use_local_curl_for_rest_api() && !function_exists('wp_remote_post')) {
         mailchimp_set_data('test.can.remote_post', false);
         mailchimp_set_data('test.can.remote_post.error', 'function "wp_remote_post" does not exist');
-        return __('function "wp_remote_post" does not exist', 'mailchimp-woocommerce');
+        return __('function "wp_remote_post" does not exist', 'mc-woocommerce');
     }
 
     // apply a blocking call to make sure we get the response back
@@ -907,9 +937,13 @@ function mailchimp_woocommerce_check_if_http_worker_fails() {
     } elseif (is_array($response) && isset($response['http_response']) && ($r = $response['http_response'])) {
         /** @var \WP_HTTP_Requests_Response $r */
         if ((int) $r->get_status() !== 200) {
-            $message = __('The REST API seems to be disabled on this wordpress site. Please enable to sync data.', 'mailchimp-woocommerce');
+            $message = __('The REST API seems to be disabled on this wordpress site. Please enable to sync data.', 'mc-woocommerce');
             mailchimp_set_data('test.can.remote_post', false);
             mailchimp_set_data('test.can.remote_post.error', $message);
+            mailchimp_error('test.rest_api', '', array(
+                'status' => $r->get_status(),
+                'body' => $r->get_data(),
+            ));
             return $message;
         }
     }
@@ -1231,15 +1265,17 @@ function mailchimp_rest_response($data, $status = 200) {
  */
 function mailchimp_has_started_syncing() {
     $sync_started_at = get_option('mailchimp-woocommerce-sync.started_at');
-    return !empty($sync_started_at);
+    $sync_completed_at = get_option('mailchimp-woocommerce-sync.completed_at');
+    return ($sync_completed_at < $sync_started_at);
 }
 
 /**
  * @return bool
  */
 function mailchimp_is_done_syncing() {
+    $sync_started_at = get_option('mailchimp-woocommerce-sync.started_at');
     $sync_completed_at = get_option('mailchimp-woocommerce-sync.completed_at');
-    return !empty($sync_completed_at);
+    return ($sync_completed_at >= $sync_started_at);
 }
 
 function run_mailchimp_woocommerce() {

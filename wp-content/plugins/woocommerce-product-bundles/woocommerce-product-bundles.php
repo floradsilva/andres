@@ -3,7 +3,7 @@
 * Plugin Name: WooCommerce Product Bundles
 * Plugin URI: https://woocommerce.com/products/product-bundles/
 * Description: Offer product bundles and assembled products in your WooCommerce store.
-* Version: 5.10.2
+* Version: 5.13.0
 * Author: SomewhereWarm
 * Author URI: https://somewherewarm.gr/
 *
@@ -12,11 +12,13 @@
 * Text Domain: woocommerce-product-bundles
 * Domain Path: /languages/
 *
+* Requires PHP: 5.6
+*
 * Requires at least: 4.4
 * Tested up to: 5.2
 *
 * WC requires at least: 3.1
-* WC tested up to: 3.6
+* WC tested up to: 3.7
 *
 * Copyright: © 2017-2019 SomewhereWarm SMPC.
 * License: GNU General Public License v3.0
@@ -32,11 +34,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Main plugin class.
  *
  * @class    WC_Bundles
- * @version  5.10.2
+ * @version  5.13.0
  */
 class WC_Bundles {
 
-	public $version  = '5.10.2';
+	public $version  = '5.13.0';
 	public $required = '3.1.0';
 
 	/**
@@ -156,6 +158,14 @@ class WC_Bundles {
 		// WC version sanity check.
 		if ( ! function_exists( 'WC' ) || version_compare( WC()->version, $this->required ) < 0 ) {
 			$notice = sprintf( __( 'WooCommerce Product Bundles requires at least WooCommerce <strong>%s</strong>.', 'woocommerce-product-bundles' ), $this->required );
+			require_once( 'includes/admin/class-wc-pb-admin-notices.php' );
+			WC_PB_Admin_Notices::add_notice( $notice, 'error' );
+			return false;
+		}
+
+		// PHP version check.
+		if ( ! function_exists( 'phpversion' ) || version_compare( phpversion(), '5.6.20', '<' ) ) {
+			$notice = sprintf( __( 'WooCommerce Product Bundles requires at least PHP <strong>%1$s</strong>. Learn <a href="%2$s">how to update PHP</a>.', 'woocommerce-product-bundles' ), '5.6.20', 'https://docs.woocommerce.com/document/how-to-update-your-php-version/' );
 			require_once( 'includes/admin/class-wc-pb-admin-notices.php' );
 			WC_PB_Admin_Notices::add_notice( $notice, 'error' );
 			return false;

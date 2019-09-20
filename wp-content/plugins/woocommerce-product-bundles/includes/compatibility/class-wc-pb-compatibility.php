@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Handles compatibility with other WC extensions.
  *
  * @class    WC_PB_Compatibility
- * @version  5.10.0
+ * @version  5.13.0
  */
 class WC_PB_Compatibility {
 
@@ -84,7 +84,7 @@ class WC_PB_Compatibility {
 
 		// Define dependencies.
 		$this->required = array(
-			'cp'     => '3.14.0',
+			'cp'     => '5.0.0',
 			'addons' => '2.9.1',
 			'minmax' => '1.3.3',
 			'topatc' => '1.0.3',
@@ -175,7 +175,7 @@ class WC_PB_Compatibility {
 		}
 
 		// Composite Products support.
-		if ( class_exists( 'WC_Composite_Products' ) && function_exists( 'WC_CP' ) && version_compare( str_replace( '-dev', '', WC_CP()->version ), $this->required[ 'cp' ] ) >= 0 ) {
+		if ( class_exists( 'WC_Composite_Products' ) && function_exists( 'WC_CP' ) && version_compare( WC_PB()->plugin_version( true, WC_CP()->version ), $this->required[ 'cp' ] ) >= 0 ) {
 			$module_paths[ 'composite_products' ] = 'modules/class-wc-pb-cp-compatibility.php';
 		}
 
@@ -258,12 +258,10 @@ class WC_PB_Compatibility {
 	 */
 	public function add_compatibility_notices() {
 
-		global $woocommerce_composite_products;
-
 		// CP version check.
-		if ( ! empty( $woocommerce_composite_products ) ) {
+		if ( class_exists( 'WC_Composite_Products' ) && function_exists( 'WC_CP' ) ) {
 			$required_version = $this->required[ 'cp' ];
-			if ( version_compare( str_replace( '-dev', '', $woocommerce_composite_products->version ), $required_version ) < 0 ) {
+			if ( version_compare( WC_PB()->plugin_version( true, WC_CP()->version ), $required_version ) < 0 ) {
 				$extension = 'Composite Products';
 				$notice    = sprintf( __( 'The installed version of <strong>%1$s</strong> is not supported by <strong>Product Bundles</strong>. Please update <strong>%1$s</strong> to version <strong>%2$s</strong> or higher.', 'woocommerce-product-bundles' ), $extension, $required_version );
 				WC_PB_Admin_Notices::add_dismissible_notice( $notice, array( 'dismiss_class' => 'cp_lt_' . $required_version, 'type' => 'native' ) );
@@ -299,7 +297,7 @@ class WC_PB_Compatibility {
 		// Min/Max Items mini-extension version check.
 		if ( class_exists( 'WC_PB_Min_Max_Items' ) ) {
 			$required_version = $this->required[ 'minmax' ];
-			if ( version_compare( WC_PB_Min_Max_Items::$version, $required_version ) < 0 ) {
+			if ( version_compare( WC_PB()->plugin_version( true, WC_PB_Min_Max_Items::$version ), $required_version ) < 0 ) {
 				$extension = 'Product Bundles - Min/Max Items';
 				$notice    = sprintf( __( 'The installed version of <strong>%1$s</strong> is not supported by <strong>Product Bundles</strong>. Please update <strong>%1$s</strong> to version <strong>%2$s</strong> or higher.', 'woocommerce-product-bundles' ), $extension, $required_version );
 				WC_PB_Admin_Notices::add_notice( $notice, 'native' );
@@ -309,7 +307,7 @@ class WC_PB_Compatibility {
 		// Top Add-to-Cart mini-extension version check.
 		if ( class_exists( 'WC_PB_Top_Add_To_Cart' ) ) {
 			$required_version = $this->required[ 'topatc' ];
-			if ( version_compare( WC_PB_Top_Add_To_Cart::$version, $required_version ) < 0 ) {
+			if ( version_compare( WC_PB()->plugin_version( true, WC_PB_Top_Add_To_Cart::$version ), $required_version ) < 0 ) {
 				$extension = 'Product Bundles - Top Add to Cart Button';
 				$notice    = sprintf( __( 'The installed version of <strong>%1$s</strong> is not supported by <strong>Product Bundles</strong>. Please update <strong>%1$s</strong> to version <strong>%2$s</strong> or higher.', 'woocommerce-product-bundles' ), $extension, $required_version );
 				WC_PB_Admin_Notices::add_notice( $notice, 'native' );
@@ -319,7 +317,7 @@ class WC_PB_Compatibility {
 		// Bulk Discounts mini-extension version check.
 		if ( class_exists( 'WC_PB_Bulk_Discounts' ) ) {
 			$required_version = $this->required[ 'bd' ];
-			if ( version_compare( WC_PB_Bulk_Discounts::$version, $required_version ) < 0 ) {
+			if ( version_compare( WC_PB()->plugin_version( true, WC_PB_Bulk_Discounts::$version ), $required_version ) < 0 ) {
 				$extension = 'Product Bundles - Bulk Discounts';
 				$notice    = sprintf( __( 'The installed version of <strong>%1$s</strong> is not supported by <strong>Product Bundles</strong>. Please update <strong>%1$s</strong> to version <strong>%2$s</strong> or higher.', 'woocommerce-product-bundles' ), $extension, $required_version );
 				WC_PB_Admin_Notices::add_notice( $notice, 'native' );

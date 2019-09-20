@@ -79,7 +79,7 @@ class MailChimp_WooCommerce_Cart_Update extends WP_Job
         try {
 
             if (!mailchimp_is_configured() || !($api = mailchimp_get_api())) {
-                mailchimp_debug(get_called_class(), 'mailchimp is not configured properly');
+                mailchimp_debug(get_called_class(), 'Mailchimp is not configured properly');
                 return false;
             }
 
@@ -123,7 +123,7 @@ class MailChimp_WooCommerce_Cart_Update extends WP_Job
             }
 
             $cart->setCheckoutUrl($checkout_url);
-            $cart->setCurrencyCode(isset($options['store_currency_code']) ? $options['store_currency_code'] : 'USD');
+            $cart->setCurrencyCode();
 
             $cart->setCustomer($customer);
 

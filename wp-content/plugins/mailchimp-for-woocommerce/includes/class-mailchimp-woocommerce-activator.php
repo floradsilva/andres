@@ -89,12 +89,13 @@ class MailChimp_WooCommerce_Activator {
 				email VARCHAR (100) NOT NULL,
 				user_id INT (11) DEFAULT NULL,
                 cart text NOT NULL,
-                created_at datetime NOT NULL
+                created_at datetime NOT NULL,
+				PRIMARY KEY  (email)
 				) $charset_collate;";
 
 		dbDelta( $sql );
 
-		// set the mailchimp woocommerce version at the time of install
+		// set the Mailchimp woocommerce version at the time of install
 		update_site_option('mailchimp_woocommerce_version', mailchimp_environment_variables()->version);
 	}
 }

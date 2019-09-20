@@ -21,6 +21,7 @@
 	],
 	"type": "wordpress-plugin",
 	"config": {
+		"classloader-suffix": "WPMediaImagifyWordPressPlugin",
 		"classmap-authoritative": true,
 		"sort-packages": true
 	},
@@ -31,7 +32,8 @@
 	"require": {
 		"php": ">=5.4.0",
 		"a5hleyrich/wp-background-processing": "~1.0",
-		"composer/installers": "~1.0"
+		"composer/installers": "~1.0",
+		"dangoodman/composer-for-wordpress": "^2.0"
 	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
@@ -46,7 +48,8 @@
 			"Imagify\\ThirdParty\\EnableMediaReplace\\": "inc/3rd-party/enable-media-replace/classes/",
 			"Imagify\\ThirdParty\\FormidablePro\\": "inc/3rd-party/formidable-pro/classes/",
 			"Imagify\\ThirdParty\\NGG\\": "inc/3rd-party/nextgen-gallery/classes/",
-			"Imagify\\ThirdParty\\RegenerateThumbnails\\": "inc/3rd-party/regenerate-thumbnails/classes/"
+			"Imagify\\ThirdParty\\RegenerateThumbnails\\": "inc/3rd-party/regenerate-thumbnails/classes/",
+			"Imagify\\ThirdParty\\WPRocket\\": "inc/3rd-party/wp-rocket/classes/"
 		},
 		"classmap": [
 			"inc/classes",

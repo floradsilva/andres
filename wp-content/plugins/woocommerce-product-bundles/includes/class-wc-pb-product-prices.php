@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Price functions and hooks.
  *
  * @class    WC_PB_Product_Prices
- * @version  5.9.2
+ * @version  5.11.0
  */
 class WC_PB_Product_Prices {
 
@@ -319,7 +319,8 @@ class WC_PB_Product_Prices {
 				}
 			}
 
-			if ( false === $bundled_item->is_discount_allowed_on_sale_price() ) {
+			if ( $priced_per_product && ! empty( $discount ) && false === $bundled_item->is_discount_allowed_on_sale_price() ) {
+				asort( $regular_prices );
 				asort( $prices );
 				asort( $sale_prices );
 			}

@@ -79,10 +79,17 @@ class CustomFolders extends AbstractBulk {
 	 * Get ids of all optimized media without webp versions.
 	 *
 	 * @since  1.9
+	 * @since  1.9.5 The method doesn't return the IDs directly anymore.
 	 * @access public
 	 * @author Grégory Viguier
 	 *
-	 * @return array A list of media IDs.
+	 * @return array {
+	 *     @type array $ids    A list of media IDs.
+	 *     @type array $errors {
+	 *         @type array $no_file_path A list of media IDs.
+	 *         @type array $no_backup    A list of media IDs.
+	 *     }
+	 * }
 	 */
 	public function get_optimized_media_ids_without_webp() {
 		global $wpdb;
@@ -101,37 +108,46 @@ class CustomFolders extends AbstractBulk {
 				ON ( fi.folder_id = fo.folder_id )
 			WHERE
 				fi.mime_type IN ( $mime_types )
-				AND fi.status = 'success'
+				AND ( fi.status = 'success' OR fi.status = 'already_optimized' )
 				AND ( fi.data NOT LIKE %s OR fi.data IS NULL )
 			ORDER BY fi.file_id DESC",
-			'%' . $wpdb->esc_like( '"full' . $webp_suffix . '";a:4:{s:7:"success";b:1;' ) . '%'
+			'%' . $wpdb->esc_like( $webp_suffix . '";a:4:{s:7:"success";b:1;' ) . '%'
 		) );
 
 		$wpdb->flush();
 		unset( $mime_types, $files_table, $folders_table, $webp_suffix );
 
+		$data = [
+			'ids'    => [],
+			'errors' => [
+				'no_file_path' => [],
+				'no_backup'    => [],
+			],
+		];
+
 		if ( ! $files ) {
-			return [];
+			return $data;
 		}
 
-		$data = [];
-
 		foreach ( $files as $file ) {
+			$file_id = absint( $file->file_id );
+
 			if ( empty( $file->path ) ) {
 				// Problem.
+				$data['errors']['no_file_path'][] = $file_id;
 				continue;
 			}
 
-			$file_id     = absint( $file->file_id );
 			$file_path   = \Imagify_Files_Scan::remove_placeholder( $file->path );
 			$backup_path = \Imagify_Custom_Folders::get_file_backup_path( $file_path );
 
 			if ( ! $this->filesystem->exists( $backup_path ) ) {
 				// No backup, no webp.
+				$data['errors']['no_backup'][] = $file_id;
 				continue;
 			}
 
-			$data[] = $file_id;
+			$data['ids'][] = $file_id;
 		} // End foreach().
 
 		return $data;
@@ -162,10 +178,9 @@ class CustomFolders extends AbstractBulk {
 				ON ( fi.folder_id = fo.folder_id )
 			WHERE
 				fi.mime_type IN ( $mime_types )
-				AND fi.status = 'success'
-				AND ( fi.data NOT LIKE %s OR fi.data IS NULL )
-			ORDER BY fi.file_id DESC",
-			'%' . $wpdb->esc_like( '"full' . $webp_suffix . '";a:4:{s:7:"success";b:1;' ) . '%'
+				AND ( fi.status = 'success' OR fi.status = 'already_optimized' )
+				AND ( fi.data NOT LIKE %s OR fi.data IS NULL )",
+			'%' . $wpdb->esc_like( $webp_suffix . '";a:4:{s:7:"success";b:1;' ) . '%'
 		) );
 	}
 

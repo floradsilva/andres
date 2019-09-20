@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Product Bundles edit-order functions and filters.
  *
  * @class    WC_PB_Admin_Order
- * @version  5.8.0
+ * @version  5.12.1
  */
 class WC_PB_Admin_Order {
 
@@ -131,6 +131,30 @@ class WC_PB_Admin_Order {
 					) );
 
 					if ( $added_to_order ) {
+
+						if ( WC_PB_Core_Compatibility::is_wc_version_gte( '3.6' ) ) {
+
+							$bundled_order_items = wc_pb_get_bundled_order_items( $order->get_item( $added_to_order ), $order );
+							$order_notes         = array();
+
+							foreach ( $bundled_order_items as $order_item_id => $order_item ) {
+								$product                       = $order_item->get_product();
+								$order_notes[ $order_item_id ] = $product->get_formatted_name();
+
+								if ( $product->managing_stock() ) {
+									$qty                           = $order_item->get_quantity();
+									$old_stock                     = $product->get_stock_quantity();
+									$new_stock                     = wc_update_product_stock( $product, $qty, 'decrease' );
+									$order_notes[ $order_item_id ] = $product->get_formatted_name() . ' &ndash; ' . $old_stock . '&rarr;' . $new_stock;
+
+									$order_item->add_meta_data( '_reduced_stock', $qty, true );
+									$order_item->save();
+								}
+							}
+
+							$order->add_order_note( sprintf( __( 'Added line items: %s', 'woocommerce' ), implode( ', ', $order_notes ) ), false, true );
+						}
+
 						$order->remove_item( $item_id );
 						$order->save();
 					}

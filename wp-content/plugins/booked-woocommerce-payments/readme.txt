@@ -2,12 +2,17 @@
 Donate link: https://boxystudio.com/#coffee
 Tags: booked, add-on
 Requires at least: 4.7
-Tested up to: 5.1.1
-Requires PHP: 7.0
+Tested up to: 5.2.1
+Requires PHP: 5.6
 
 Adds the ability to accept payments for appointments using WooCommerce.
 
 == Changelog ==
+
+= 1.5.3 =
+* *NEW:* When only one product is in the product field on the booking form, it will be automatically selected.
+* *FIX:* Fixed an issue where a product would be added back to the cart when changing the appointment date.
+* *FIX:* Fixed some recent WooCommmerce errors.
 
 = 1.5.2 =
 * *FIX:* XSS Vulnerability Fixes

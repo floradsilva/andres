@@ -3,14 +3,14 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 "Project-Id-Version: Booked Add-On: WooCommerce Payments\n"
-"POT-Creation-Date: 2018-01-18 12:10-0500\n"
+"POT-Creation-Date: 2019-05-29 15:58-0400\n"
 "PO-Revision-Date: 2017-06-12 14:10-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.5\n"
+"X-Generator: Poedit 2.2.1\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-Flags-xgettext: --add-comments=translators:\n"
 "X-Poedit-WPHeader: booked-woocommerce-payments.php\n"
@@ -83,7 +83,7 @@ msgstr ""
 #: fragments/booked-administration-fields/buttons.php:1
 #: fragments/booked-administration-fields/templates-main.php:7
 #: fragments/booked-administration-fields/templates.php:5
-msgid "Paid Service Selector"
+msgid "Product Selector"
 msgstr ""
 
 #: fragments/booked-administration-fields/templates-main.php:11
@@ -97,7 +97,7 @@ msgstr ""
 
 #: fragments/booked-administration-fields/templates-subs-end.php:3
 #: fragments/booked-administration-fields/templates.php:9
-msgid "WooCommerce Product"
+msgid "Product"
 msgstr ""
 
 #: fragments/booked-administration-fields/templates-subs.php:5
@@ -106,7 +106,7 @@ msgstr ""
 msgid "Select a Product"
 msgstr ""
 
-#: fragments/settings-payment-options.php:2
+#: fragments/settings-payment-options.php:3
 msgid "WooCommerce Settings"
 msgstr ""
 
@@ -130,16 +130,16 @@ msgstr ""
 msgid "Order "
 msgstr ""
 
-#: lib/class-appointment.php:134
+#: lib/class-appointment.php:142
 msgid "All day"
 msgstr ""
 
-#: lib/class-appointment.php:136
+#: lib/class-appointment.php:144
 #, php-format
 msgid "from %1$s to %2$s on %3$s"
 msgstr ""
 
-#: lib/class-appointment.php:138
+#: lib/class-appointment.php:146
 #, php-format
 msgid "at %1$s on %2$s"
 msgstr ""
@@ -244,17 +244,17 @@ msgid ""
 "Cart page instead."
 msgstr ""
 
-#: lib/class-settings.php:233
+#: lib/class-settings.php:236
 msgid ""
 "More schedule intervals can be added with a plugin like <a href=\"https://"
 "wordpress.org/plugins/wp-crontrol/\" target=\"_blank\">WP Crontrol</a>."
 msgstr ""
 
-#: lib/class-settings.php:233
+#: lib/class-settings.php:236
 msgid "The currently available schedules are listed below."
 msgstr ""
 
-#: lib/class-static-functions.php:217 lib/woocommerce/class-wc-cart.php:194
+#: lib/class-static-functions.php:217 lib/woocommerce/class-wc-cart.php:235
 #: lib/woocommerce/class-wc-order-item.php:15
 msgid "Booking Agent"
 msgstr ""
@@ -330,11 +330,11 @@ msgstr ""
 msgid "Appointment with ID %1$d does not have any products assigned to it."
 msgstr ""
 
-#: lib/woocommerce/class-wc-cart.php:184
+#: lib/woocommerce/class-wc-cart.php:225
 msgid "Date"
 msgstr ""
 
-#: lib/woocommerce/class-wc-cart.php:188
+#: lib/woocommerce/class-wc-cart.php:229
 #: lib/woocommerce/class-wc-order-item.php:13
 msgid "Calendar"
 msgstr ""
@@ -361,12 +361,6 @@ msgstr ""
 msgid ""
 "Appointment \"%s\" and cart products do not match. Please make sure that all "
 "appointment products are available in the cart."
-msgstr ""
-
-#: lib/woocommerce/class-wc-product.php:53
-#, php-format
-msgid ""
-"An error has occur while retrieving product data for product with ID %1$d."
 msgstr ""
 
 #. Plugin Name of the plugin/theme

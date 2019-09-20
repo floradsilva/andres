@@ -13,6 +13,8 @@ defined( 'ABSPATH' ) || die( 'Cheatin’ uh?' );
 function get_imagify_localize_script_translations( $context ) {
 	global $post_id;
 
+	$imagifybeat_actions = \Imagify\Imagifybeat\Actions::get_instance();
+
 	switch ( $context ) {
 		case 'admin-bar':
 			if ( is_admin() ) {
@@ -81,9 +83,9 @@ function get_imagify_localize_script_translations( $context ) {
 					'apiDown'          => Imagify_Requirements::is_imagify_blocked() || ! Imagify_Requirements::is_api_up(),
 					'keyIsValid'       => ! Imagify_Requirements::is_imagify_blocked() && Imagify_Requirements::is_api_up() && Imagify_Requirements::is_api_key_valid(),
 					'isOverQuota'      => ! Imagify_Requirements::is_imagify_blocked() && Imagify_Requirements::is_api_up() && Imagify_Requirements::is_api_key_valid() && Imagify_Requirements::is_over_quota(),
-					'heartbeatIDs'     => [
-						'queue'        => 'imagify_options_bulk_queue',
-						'requirements' => 'imagify_bulk_requirements',
+					'imagifybeatIDs'   => [
+						'queue'        => $imagifybeat_actions->get_imagifybeat_id( 'bulk_optimization_status' ),
+						'requirements' => $imagifybeat_actions->get_imagifybeat_id( 'requirements' ),
 					],
 					'ajaxActions'      => [
 						'getMediaIds' => 'imagify_get_media_ids',
@@ -105,6 +107,7 @@ function get_imagify_localize_script_translations( $context ) {
 						'processing'                     => __( 'Imagify is still processing. Are you sure you want to leave this page?', 'imagify' ),
 						'nothingToDoTitle'               => __( 'Hold on!', 'imagify' ),
 						'nothingToDoText'                => __( 'All your optimized images already have a webp version. Congratulations!', 'imagify' ),
+						'nothingToDoNoBackupText'        => __( 'Because the selected images did not have a backup copy, Imagify was unable to create webp versions.', 'imagify' ),
 						'error'                          => __( 'Error', 'imagify' ),
 						'ajaxErrorText'                  => __( 'The operation failed.', 'imagify' ),
 						'getUnoptimizedImagesErrorTitle' => __( 'Oops, There is something wrong!', 'imagify' ),
@@ -127,7 +130,7 @@ function get_imagify_localize_script_translations( $context ) {
 			return $translations;
 
 		case 'pricing-modal':
-			return [
+			$translations = [
 				'labels' => [
 					'errorCouponAPI'   => __( 'Error with checking this coupon.', 'imagify' ),
 					/* translators: 1 is a percentage, 2 is a coupon code. */
@@ -135,6 +138,15 @@ function get_imagify_localize_script_translations( $context ) {
 					'errorPriceAPI'    => __( 'Something went wrong with getting our updated offers. Please retry later.', 'imagify' ),
 				],
 			];
+
+			if ( Imagify_Requirements::is_api_key_valid() ) {
+				$translations['userDataCache'] = [
+					'deleteAction' => 'imagify_delete_user_data_cache',
+					'deleteNonce'  => wp_create_nonce( 'imagify_delete_user_data_cache' ),
+				];
+			}
+
+			return $translations;
 
 		case 'twentytwenty':
 			$image = [
@@ -176,9 +188,12 @@ function get_imagify_localize_script_translations( $context ) {
 				],
 			];
 
+		case 'beat':
+			return \Imagify\Imagifybeat\Core::get_instance()->get_settings();
+
 		case 'media-modal':
 			return [
-				'heartbeatId' => 'imagify_optimization_status',
+				'imagifybeatID' => $imagifybeat_actions->get_imagifybeat_id( 'library_optimization_status' ),
 			];
 
 		case 'library':
@@ -199,10 +214,10 @@ function get_imagify_localize_script_translations( $context ) {
 				'apiDown'         => Imagify_Requirements::is_imagify_blocked() || ! Imagify_Requirements::is_api_up(),
 				'keyIsValid'      => ! Imagify_Requirements::is_imagify_blocked() && Imagify_Requirements::is_api_up() && Imagify_Requirements::is_api_key_valid(),
 				'isOverQuota'     => ! Imagify_Requirements::is_imagify_blocked() && Imagify_Requirements::is_api_up() && Imagify_Requirements::is_api_key_valid() && Imagify_Requirements::is_over_quota(),
-				'heartbeatIDs'     => [
-					'stats'        => 'imagify_bulk_data',
-					'queue'        => 'imagify_bulk_queue',
-					'requirements' => 'imagify_bulk_requirements',
+				'imagifybeatIDs'   => [
+					'stats'        => $imagifybeat_actions->get_imagifybeat_id( 'bulk_optimization_stats' ),
+					'queue'        => $imagifybeat_actions->get_imagifybeat_id( 'bulk_optimization_status' ),
+					'requirements' => $imagifybeat_actions->get_imagifybeat_id( 'requirements' ),
 				],
 				'waitImageUrl'    => IMAGIFY_ASSETS_IMG_URL . 'popin-loader.svg',
 				'ajaxActions'     => [
@@ -266,7 +281,7 @@ function get_imagify_localize_script_translations( $context ) {
 			];
 
 			if ( get_transient( 'imagify_large_library' ) ) {
-				// On huge media libraries, don't use heartbeat, and fetch stats only when the process ends.
+				// On huge media libraries, don't use Imagifybeat, and fetch stats only when the process ends.
 				$translations['ajaxActions']['getStats'] = 'imagify_bulk_get_stats';
 			}
 
@@ -297,10 +312,10 @@ function get_imagify_localize_script_translations( $context ) {
 
 		case 'files-list':
 			return [
-				'backupOption' => get_imagify_option( 'backup' ),
-				'context'      => 'custom-folders',
-				'heartbeatId'  => 'imagify_custom_folders_optimization_status',
-				'labels'       => [
+				'backupOption'  => get_imagify_option( 'backup' ),
+				'context'       => 'custom-folders',
+				'imagifybeatID' => $imagifybeat_actions->get_imagifybeat_id( 'custom_folders_optimization_status' ),
+				'labels'        => [
 					'bulkActionsOptimize' => __( 'Optimize', 'imagify' ),
 					'bulkActionsRestore'  => __( 'Restore Original', 'imagify' ),
 				],

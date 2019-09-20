@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || die( 'Cheatin’ uh?' );
  * @author Grégory Viguier
  */
 class Display {
-	use \Imagify\Traits\FakeSingletonTrait;
+	use \Imagify\Traits\InstanceGetterTrait;
 
 	/**
 	 * Option value.
@@ -196,12 +196,13 @@ class Display {
 			return;
 		}
 
-		$file_path = $conf->get_file_path();
+		$file_path  = $conf->get_file_path();
+		$filesystem = \Imagify_Filesystem::get_instance();
 
-		if ( ! $this->filesystem->exists( $file_path ) ) {
+		if ( ! $filesystem->exists( $file_path ) ) {
 			return;
 		}
-		if ( ! $this->filesystem->is_writable( $file_path ) ) {
+		if ( ! $filesystem->is_writable( $file_path ) ) {
 			return;
 		}
 

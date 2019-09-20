@@ -122,6 +122,37 @@
         ]
     },
     {
+        "name": "dangoodman/composer-for-wordpress",
+        "version": "2.0.0",
+        "version_normalized": "2.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/dangoodman/composer-for-wordpress.git",
+            "reference": "be478117ee9b2fbcdb5a6580a5ec69b66e711e20"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/dangoodman/composer-for-wordpress/zipball/be478117ee9b2fbcdb5a6580a5ec69b66e711e20",
+            "reference": "be478117ee9b2fbcdb5a6580a5ec69b66e711e20",
+            "shasum": ""
+        },
+        "require": {
+            "composer-plugin-api": "^1.0"
+        },
+        "time": "2018-06-20T15:01:37+00:00",
+        "type": "composer-plugin",
+        "extra": {
+            "class": "Dangoodman\\ComposerForWordpress\\ComposerForWordpress"
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Dangoodman\\ComposerForWordpress\\": "."
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/"
+    },
+    {
         "name": "a5hleyrich/wp-background-processing",
         "version": "1.0.1",
         "version_normalized": "1.0.1.0",

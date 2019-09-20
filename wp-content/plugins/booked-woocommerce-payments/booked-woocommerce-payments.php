@@ -4,7 +4,7 @@
 Plugin Name: Booked Add-On: WooCommerce Payments
 Plugin URI: https://getbooked.io/booked-woocommerce/
 Description: Adds the ability to accept payments for appointments using WooCommerce.
-Version: 1.5.2
+Version: 1.5.3
 Author: Boxy Studio
 Author URI: https://boxystudio.com
 Text Domain: booked-woocommerce-payments

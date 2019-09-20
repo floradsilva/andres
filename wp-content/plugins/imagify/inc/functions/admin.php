@@ -104,6 +104,9 @@ function get_imagify_admin_url( $action = 'settings', $arg = [] ) {
 		case 'generate-webp-versions':
 			return wp_nonce_url( admin_url( 'admin-post.php?action=imagify_generate_webp_versions&attachment_id=' . $id . '&context=' . $context ), 'imagify-generate-webp-versions-' . $id . '-' . $context );
 
+		case 'delete-webp-versions':
+			return wp_nonce_url( admin_url( 'admin-post.php?action=imagify_delete_webp_versions&attachment_id=' . $id . '&context=' . $context ), 'imagify-delete-webp-versions-' . $id . '-' . $context );
+
 		case 'optimize':
 		case 'manual-upload': // Deprecated.
 		case 'manual-optimize':
@@ -418,4 +421,18 @@ function imagify_cache_user() {
 	}
 
 	return $data;
+}
+
+/**
+ * Delete cached Imagify user data.
+ *
+ * @since  1.9.5
+ * @author Grégory Viguier
+ */
+function imagify_delete_cached_user() {
+	if ( imagify_is_active_for_network() ) {
+		delete_site_transient( 'imagify_user' );
+	} else {
+		delete_transient( 'imagify_user' );
+	}
 }

@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Product Bundle order-related functions and filters.
  *
  * @class    WC_PB_Order
- * @version  5.9.1
+ * @version  5.11.0
  */
 class WC_PB_Order {
 
@@ -346,8 +346,43 @@ class WC_PB_Order {
 					$container_order_item->add_meta_data( '_bundle_weight', (double) $bundle->get_weight( 'edit' ) + $bundled_weight, true );
 				}
 
+				/*
+				 * Add initial item meta.
+				 */
+
+				if ( ! empty( $args[ 'meta_data' ] ) ) {
+					foreach ( $args[ 'meta_data' ] as $meta ) {
+
+						if ( $meta instanceof WC_Meta_Data ) {
+							$meta = $meta->get_data();
+						}
+
+						if ( ! isset( $meta[ 'key' ] ) || ! isset( $meta[ 'value' ] ) ) {
+							continue;
+						}
+
+						if ( in_array( $meta[ 'key' ], array( '_bundle_configuration', '_stamp', '_bundled_items', '_bundle_cart_key', '_bundle_group_mode', '_bundle_weight' ) ) ) {
+							continue;
+						}
+
+						$container_order_item->add_meta_data( $meta[ 'key' ], $meta[ 'value' ] );
+					}
+				}
+
 				// Save the item.
 				$container_order_item->save();
+
+				/**
+				 * 'woocommerce_bundle_added_to_order' action.
+				 *
+				 * @since  5.11.0
+				 *
+				 * @param  WC_Order_Item      $bundled_order_item
+				 * @param  WC_Order           $order
+				 * @param  WC_Product_Bundle  $bundle
+				 * @param  array              $args
+				 */
+				do_action( 'woocommerce_bundle_added_to_order', $container_order_item, $order, $bundle, $quantity, $args );
 
 			} else {
 

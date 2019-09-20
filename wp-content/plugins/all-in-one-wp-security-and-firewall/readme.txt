@@ -183,6 +183,13 @@ https://www.tipsandtricks-hq.com/wordpress-security-and-firewall-plugin
 None
 
 == Changelog ==
+= 4.4.0 =
+- Added robustness to login lockdown feature by replacing the strtotime function with DateTime/DateInterval. 
+This should prevent 32-bit systems from being constrained to the max date of 19 Jan 2038.
+- Fixed bugs related to captcha features.
+- Fixed and improved "Logged In Users" functionality for multisite.
+- Always set valid dates, to avoid errors when strict mode is enabled on mysql. Thanks to Davide.
+
 = 4.3.9.4 =
 - Removed whois feature because it adds relatively little value and the third-party library used is not being maintained regularly.
 - Fixed "headers already sent" error when bulk action performed using aiowps list table.

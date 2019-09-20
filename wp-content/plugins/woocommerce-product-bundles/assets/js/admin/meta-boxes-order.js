@@ -63,6 +63,14 @@ jQuery( function($) {
 							functions.core.stupidtable.init();
 						}
 
+						if ( 'yes' === wc_bundles_admin_order_params.is_wc_version_gte_3_6 ) {
+							// Update notes.
+							if ( response.notes_html ) {
+								$( 'ul.order_notes' ).empty();
+								$( 'ul.order_notes' ).append( $( response.notes_html ).find( 'li' ) );
+							}
+						}
+
 						functions.unblock( view.$el.find( '.wc-backbone-modal-content' ) );
 
 						// Make it look like something changed.

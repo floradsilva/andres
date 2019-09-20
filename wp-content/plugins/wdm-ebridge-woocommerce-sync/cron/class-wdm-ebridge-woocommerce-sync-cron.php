@@ -46,6 +46,12 @@ class Wdm_Ebridge_Woocommerce_Sync_Cron {
 		include_once plugin_dir_path( __DIR__ ) . 'includes/class-wdm-ebridge-woocommerce-sync-categories.php';
 		include_once plugin_dir_path( __DIR__ ) . 'includes/class-wdm-ebridge-woocommerce-sync-products.php';
 
+		// $args = array(
+		// 	'limit' => -1,
+		// );
+
+		// Wews_Helper_Functions::clear_products_data( $args );
+
 		$this->api_url                    = get_option( 'ebridge_sync_api_url', '' );
 		$this->api_token                  = get_option( 'ebridge_sync_api_token', '' );
 		$this->products_obj               = new Wdm_Ebridge_Woocommerce_Sync_Products();
@@ -86,6 +92,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Cron {
 		$last_updated_products      = $this->products_obj->get_last_updated_batched_product_ids();
 		$added_products             = array();
 		$added_products['products'] = array();
+		$added_products['product_id'] = array();
+
 		$success_count              = 0;
 
 		foreach ( $last_updated_products['update_ids'] as $key => $value ) {
@@ -94,6 +102,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Cron {
 			if ( $product_id ) {
 				$success_count++;
 				$added_products['products'][] = $product_id;
+				$added_products['product_id'][] = get_option( 'product_' . $value, '' );
 			}
 		}
 
@@ -101,7 +110,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Cron {
 
 		echo '<pre>';
 		echo __( $added_products['success_count'] . ' Products updated.<br />', 'wdm-ebridge-woocommerce-sync' );
-		print_r( $last_updated_products );
 		echo '</pre>';
 	}
 

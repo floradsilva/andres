@@ -7,99 +7,98 @@
  * @version 3.3.0
  */
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Widget top rated products class.
  */
-class WC_Widget_Top_Rated_Products extends WC_Widget
-{
+class WC_Widget_Top_Rated_Products extends WC_Widget {
 
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        $this->widget_cssclass    = 'woocommerce widget_top_rated_products';
-        $this->widget_description = __("A list of your store's top-rated products.", 'woocommerce');
-        $this->widget_id          = 'woocommerce_top_rated_products';
-        $this->widget_name        = __('Products by Rating', 'woocommerce');
-        $this->settings           = array(
-            'title'  => array(
-                'type'  => 'text',
-                'std'   => __('Top rated products', 'woocommerce'),
-                'label' => __('Title', 'woocommerce'),
-            ),
-            'number' => array(
-                'type'  => 'number',
-                'step'  => 1,
-                'min'   => 1,
-                'max'   => '',
-                'std'   => 5,
-                'label' => __('Number of products to show', 'woocommerce'),
-            ),
-        );
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		$this->widget_cssclass    = 'woocommerce widget_top_rated_products';
+		$this->widget_description = __( "A list of your store's top-rated products.", 'woocommerce' );
+		$this->widget_id          = 'woocommerce_top_rated_products';
+		$this->widget_name        = __( 'Products by Rating', 'woocommerce' );
+		$this->settings           = array(
+			'title'  => array(
+				'type'  => 'text',
+				'std'   => __( 'Top rated products', 'woocommerce' ),
+				'label' => __( 'Title', 'woocommerce' ),
+			),
+			'number' => array(
+				'type'  => 'number',
+				'step'  => 1,
+				'min'   => 1,
+				'max'   => '',
+				'std'   => 5,
+				'label' => __( 'Number of products to show', 'woocommerce' ),
+			),
+		);
 
-        parent::__construct();
-    }
+		parent::__construct();
+	}
 
-    /**
-     * Output widget.
-     *
-     * @see WP_Widget
-     * @param array $args     Arguments.
-     * @param array $instance Widget instance.
-     */
-    public function widget($args, $instance)
-    {
-        if ($this->get_cached_widget($args)) {
-            return;
-        }
+	/**
+	 * Output widget.
+	 *
+	 * @see WP_Widget
+	 * @param array $args     Arguments.
+	 * @param array $instance Widget instance.
+	 */
+	public function widget( $args, $instance ) {
 
-        ob_start();
+		if ( $this->get_cached_widget( $args ) ) {
+			return;
+		}
 
-        $number = ! empty($instance['number']) ? absint($instance['number']) : $this->settings['number']['std'];
+		ob_start();
 
-        $query_args = array(
-            'posts_per_page' => $number,
-            'no_found_rows'  => 1,
-            'post_status'    => 'publish',
-            'post_type'      => 'product',
-            'meta_key'       => '_wc_average_rating',
-            'orderby'        => 'meta_value_num',
-            'order'          => 'DESC',
-            'meta_query'     => WC()->query->get_meta_query(),
-            'tax_query'      => WC()->query->get_tax_query(),
-        ); // WPCS: slow query ok.
+		$number = ! empty( $instance['number'] ) ? absint( $instance['number'] ) : $this->settings['number']['std'];
 
-        $r = new WP_Query($query_args);
+		$query_args = array(
+			'posts_per_page' => $number,
+			'no_found_rows'  => 1,
+			'post_status'    => 'publish',
+			'post_type'      => 'product',
+			'meta_key'       => '_wc_average_rating',
+			'orderby'        => 'meta_value_num',
+			'order'          => 'DESC',
+			'meta_query'     => WC()->query->get_meta_query(),
+			'tax_query'      => WC()->query->get_tax_query(),
+		); // WPCS: slow query ok.
 
-        if ($r->have_posts()) {
-            $this->widget_start($args, $instance);
+		$r = new WP_Query( $query_args );
 
-            echo wp_kses_post(apply_filters('woocommerce_before_widget_product_list', '<ul class="product_list_widget">'));
+		if ( $r->have_posts() ) {
 
-            $template_args = array(
-                'widget_id'   => $args['widget_id'],
-                'show_rating' => true,
-            );
+			$this->widget_start( $args, $instance );
 
-            while ($r->have_posts()) {
-                $r->the_post();
-                wc_get_template('content-widget-product.php', $template_args);
-            }
+			echo wp_kses_post( apply_filters( 'woocommerce_before_widget_product_list', '<ul class="product_list_widget">' ) );
 
-            echo wp_kses_post(apply_filters('woocommerce_after_widget_product_list', '</ul>'));
+			$template_args = array(
+				'widget_id'   => $args['widget_id'],
+				'show_rating' => true,
+			);
 
-            $this->widget_end($args);
-        }
+			while ( $r->have_posts() ) {
+				$r->the_post();
+				wc_get_template( 'content-widget-product.php', $template_args );
+			}
 
-        wp_reset_postdata();
+			echo wp_kses_post( apply_filters( 'woocommerce_after_widget_product_list', '</ul>' ) );
 
-        $content = ob_get_clean();
+			$this->widget_end( $args );
+		}
 
-        echo $content; // WPCS: XSS ok.
+		wp_reset_postdata();
 
-        $this->cache_widget($args, $content);
-    }
+		$content = ob_get_clean();
+
+		echo $content; // WPCS: XSS ok.
+
+		$this->cache_widget( $args, $content );
+	}
 }

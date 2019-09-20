@@ -26,8 +26,10 @@ class Page extends Lib\Base\Component
                     'css/ladda.min.css',
                     'css/picker.classic.css',
                     'css/picker.classic.date.css',
-                    'css/bookly-main.css',
-                )
+                ),
+                is_rtl()
+                    ? array( 'css/bookly-rtl.css', 'css/bookly-main.css', )
+                    : array( 'css/bookly-main.css', )
             ),
             'backend' => array( 'bootstrap/css/bootstrap-theme.min.css', ),
             'wp'      => array( 'wp-color-picker', ),
@@ -63,11 +65,12 @@ class Page extends Lib\Base\Component
             'nop_format'    => get_option( 'bookly_group_booking_nop_format' ),
             'today'         => __( 'Today', 'bookly' ),
             'months'        => array_values( $wp_locale->month ),
+            'daysFull'      => array_values( $wp_locale->weekday ),
             'days'          => array_values( $wp_locale->weekday_abbrev ),
             'nextMonth'     => __( 'Next month', 'bookly' ),
             'prevMonth'     => __( 'Previous month', 'bookly' ),
             'date_format'   => Lib\Utils\DateTime::convertFormat( 'date', Lib\Utils\DateTime::FORMAT_PICKADATE ),
-            'start_of_week' => (int) get_option( 'start_of_week' ),
+            'firstDay'      => (int) get_option( 'start_of_week' ),
             'saved'         => __( 'Settings saved.', 'bookly' ),
             'intlTelInput'  => array(
                 'enabled' => get_option( 'bookly_cst_phone_default_country' ) != 'disabled',

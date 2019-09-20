@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Admin AJAX meta-box handlers.
  *
  * @class    WC_PB_Admin_Ajax
- * @version  5.9.2
+ * @version  5.12.1
  */
 class WC_PB_Admin_Ajax {
 
@@ -374,11 +374,46 @@ class WC_PB_Admin_Ajax {
 				}
 
 				$items_to_remove = array( $item ) + wc_pb_get_bundled_order_items( $item, $order );
+				$pre_stock_map   = array();
 
 				foreach ( $items_to_remove as $remove_item ) {
+
+					if ( WC_PB_Core_Compatibility::is_wc_version_gte( '3.6' ) ) {
+
+						$changed_stock = wc_maybe_adjust_line_item_product_stock( $remove_item, 0 );
+						if ( $changed_stock && isset( $changed_stock[ 'from' ] ) ) {
+							$bundled_item_id                   = $remove_item->get_meta( '_bundled_item_id' );
+							$pre_stock_map[ $bundled_item_id ] = $changed_stock[ 'from' ];
+						}
+					}
+
 					$order->remove_item( $remove_item->get_id() );
 					$remove_item->delete();
 				}
+
+				if ( WC_PB_Core_Compatibility::is_wc_version_gte( '3.6' ) ) {
+
+					$bundled_order_items = wc_pb_get_bundled_order_items( $order->get_item( $added_to_order ), $order );
+					foreach ( $bundled_order_items as $order_item_id => $order_item ) {
+						$product = $order_item->get_product();
+						$qty     = $order_item->get_quantity();
+
+						if ( $product->managing_stock() ) {
+							$bundled_item_id = $order_item->get_meta( '_bundled_item_id' );
+							$old_stock       = isset( $pre_stock_map[ $bundled_item_id ] ) ? $pre_stock_map[ $bundled_item_id ] : $product->get_stock_quantity();
+							$new_stock       = wc_update_product_stock( $product, $qty, 'decrease' );
+
+							if ( $old_stock && $old_stock !== $new_stock ) {
+								$order->add_order_note( sprintf( __( 'Adjusted %s stock', 'woocommerce-product-bundles' ), $product->get_formatted_name() ) . ' (' . $old_stock . '&rarr;' . $new_stock . ')', false, true );
+							}
+
+							$order_item->add_meta_data( '_reduced_stock', $qty, true );
+							$order_item->save();
+						}
+					}
+				}
+
+				unset( $pre_stock_map );
 
 				if ( isset( $_POST[ 'country' ], $_POST[ 'state' ], $_POST[ 'postcode' ], $_POST[ 'city' ] ) ) {
 
@@ -402,10 +437,24 @@ class WC_PB_Admin_Ajax {
 		include ( WC_ABSPATH . 'includes/admin/meta-boxes/views/html-order-items.php' );
 		$html = ob_get_clean();
 
-		$response = array(
-			'result' => 'success',
-			'html'   => $html
-		);
+		if ( WC_PB_Core_Compatibility::is_wc_version_gte( '3.6' ) ) {
+
+			ob_start();
+			$notes = wc_get_order_notes( array( 'order_id' => $order->get_id() ) );
+			include ( WC_ABSPATH . 'includes/admin/meta-boxes/views/html-order-notes.php' );
+			$notes_html = ob_get_clean();
+			$response = array(
+				'result'     => 'success',
+				'html'       => $html,
+				'notes_html' => $notes_html
+			);
+
+		} else {
+			$response = array(
+				'result'     => 'success',
+				'html'       => $html,
+			);
+		}
 
 		wp_send_json( $response );
 	}

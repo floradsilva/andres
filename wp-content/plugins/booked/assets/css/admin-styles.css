@@ -18,12 +18,13 @@ body.booked-noScroll { position:fixed; width:100%; overflow:hidden; }
 .update-nag .booked-icon { color:#888; }
 
 /* GENERAL STYLES */
-.booked-settings-wrap { padding:0; margin:0 0 0 -20px; position:relative; }
-.booked-settings-wrap .booked-settings-title { position:relative; margin:0; padding:2rem 0 2.1rem 2rem; background:#0073AA; color:#fff; font-size:1.5rem; line-height:1rem; letter-spacing:0.05rem; text-align:left; }
+.booked-settings-prewrap { display:flex; justify-content:center; }
+.booked-settings-wrap { max-width:1000px; min-width:1000px; background:#fff; border-radius:10px; overflow:hidden; padding:0; box-shadow:0 4px 4px rgba(0,0,0,.05),0 8px 8px rgba(0,0,0,.05),0 32px 32px rgba(0,0,0,.05),0 64px 64px rgba(0,0,0,.05); margin:40px 40px 40px 20px; position:relative; }
+.booked-settings-wrap .booked-settings-title { position:relative; margin:0; padding:2rem 0 2.1rem 2rem; background:#0073AA; color:#fff; font-size:1.75rem; line-height:1rem; letter-spacing:0; text-align:left; }
 .booked-settings-wrap .booked-settings-title .booked-icon { position:relative; top:-2px; }
 body.booked_bookings_page_booked_plugin .settings-error code { display:block; margin:5px 0; }
 #booked_plugin_booked_bookings_section .inside { margin:0; padding:40px; }
-.booked-settings-wrap .booked-settings-title, table.booked-calendar th, table.booked-calendar td { font-weight:300; }
+.booked-settings-wrap .booked-settings-title, table.booked-calendar th, table.booked-calendar td { font-weight:600; }
 
 
 /* BOOKED SETTINGS PANELS */
@@ -31,8 +32,8 @@ body.booked_bookings_page_booked_plugin .settings-error code { display:block; ma
 #booked-admin-panel-container *:focus { box-shadow:none; outline:0; }
 #booked-admin-panel-container .booked-admin-tabs { list-style:none; margin:0; padding:0; background:#005f8c; }
 #booked-admin-panel-container .booked-admin-tabs li { float:left; display:inline-block; margin:0; padding:0; }
-#booked-admin-panel-container .booked-admin-tabs li a { display:block; color:#fff; background:rgba(0,0,0,0.25); text-decoration:none; padding:0 15px; line-height:40px; }
-#booked-admin-panel-container .booked-admin-tabs li a:hover { background:rgba(0,0,0,0.5); color:#fff; }
+#booked-admin-panel-container .booked-admin-tabs li a { display:block; color:#fff; background:#005f8c; text-decoration:none; padding:0 15px; line-height:40px; }
+#booked-admin-panel-container .booked-admin-tabs li a:hover { background:rgba(0,0,0,0.25); color:#fff; }
 #booked-admin-panel-container .booked-admin-tabs li.active a, #booked-admin-panel-container .booked-admin-tabs li.active a:hover { background:#0073AA; color:#fff; cursor:default; }
 #booked-admin-panel-container .booked-admin-tabs li a .savingState { opacity:0.5; }
 #booked-admin-panel-container .form-wrapper { background:transparent; }
@@ -86,13 +87,13 @@ h3.booked-ct-date-heading { padding: 0; margin: 0; font-size: 16px; line-height:
 
 /* CUSTOM FIELDS */
 #booked-cf-sortable-templates, #booked-cf-sortables { display:none; }
-#booked-admin-panel-container .booked-cf-block { padding:30px; background:#e5e5e5; border:2px dashed #ccc; border-radius:5px; }
+#booked-admin-panel-container .booked-cf-block { padding:30px; background:#f2f2f2; border:1px dashed #bbb; border-radius:10px; }
 #booked-admin-panel-container #booked-cf-sortables { margin:0 0 30px; padding:0; list-style:none; width:100%; }
-#booked-admin-panel-container #booked-cf-sortables li { position:relative; margin:0 0 2px; padding:20px; background:#fff; -moz-border-radius:3px; -webkit-border-radius:3px; border-radius:3px; }
+#booked-admin-panel-container #booked-cf-sortables li { box-shadow:0 4px 4px rgba(0,0,0,.02),0 8px 8px rgba(0,0,0,.02),0 32px 32px rgba(0,0,0,.02),0 64px 64px rgba(0,0,0,.02); position:relative; margin:0 0 2px; padding:20px; background:#fff; -moz-border-radius:5px; -webkit-border-radius:5px; border-radius:5px; }
 #booked-admin-panel-container #booked-cf-sortables li small { font-size:12px; font-weight:600; text-transform:uppercase; display:block; padding:0; margin:0 0 8px; color:#2EA2CC; }
 #booked-admin-panel-container #booked-cf-sortables li small.help-text { margin-left: 41px; padding: 5px 0 0 0; color: #aaa; text-transform: none; font-weight: 400; }
 #booked-admin-panel-container #booked-cf-sortables li i.main-handle, #booked-admin-panel-container #booked-cf-sortables li i.sub-handle { font-size: 20px; color: #888; display: block; float: left; margin: 1px 10px 0 -8px; width: 40px; height: 98px; line-height: 20px; text-align: center; cursor:move; cursor: -webkit-grab; }
-#booked-admin-panel-container #booked-cf-sortables li.ui-sortable-helper { box-shadow:1px 1px 10px rgba(0,0,0,0.15); }
+#booked-admin-panel-container #booked-cf-sortables li.ui-sortable-helper { box-shadow:0 4px 4px rgba(0,0,0,.05),0 8px 8px rgba(0,0,0,.05),0 32px 32px rgba(0,0,0,.05),0 64px 64px rgba(0,0,0,.05); }
 #booked-admin-panel-container #booked-cf-sortables input[type=text] { padding:7px 11px; font-size:13px; width:540px; }
 #booked-admin-panel-container #booked-cf-sortables textarea { padding:12px 15px; height:200px; font-size:15px; line-height:1.6; width:540px; color:#555; }
 #booked-admin-panel-container #booked-cf-sortables ul input[type=text] { width:475px; }
@@ -105,20 +106,25 @@ h3.booked-ct-date-heading { padding: 0; margin: 0; font-size: 16px; line-height:
 #booked-admin-panel-container #booked-cf-sortables ul, #booked-admin-panel-container #booked-cf-sortables button { display:block; margin:0 0 0 43px; }
 #booked-admin-panel-container #booked-cf-sortables ul li .cf-delete { right:auto; left:30px; top:18px; }
 #booked-admin-panel-container #booked-cf-sortables button { margin-top:10px; }
-#booked-admin-panel-container #booked-cf-sortables ul li { margin:0; padding:10px 0 0; background:none; -moz-border-radius:0; -webkit-border-radius:0; border-radius:0; width:541px; }
+#booked-admin-panel-container #booked-cf-sortables ul li { box-shadow:none; margin:0; padding:10px 0 0; background:none; -moz-border-radius:0; -webkit-border-radius:0; border-radius:0; width:541px; }
 #booked-admin-panel-container #booked-cf-sortables ul li i.sub-handle { font-size: 16px; margin: 1px 35px 0 -11px; height: 34px; line-height: 34px; }
 #booked-admin-panel-container #booked-cf-sortables ul li.ui-sortable-helper { box-shadow:none; }
 
+@media screen and (max-width:1060px){
+	.booked-settings-wrap {
+		margin: 0 0 0 -20px;
+		max-width: calc( 100% + 20px );
+		min-width: calc( 100% + 20px );
+		width: calc( 100% + 20px );
+	}
+}
 
+@media screen and (max-width:860px){
+	#booked-admin-panel-container .booked-admin-tabs li .booked-tab-text { display:none; }
+}
 
-@media screen and (max-width:720px){
-
-	#booked-admin-panel-container .form-wrapper { border-top:none; }
-	#booked-admin-panel-container .booked-admin-tabs { border-bottom:none; }
-	#booked-admin-panel-container .booked-admin-tabs li { float:none; display:block; margin:0; border-bottom:1px solid #0073AA; }
-	#booked-admin-panel-container .booked-admin-tabs li:last-child { border:none; }
-	#booked-admin-panel-container .booked-admin-tabs li a { text-align:center; -moz-border-radius:0; -webkit-border-radius:0; border-radius:0; }
-
+@media screen and (max-width:782px){
+	.booked-settings-wrap { margin:0 0 0 -10px; }
 }
 
 
@@ -229,25 +235,25 @@ table.booked-timeslots tbody .dayTimeslots { padding:10px; }
 #booked-timeslotsSwitcher select:active, #booked-timeslotsSwitcher select:focus { -moz-box-shadow:none; -webkit-box-shadow:none; box-shadow:none; }
 
 #bookedTimeslotsWrap { position:relative; overflow-x:auto; padding: 0 25px 16px 25px; margin:0 -25px; }
-#bookedTimeslotsWrap > table { z-index:98; position:relative; border-right:25px solid #f1f1f1; }
+#bookedTimeslotsWrap > table { z-index:98; position:relative; border-right:25px solid #ffffff; }
 #booked-defaults:after { z-index:99; content:""; width:25px; height:calc( 100% - 41px ); display:block; position:absolute; top:40px; right:15px; }
 #booked-defaults:before { z-index:99; content:""; width:25px; height:calc( 100% - 41px ); display:block; position:absolute; top:40px; left:15px; }
 #booked-defaults:after {
-	background-image: -webkit-gradient(linear, left center, right center, from(rgba(241,241,241, 0.00)), to(rgba(241,241,241, 1.00)));
-	background-image: -webkit-linear-gradient(left, rgba(241,241,241, 0.00), rgba(241,241,241, 1.00));
-	background-image: -moz-linear-gradient(left, rgba(241,241,241, 0.00), rgba(241,241,241, 1.00));
-	background-image: -o-linear-gradient(left, rgba(241,241,241, 0.00), rgba(241,241,241, 1.00));
-	background-image: -ms-linear-gradient(left, rgba(241,241,241, 0.00), rgba(241,241,241, 1.00));
-	background-image: linear-gradient(left, rgba(241,241,241, 0.00), rgba(241,241,241, 1.00));
+	background-image: -webkit-gradient(linear, left center, right center, from(rgba(255,255,255, 0.00)), to(rgba(255,255,255, 1.00)));
+	background-image: -webkit-linear-gradient(left, rgba(255,255,255, 0.00), rgba(255,255,255, 1.00));
+	background-image: -moz-linear-gradient(left, rgba(255,255,255, 0.00), rgba(255,255,255, 1.00));
+	background-image: -o-linear-gradient(left, rgba(255,255,255, 0.00), rgba(255,255,255, 1.00));
+	background-image: -ms-linear-gradient(left, rgba(255,255,255, 0.00), rgba(255,255,255, 1.00));
+	background-image: linear-gradient(left, rgba(255,255,255, 0.00), rgba(255,255,255, 1.00));
 }
 
 #booked-defaults:before {
-	background-image: -webkit-gradient(linear, left center, right center, from(rgba(241,241,241, 1.00)), to(rgba(241,241,241, 0.00)));
-	background-image: -webkit-linear-gradient(left, rgba(241,241,241, 1.00), rgba(241,241,241, 0.00));
-	background-image: -moz-linear-gradient(left, rgba(241,241,241, 1.00), rgba(241,241,241, 0.00));
-	background-image: -o-linear-gradient(left, rgba(241,241,241, 1.00), rgba(241,241,241, 0.00));
-	background-image: -ms-linear-gradient(left, rgba(241,241,241, 1.00), rgba(241,241,241, 0.00));
-	background-image: linear-gradient(left, rgba(241,241,241, 1.00), rgba(241,241,241, 0.00));
+	background-image: -webkit-gradient(linear, left center, right center, from(rgba(255,255,255, 1.00)), to(rgba(255,255,255, 0.00)));
+	background-image: -webkit-linear-gradient(left, rgba(255,255,255, 1.00), rgba(255,255,255, 0.00));
+	background-image: -moz-linear-gradient(left, rgba(255,255,255, 1.00), rgba(255,255,255, 0.00));
+	background-image: -o-linear-gradient(left, rgba(255,255,255, 1.00), rgba(255,255,255, 0.00));
+	background-image: -ms-linear-gradient(left, rgba(255,255,255, 1.00), rgba(255,255,255, 0.00));
+	background-image: linear-gradient(left, rgba(255,255,255, 1.00), rgba(255,255,255, 0.00));
 }
 
 
@@ -551,13 +557,16 @@ body .booked-modal .bm-window p.bm-title-bordered { border-top: 1px solid #ddd; 
 #booked-welcome-screen { padding:15px 50px 0 30px; position:relative; }
 #booked-welcome-screen .booked-badge { position:absolute; top:-3px; right:0; }
 #booked-welcome-screen .booked-badge img { border:none; width:150px; height:150px; display:block; margin:0; }
-#booked-welcome-screen .about-text { margin-bottom:40px; line-height:1.7rem; font-size:1rem; margin-right:470px; }
-#booked-welcome-screen .about-wrap { margin:25px auto 0; }
-#booked-welcome-screen .about-wrap h1 { margin-right:470px; font-size:2.2rem; }
-#booked-welcome-screen #welcome-panel { padding:30px 30px 30px 20px; -moz-border-radius:3px; -webkit-border-radius:3px; border-radius:3px; border-color:#ccc; box-shadow:0 1px 3px rgba(0,0,0,0.15); }
-#booked-welcome-screen #welcome-panel img.booked-welcome-banner { border:none; display:block; padding:0 0 30px 10px; width:100%; box-sizing:border-box; }
-#booked-welcome-screen .welcome-panel-content { margin-left:10px; }
-#booked-welcome-screen .welcome-panel-column h3 { margin:0 0 20px; position:relative; }
+#booked-welcome-screen .about-wrap { margin:25px auto 0; max-width:1000px; }
+#booked-welcome-screen #welcome-panel { padding:30px; -moz-border-radius:15px; -webkit-border-radius:15px; border-radius:15px; box-shadow:0 4px 4px rgba(0,0,0,.05),0 8px 8px rgba(0,0,0,.05),0 32px 32px rgba(0,0,0,.05),0 64px 64px rgba(0,0,0,.05); }
+#booked-welcome-screen #welcome-panel img.booked-welcome-banner { border:none; display:block; margin:0 0 30px 0; padding:0; width:100%; box-sizing:border-box; border-radius:5px 5px 0 0; }
+#booked-welcome-screen .welcome-panel-content { margin:0px; padding:10px 50px 20px; }
+#booked-welcome-screen .welcome-panel .welcome-panel-column-container { display:flex; }
+#booked-welcome-screen .welcome-panel-column { float:none; }
+#booked-welcome-screen .welcome-panel-intro { text-align: center; margin: 0 50px 2rem; padding: 15px 0; border-bottom: 1px solid #e5e5e5; }
+#booked-welcome-screen .welcome-panel-intro h1 { font-size: 1.75rem; margin: 0 0 1rem; padding: 0; font-weight:600; }
+#booked-welcome-screen .welcome-panel-intro p { max-width: 600px; font-size: 1.1rem; line-height: 1.8rem; margin: 0 auto 2rem; padding: 0; }
+#booked-welcome-screen .welcome-panel-column h3 { font-size:1.25rem; margin:0 0 20px; position:relative; }
 #booked-welcome-screen .welcome-panel-column h3 a { position:absolute; top:0; right:0; font-size:12px; font-weight:400; }
 #booked-welcome-screen .welcome-panel-column h3 a i.booked-icon { position:relative; top:1px; }
 #booked-welcome-screen .welcome-panel-column { box-sizing:border-box; padding-right:40px; }

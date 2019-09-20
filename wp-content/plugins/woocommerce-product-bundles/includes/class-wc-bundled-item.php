@@ -15,10 +15,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Bundled Item Product Container class.
  *
- * The bunded item class is a product container that initializes and holds pricing, availability and variation/attribute-related data of a bundled product.
+ * The bunded item class is a product container that initializes and holds pricing, availability and variation/attribute-related data for a bundled product.
  *
  * @class    WC_Bundled_Item
- * @version  5.10.1
+ * @version  5.13.0
  */
 class WC_Bundled_Item {
 
@@ -752,7 +752,7 @@ class WC_Bundled_Item {
 			$regular_price = $price;
 		}
 
-		$discount           = $this->get_discount();
+		$discount           = $this->get_discount( $context );
 		$bundled_item_price = empty( $discount ) ? $price : ( empty( $regular_price ) ? $regular_price : round( ( double ) $regular_price * ( 100 - $discount ) / 100, WC_PB_Product_Prices::get_discounted_price_precision() ) );
 
 		/**
@@ -762,8 +762,9 @@ class WC_Bundled_Item {
 		 * @param  WC_Product       $product
 		 * @param  mixed            $discount
 		 * @param  WC_Bundled_Item  $this
+		 * @param  string           $context
 		 */
-		$price = apply_filters( 'woocommerce_bundled_item_raw_price' . ( $context ? '_' . $context : '' ), $bundled_item_price, $product, $discount, $this );
+		$price = apply_filters( 'woocommerce_bundled_item_raw_price', $bundled_item_price, $product, $discount, $this, $context );
 
 		return $price;
 	}
@@ -1033,11 +1034,12 @@ class WC_Bundled_Item {
 	/**
 	 * Bundled item sale status.
 	 *
+	 * @param  string  $context
 	 * @return boolean
 	 */
-	public function is_on_sale() {
+	public function is_on_sale( $context = '' ) {
 
-		$discount = $this->get_discount();
+		$discount = $this->get_discount( $context );
 		$on_sale  = ! empty( $discount ) || $this->product->is_on_sale();
 
 		return $on_sale;
@@ -1353,6 +1355,10 @@ class WC_Bundled_Item {
 				if ( ! empty( $selected_product_attributes ) && $this->has_filtered_variations() ) {
 
 					$variation_attribute_values = array();
+
+					if ( empty( $this->product_variations ) && ! $this->use_ajax_for_product_variations() ) {
+						$this->get_product_variations();
+					}
 
 					if ( ! empty( $this->product_variations ) ) {
 						foreach ( $this->product_variations as $variation_data ) {
@@ -1841,16 +1847,17 @@ class WC_Bundled_Item {
 	/**
 	 * Item discount.
 	 *
+	 * @param  string  $context
 	 * @return double
 	 */
-	public function get_discount() {
+	public function get_discount( $context = '' ) {
 		/**
 		 * 'woocommerce_bundled_item_discount' filter.
 		 *
 		 * @param  mixed            $discount
 		 * @param  WC_Bundled_Item  $this
 		 */
-		return $this->is_priced_individually() ? apply_filters( 'woocommerce_bundled_item_discount', $this->discount, $this ) : '';
+		return $this->is_priced_individually() ? apply_filters( 'woocommerce_bundled_item_discount', $this->discount, $this, $context ) : '';
 	}
 
 	/**

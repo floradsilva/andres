@@ -22,10 +22,10 @@ class Booked_WC_Custom_Fields {
 	}
 
 	protected function admin_hooks() {
-		// add Paid Service Selector button
+		// add Product Selector button
 		add_action('booked_custom_fields_add_buttons', array($this, 'booked_custom_fields_add_buttons'));
 
-		// add Paid Service Selector button
+		// add Product Selector button
 		add_action('booked_custom_fields_add_template', array($this, 'booked_custom_fields_add_template'));
 
 		// add prepopulated template with options
@@ -37,12 +37,14 @@ class Booked_WC_Custom_Fields {
 	}
 
 	protected function front_end_hooks() {
+
 		// add prepopulated template with options
 		add_filter('booked_custom_fields_add_template_main', array($this, '_booked_custom_fields_add_template_main'), 10, 8);
 		add_filter('booked_custom_fields_add_template_subs', array($this, '_booked_custom_fields_add_template_subs'), 10, 7);
 
 		// close the html if the last field has type booked appointment
 		add_action('booked_custom_fields_add_template_subs_end', array($this, '_booked_custom_fields_add_template_subs_end'), 10, 2);
+
 	}
 
 	public static function setup() {
@@ -95,8 +97,8 @@ class Booked_WC_Custom_Fields {
 
 		if ( $field_type==='single-paid-service' ):
 			$reset_subs = false;
-			$template_path = Booked_WC_Fragments::get_path('booked-frontend-fields/templates-subs');
-			include($template_path);
+			$template_path = Booked_WC_Fragments::get_path( 'booked-frontend-fields/templates-subs' );
+			include( $template_path );
 		elseif ( $look_for_subs==='paid-service' ):
 			$this->_booked_custom_fields_add_template_subs_end($field_type, $look_for_subs);
 		endif;
@@ -105,7 +107,7 @@ class Booked_WC_Custom_Fields {
 	}
 
 	public function _booked_custom_fields_add_template_main($default_return=false, $field_type='', $name='', $value='', $is_required=false, $look_for_subs='', $numbers_only=0, $data_attributes='') {
-		if ( $field_type==='paid-service-label' ):
+		if ( $field_type === 'paid-service-label' ):
 			$template_path = Booked_WC_Fragments::get_path('booked-frontend-fields/templates-main');
 			include($template_path);
 			$look_for_subs = 'paid-service';

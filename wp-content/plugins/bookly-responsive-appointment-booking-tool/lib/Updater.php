@@ -7,11 +7,43 @@ namespace Bookly\Lib;
  */
 class Updater extends Base\Updater
 {
-    function update_16_9()
+    function update_17_5()
     {
         /** @global \wpdb $wpdb */
         global $wpdb;
 
+        $minutes = (int) get_option( 'bookly_gen_time_slot_length' );
+        if ( $minutes > 0 ) {
+            $wpdb->query( 'UPDATE `' . $this->getTableName( 'bookly_appointments' ) . '` SET end_date = DATE_ADD(start_date, INTERVAL ' . $minutes . ' MINUTE) WHERE start_date > end_date AND start_date IS NOT NULL AND end_date IS NOT NULL' );
+        }
+    }
+
+    function update_17_3()
+    {
+        $this->upgradeCharsetCollate( array(
+            'bookly_appointments',
+            'bookly_categories',
+            'bookly_customer_appointments',
+            'bookly_customers',
+            'bookly_holidays',
+            'bookly_messages',
+            'bookly_notifications',
+            'bookly_payments',
+            'bookly_schedule_item_breaks',
+            'bookly_sent_notifications',
+            'bookly_series',
+            'bookly_services',
+            'bookly_shop',
+            'bookly_staff',
+            'bookly_staff_schedule_items',
+            'bookly_staff_services',
+            'bookly_stats',
+            'bookly_sub_services',
+        ) );
+    }
+
+    function update_16_9()
+    {
         $this->alterTables( array(
             'bookly_staff' => array(
                 'ALTER TABLE `%s` ADD COLUMN `outlook_data` TEXT DEFAULT NULL AFTER `google_data`',
@@ -27,7 +59,6 @@ class Updater extends Base\Updater
 
     function update_16_8()
     {
-        /** @global \wpdb $wpdb */
         global $wpdb;
 
         $self = $this;

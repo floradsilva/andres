@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Product Bundle Class.
  *
  * @class    WC_Product_Bundle
- * @version  5.10.2
+ * @version  5.13.0
  */
 class WC_Product_Bundle extends WC_Product {
 
@@ -80,6 +80,11 @@ class WC_Product_Bundle extends WC_Product {
 	 * @var array
 	 */
 	private $bundle_price_cache = array();
+
+	/**
+	 * Bundle object instance context.
+	 */
+	private $object_context = '';
 
 	/**
 	 * Storage of 'contains' keys, most set during sync.
@@ -1183,7 +1188,7 @@ class WC_Product_Bundle extends WC_Product {
 	 */
 	public function add_to_cart_url() {
 
-		$url = esc_url( $this->is_purchasable() && $this->is_in_stock() && ! $this->requires_input() ? remove_query_arg( 'added-to-cart', add_query_arg( 'add-to-cart', $this->get_id() ) ) : get_permalink( $this->get_id() ) );
+		$url = $this->is_purchasable() && $this->is_in_stock() && ! $this->has_options() ? remove_query_arg( 'added-to-cart', add_query_arg( 'add-to-cart', $this->get_id() ) ) : get_permalink( $this->get_id() );
 
 		/** WC core filter. */
 		return apply_filters( 'woocommerce_product_add_to_cart_url', $url, $this );
@@ -1200,7 +1205,7 @@ class WC_Product_Bundle extends WC_Product {
 
 		if ( $this->is_purchasable() && $this->is_in_stock() ) {
 
-			if ( $this->requires_input() ) {
+			if ( $this->has_options() ) {
 				$text =  __( 'Select options', 'woocommerce' );
 			} else {
 				$text =  __( 'Add to cart', 'woocommerce' );
@@ -2044,7 +2049,7 @@ class WC_Product_Bundle extends WC_Product {
 
 		$is_on_sale = false;
 
-		if ( 'update-price' !== $context && $this->contains( 'priced_individually' ) ) {
+		if ( 'update-price' !== $context && $this->contains( 'priced_individually' ) && 'cart' !== $this->get_object_context() ) {
 			$is_on_sale = parent::is_on_sale( $context ) || ( $this->contains( 'discounted_mandatory' ) && $this->get_min_raw_regular_price( $context ) > 0 );
 		} else {
 			$is_on_sale = parent::is_on_sale( $context );
@@ -2057,6 +2062,28 @@ class WC_Product_Bundle extends WC_Product {
 		 * @param  WC_Product_Bundle  $this
 		 */
 		return 'view' === $context ? apply_filters( 'woocommerce_product_is_on_sale', $is_on_sale, $this ) : $is_on_sale;
+	}
+
+	/**
+	 * Sets Bundle object instance context.
+	 *
+	 * @since 5.13.0
+	 *
+	 * @param string $context
+	 */
+	public function set_object_context( $context ) {
+		$this->object_context = $context;
+	}
+
+	/**
+	 * Retrieves Bundle object instance context.
+	 *
+	 * @since 5.13.0
+	 *
+	 * @return string
+	 */
+	public function get_object_context() {
+		return $this->object_context;
 	}
 
 	/**
@@ -2222,6 +2249,17 @@ class WC_Product_Bundle extends WC_Product {
 		return apply_filters( 'woocommerce_bundle_requires_input', $requires_input, $this );
 	}
 
+	/**
+	 * Returns whether or not the product has additional options that must be selected before adding to cart.
+	 *
+	 * @since  5.12.0
+	 *
+	 * @return boolean
+	 */
+	public function has_options() {
+		return $this->requires_input();
+	}
+
 	/*
 	|--------------------------------------------------------------------------
 	| Other CRUD Methods
@@ -2355,8 +2393,8 @@ class WC_Product_Bundle extends WC_Product {
 				'description' => __( 'The add-to-cart form is displayed inside the single-product summary.', 'woocommerce-product-bundles' )
 			),
 			'after_summary' => array(
-				'title'       => __( 'After summary', 'woocommerce-product-bundles' ),
-				'description' => __( 'The add-to-cart form is displayed after the single-product summary. Usually allocates the entire page width for displaying form content. Note that some themes may not support this option.', 'woocommerce-product-bundles' )
+				'title'       => __( 'Before Tabs', 'woocommerce-product-bundles' ),
+				'description' => __( 'The add-to-cart form is displayed before the single-product tabs. Usually allocates the entire page width for displaying form content. Note that some themes may not support this option.', 'woocommerce-product-bundles' )
 			)
 		);
 

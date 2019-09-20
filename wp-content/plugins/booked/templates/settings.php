@@ -1,4 +1,5 @@
-<div class="wrap booked-settings-wrap"><?php
+<div class="booked-settings-prewrap">
+	<div class="wrap booked-settings-wrap"><?php
 
 	if (get_transient('booked_show_new_tags',false)):
 		$show_new_tags = true;
@@ -42,7 +43,7 @@
 
 		<div class="topSavingState savingState"><i class="booked-icon booked-icon-spinner-clock booked-icon-spin"></i>&nbsp;&nbsp;<?php esc_html_e('Updating, please wait...','booked'); ?></div>
 
-		<div class="booked-settings-title"><?php echo esc_html__('Appointment Settings','booked'); ?></div>
+		<div class="booked-settings-title"><?php echo esc_html__('Booked Settings','booked'); ?></div>
 
 		<div id="booked-admin-panel-container">
 
@@ -50,31 +51,31 @@
 				array(
 					'access' => 'admin',
 					'slug' => 'general',
-					'content' => '<i class="booked-icon booked-icon-gear"></i>&nbsp;&nbsp;'.esc_html__('General','booked')),
+					'content' => '<i class="booked-icon booked-icon-gear"></i><span class="booked-tab-text">&nbsp;&nbsp;'.esc_html__('General','booked') . '</span>' ),
 				array(
 					'access' => 'agent',
 					'slug' => 'defaults',
-					'content' => '<i class="booked-icon booked-icon-clock"></i>&nbsp;&nbsp;'.esc_html__('Time Slots','booked').'<span class="savingState">&nbsp;&nbsp;&nbsp;<i class="booked-icon booked-icon-spinner-clock booked-icon-spin"></i></span>'),
+					'content' => '<i class="booked-icon booked-icon-clock"></i><span class="booked-tab-text">&nbsp;&nbsp;'.esc_html__('Time Slots','booked') . '</span><span class="savingState">&nbsp;&nbsp;&nbsp;<i class="booked-icon booked-icon-spinner-clock booked-icon-spin"></i></span>'),
 				array(
 					'access' => 'agent',
 					'slug' => 'custom-timeslots',
-					'content' => '<i class="booked-icon booked-icon-clock"></i>&nbsp;&nbsp;'.esc_html__('Custom Time Slots','booked').'<span class="savingState">&nbsp;&nbsp;&nbsp;<i class="booked-icon booked-icon-spinner-clock booked-icon-spin"></i></span>'),
+					'content' => '<i class="booked-icon booked-icon-clock"></i><span class="booked-tab-text">&nbsp;&nbsp;'.esc_html__('Custom Time Slots','booked') . '</span><span class="savingState">&nbsp;&nbsp;&nbsp;<i class="booked-icon booked-icon-spinner-clock booked-icon-spin"></i></span>'),
 				array(
 					'access' => 'agent',
 					'slug' => 'custom-fields',
-					'content' => '<i class="booked-icon booked-icon-pencil"></i>&nbsp;&nbsp;'.esc_html__('Custom Fields','booked')),
+					'content' => '<i class="booked-icon booked-icon-pencil"></i><span class="booked-tab-text">&nbsp;&nbsp;'.esc_html__('Custom Fields','booked') . '</span>'),
 				array(
 					'access' => 'admin',
 					'slug' => 'email-settings',
-					'content' => '<i class="booked-icon booked-icon-email"></i>&nbsp;&nbsp;'.esc_html__('Emails','booked')),
+					'content' => '<i class="booked-icon booked-icon-email"></i><span class="booked-tab-text">&nbsp;&nbsp;'.esc_html__('Emails','booked') . '</span>'),
 				array(
 					'access' => 'admin',
 					'slug' => 'export-appointments',
-					'content' => '<i class="booked-icon booked-icon-sign-out"></i>&nbsp;&nbsp;'.esc_html__('Export','booked')),
+					'content' => '<i class="booked-icon booked-icon-sign-out"></i><span class="booked-tab-text">&nbsp;&nbsp;'.esc_html__('Export','booked') . '</span>'),
 				array(
 					'access' => 'admin',
 					'slug' => 'shortcodes',
-					'content' => '<i class="booked-icon booked-icon-code"></i>&nbsp;&nbsp;'.esc_html__('Shortcodes','booked')),
+					'content' => '<i class="booked-icon booked-icon-code"></i><span class="booked-tab-text">&nbsp;&nbsp;'.esc_html__('Shortcodes','booked') . '</span>'),
 			));
 
 			$tab_counter = 1;
@@ -1371,7 +1372,7 @@ Time: %time%
 										</div>
 
 										<div class="section-row submit-section bookedClearFix" style="padding:0;">
-											<button class="button addCustomTimeslot"><i class="booked-icon booked-icon-plus"></i>&nbsp;&nbsp;<?php esc_html_e('Add Date(s)','booked'); ?></button>
+											<button class="button addCustomTimeslot"><?php esc_html_e('Add Date(s)','booked'); ?></button>
 											<input id="booked-saveCustomTimeslots" type="button" disabled="true" class="button saveCustomTimeslots" value="<?php esc_html_e('Save Custom Time Slots','booked'); ?>">
 											<div class="cts-updater savingState"><i class="booked-icon booked-icon-spinner-clock booked-icon-spin"></i>&nbsp;&nbsp;<?php esc_html_e('Saving','booked'); ?>...</div>
 										</div><!-- /.section-row -->
@@ -1494,7 +1495,7 @@ Time: %time%
 													<p><input class="cf-required-checkbox" type="checkbox" name="required" id="required"> <label for="required"><?php esc_html_e('Required Field','booked'); ?></label></p>
 													<input type="text" name="checkboxes-label" value="" placeholder="<?php esc_html_e('Enter a label for this checkbox group...','booked'); ?>" />
 													<ul id="booked-cf-checkboxes"></ul>
-													<button class="cfButton button" data-type="single-checkbox"><i class="booked-icon booked-icon-plus"></i>&nbsp;&nbsp;<?php esc_html_e('Checkbox','booked'); ?></button>
+													<button class="cfButton button" data-type="single-checkbox">+ <?php esc_html_e('Checkbox','booked'); ?></button>
 													<span class="cf-delete"><i class="booked-icon booked-icon-close"></i></span>
 												</li>
 												<li id="bookedCFTemplate-radio-buttons-label" class="ui-state-default"><i class="main-handle booked-icon booked-icon-bars"></i>
@@ -1502,7 +1503,7 @@ Time: %time%
 													<p><input class="cf-required-checkbox" type="checkbox" name="required" id="required"> <label for="required"><?php esc_html_e('Required Field','booked'); ?></label></p>
 													<input type="text" name="radio-buttons-label" value="" placeholder="<?php esc_html_e('Enter a label for this radio button group...','booked'); ?>" />
 													<ul id="booked-cf-radio-buttons"></ul>
-													<button class="cfButton button" data-type="single-radio-button"><i class="booked-icon booked-icon-plus"></i>&nbsp;&nbsp;<?php esc_html_e('Radio Button','booked'); ?></button>
+													<button class="cfButton button" data-type="single-radio-button">+ <?php esc_html_e('Option','booked'); ?></button>
 													<span class="cf-delete"><i class="booked-icon booked-icon-close"></i></span>
 												</li>
 												<li id="bookedCFTemplate-drop-down-label" class="ui-state-default"><i class="main-handle booked-icon booked-icon-bars"></i>
@@ -1510,7 +1511,7 @@ Time: %time%
 													<p><input class="cf-required-checkbox" type="checkbox" name="required" id="required"> <label for="required"><?php esc_html_e('Required Field','booked'); ?></label></p>
 													<input type="text" name="drop-down-label" value="" placeholder="<?php esc_html_e('Enter a label for this drop-down group...','booked'); ?>" />
 													<ul id="booked-cf-drop-down"></ul>
-													<button class="cfButton button" data-type="single-drop-down"><i class="booked-icon booked-icon-plus"></i>&nbsp;&nbsp;<?php esc_html_e('Option','booked'); ?></button>
+													<button class="cfButton button" data-type="single-drop-down">+ <?php esc_html_e('Option','booked'); ?></button>
 													<span class="cf-delete"><i class="booked-icon booked-icon-close"></i></span>
 												</li>
 												<li id="bookedCFTemplate-plain-text-content" class="ui-state-default"><i class="main-handle booked-icon booked-icon-bars"></i>
@@ -1695,4 +1696,5 @@ Time: %time%
 
 	<?php endif; ?>
 
+	</div>
 </div>

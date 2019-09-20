@@ -197,7 +197,7 @@ jQuery(function($) {
         var ladda = Ladda.create(this);
         ladda.start();
         var $form = $(this).parents('form');
-        $form.bookly_sms_administrator_phone = BooklyL10n.intlTelInput.enabled ? $phone_input.intlTelInput('getNumber') : $phone_input.val();
+        $form.bookly_sms_administrator_phone = getPhoneNumber();
         $form.submit();
     });
     $('#send_test_sms').on('click', function (e) {
@@ -207,7 +207,7 @@ jQuery(function($) {
             data        : {
                 action: 'bookly_send_test_sms',
                 csrf_token : BooklyL10n.csrfToken,
-                phone_number: BooklyL10n.intlTelInput.enabled ? $phone_input.intlTelInput('getNumber') : $phone_input.val() },
+                phone_number: getPhoneNumber() },
             dataType    : 'json',
             xhrFields   : { withCredentials: true },
             crossDomain : 'withCredentials' in new XMLHttpRequest(),
@@ -262,29 +262,29 @@ jQuery(function($) {
      * Date range pickers options.
      */
     var picker_ranges = {};
-    picker_ranges[BooklyL10n.yesterday]  = [moment().subtract(1, 'days'), moment().subtract(1, 'days')];
-    picker_ranges[BooklyL10n.today]      = [moment(), moment()];
-    picker_ranges[BooklyL10n.last_7]     = [moment().subtract(7, 'days'), moment()];
-    picker_ranges[BooklyL10n.last_30]    = [moment().subtract(30, 'days'), moment()];
-    picker_ranges[BooklyL10n.this_month] = [moment().startOf('month'), moment().endOf('month')];
-    picker_ranges[BooklyL10n.last_month] = [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')];
+    picker_ranges[BooklyL10n.dateRange.yesterday] = [moment().subtract(1, 'days'), moment().subtract(1, 'days')];
+    picker_ranges[BooklyL10n.dateRange.today]     = [moment(), moment()];
+    picker_ranges[BooklyL10n.dateRange.last_7]    = [moment().subtract(7, 'days'), moment()];
+    picker_ranges[BooklyL10n.dateRange.last_30]   = [moment().subtract(30, 'days'), moment()];
+    picker_ranges[BooklyL10n.dateRange.thisMonth] = [moment().startOf('month'), moment().endOf('month')];
+    picker_ranges[BooklyL10n.dateRange.lastMonth] = [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')];
     moment.locale('en', {
-        months       : BooklyL10n.calendar.longMonths,
-        monthsShort  : BooklyL10n.calendar.shortMonths,
-        weekdays     : BooklyL10n.calendar.longDays,
-        weekdaysShort: BooklyL10n.calendar.shortDays,
-        weekdaysMin  : BooklyL10n.calendar.shortDays
+        months       : BooklyL10n.datePicker.monthNames,
+        monthsShort  : BooklyL10n.datePicker.monthNamesShort,
+        weekdays     : BooklyL10n.datePicker.dayNames,
+        weekdaysShort: BooklyL10n.datePicker.dayNamesShort,
+        weekdaysMin  : BooklyL10n.datePicker.dayNamesMin
     });
     var locale = {
-        applyLabel      : BooklyL10n.apply,
-        cancelLabel     : BooklyL10n.cancel,
-        fromLabel       : BooklyL10n.from,
-        toLabel         : BooklyL10n.to,
-        customRangeLabel: BooklyL10n.custom_range,
-        daysOfWeek      : BooklyL10n.calendar.shortDays,
-        monthNames      : BooklyL10n.calendar.longMonths,
-        firstDay        : parseInt(BooklyL10n.startOfWeek),
-        format          : BooklyL10n.mjsDateFormat
+        applyLabel      : BooklyL10n.dateRange.apply,
+        cancelLabel     : BooklyL10n.dateRange.cancel,
+        fromLabel       : BooklyL10n.dateRange.from,
+        toLabel         : BooklyL10n.dateRange.to,
+        customRangeLabel: BooklyL10n.dateRange.custom_range,
+        daysOfWeek      : BooklyL10n.datePicker.dayNamesShort,
+        monthNames      : BooklyL10n.datePicker.monthNames,
+        firstDay        : parseInt(BooklyL10n.dateRange.firstDay),
+        format          : BooklyL10n.dateRange.dateFormat
     };
 
     /**
@@ -304,7 +304,7 @@ jQuery(function($) {
                 $date_range
                     .data('date', start.format(format) + ' - ' + end.format(format))
                     .find('span')
-                    .html(start.format(BooklyL10n.mjsDateFormat) + ' - ' + end.format(BooklyL10n.mjsDateFormat));
+                    .html(start.format(BooklyL10n.dateRange.dateFormat) + ' - ' + end.format(BooklyL10n.dateRange.dateFormat));
             }
         );
         var dt = $('#bookly-purchases').DataTable({
@@ -377,7 +377,7 @@ jQuery(function($) {
                 $date_range
                     .data('date', start.format(format) + ' - ' + end.format(format))
                     .find('span')
-                    .html(start.format(BooklyL10n.mjsDateFormat) + ' - ' + end.format(BooklyL10n.mjsDateFormat));
+                    .html(start.format(BooklyL10n.dateRange.dateFormat) + ' - ' + end.format(BooklyL10n.dateRange.dateFormat));
             }
         );
         var dt = $('#bookly-sms').DataTable({
@@ -435,7 +435,7 @@ jQuery(function($) {
                 method: 'POST',
                 data: {
                     action: 'bookly_save_administrator_phone',
-                    bookly_sms_administrator_phone: BooklyL10n.intlTelInput.enabled ? $phone_input.intlTelInput('getNumber') : $phone_input.val(),
+                    bookly_sms_administrator_phone: getPhoneNumber(),
                     csrf_token: BooklyL10n.csrfToken
                 },
                 success: function (response) {
@@ -488,6 +488,20 @@ jQuery(function($) {
                 processing:  BooklyL10n.processing
             }
         });
+    }
+
+    function getPhoneNumber() {
+        var phone_number;
+        try {
+            phone_number = BooklyL10n.intlTelInput.enabled ? $phone_input.intlTelInput('getNumber') : $phone_input.val();
+            if (phone_number == '') {
+                phone_number = $phone_input.val();
+            }
+        } catch (error) {  // In case when intlTelInput can't return phone number.
+            phone_number = $phone_input.val();
+        }
+
+        return phone_number;
     }
 
     /**

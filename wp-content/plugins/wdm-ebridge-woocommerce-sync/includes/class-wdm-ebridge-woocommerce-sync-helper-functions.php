@@ -94,12 +94,6 @@ if ( ! class_exists( 'Wews_Helper_Functions' ) ) {
 
 				$deleted = delete_option( 'product_' . $sku );
 
-				if ( $deleted ) {
-					echo '<pre>';
-					print_r( $sku );
-					echo '</pre>';
-				}
-
 				$product->delete( true );
 
 				if ( $parent_id = wp_get_post_parent_id( $product_id ) ) {

@@ -6,8 +6,8 @@
  * @package WooCommerce/Interface
  */
 
-if (! defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 /**
@@ -17,14 +17,13 @@ if (! defined('ABSPATH')) {
  *
  * @version  3.0.0
  */
-interface WC_Order_Item_Product_Data_Store_Interface
-{
-    /**
-     * Get a list of download IDs for a specific item from an order.
-     *
-     * @param WC_Order_Item $item Item object.
-     * @param WC_Order      $order Order object.
-     * @return array
-     */
-    public function get_download_ids($item, $order);
+interface WC_Order_Item_Product_Data_Store_Interface {
+	/**
+	 * Get a list of download IDs for a specific item from an order.
+	 *
+	 * @param WC_Order_Item $item Item object.
+	 * @param WC_Order      $order Order object.
+	 * @return array
+	 */
+	public function get_download_ids( $item, $order );
 }

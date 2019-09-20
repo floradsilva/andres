@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Product Bundle cart functions and filters.
  *
  * @class    WC_PB_Cart
- * @version  5.10.0
+ * @version  5.13.0
  */
 class WC_PB_Cart {
 
@@ -103,7 +103,11 @@ class WC_PB_Cart {
 
 		// Sync quantities of bundled items with bundle quantity.
 		add_action( 'woocommerce_after_cart_item_quantity_update', array( $this, 'update_quantity_in_cart' ), 1, 2 );
-		add_action( 'woocommerce_before_cart_item_quantity_zero', array( $this, 'update_quantity_in_cart' ), 1 );
+
+		// Ignore 'woocommerce_before_cart_item_quantity_zero' action under WC 3.7+.
+		if ( ! WC_PB_Core_Compatibility::is_wc_version_gte( '3.7' ) ) {
+			add_action( 'woocommerce_before_cart_item_quantity_zero', array( $this, 'update_quantity_in_cart' ), 1 );
+		}
 
 		// Remove bundled items on removing parent item.
 		add_action( 'woocommerce_remove_cart_item', array( $this, 'cart_item_remove' ), 10, 2 );
@@ -118,7 +122,7 @@ class WC_PB_Cart {
 		add_action( 'woocommerce_subscription_cart_after_grouping', array( $this, 'remove_subcription_filter' ) );
 
 		// "Sold Individually" context support under WC 3.5+.
-		if ( WC_PB_Core_Compatibility::is_wc_version_gte( '3.5.' ) ) {
+		if ( WC_PB_Core_Compatibility::is_wc_version_gte( '3.5' ) ) {
 			add_filter( 'woocommerce_add_to_cart_sold_individually_found_in_cart', array( $this, 'sold_individually_found_in_cart' ), 10, 4 );
 		}
 	}
@@ -765,10 +769,13 @@ class WC_PB_Cart {
 
 			} catch ( Exception $e ) {
 
-				$notice = $e->getMessage();
+				if ( ! WC_PB_Core_Compatibility::is_rest_api_request() ) {
 
-				if ( $notice ) {
-					wc_add_notice( $notice, 'error' );
+					$notice = $e->getMessage();
+
+					if ( $notice ) {
+						wc_add_notice( $notice, 'error' );
+					}
 				}
 
 				$is_configuration_valid = false;
@@ -837,7 +844,12 @@ class WC_PB_Cart {
 				}
 
 			} else {
+
 				$cart_item[ 'data' ]->set_price( $bundled_item->get_raw_price( $cart_item[ 'data' ], 'cart' ) );
+
+				if ( $bundled_item->is_on_sale( 'cart' ) ) {
+					$cart_item[ 'data' ]->set_sale_price( $cart_item[ 'data' ]->get_price( 'edit' ) );
+				}
 			}
 
 			if ( $bundled_item->has_title_override() ) {
@@ -903,6 +915,8 @@ class WC_PB_Cart {
 	private function set_bundle_container_cart_item( $cart_item ) {
 
 		$bundle = $cart_item[ 'data' ];
+
+		$bundle->set_object_context( 'cart' );
 
 		/**
 		 * 'woocommerce_bundle_container_cart_item' filter.

@@ -26,10 +26,10 @@ class Booked_WC_Product {
 
 	public static function get( $post_id = null ) {
 
-		if ( !is_integer($post_id) ) {
+		if ( !is_integer( $post_id ) ) {
 			$message = sprintf( __('%s integer expected when %s given.', 'booked-woocommerce-payments'), 'Booked_WC_Product::get($post_id)', gettype($post_id) );
 			throw new Exception($message);
-		} else if ( $post_id===0 ) {
+		} else if ( $post_id === 0 ) {
 			self::$products[$post_id] = false;
 		} else if ( !isset(self::$products[$post_id]) ) {
 			self::$products[$post_id] = new self($post_id);
@@ -73,22 +73,22 @@ class Booked_WC_Product {
 		$booked_wc_currency_position = get_option( 'woocommerce_currency_pos','left' );
 
 		if ( $this->type === 'variable' ) {
-			$this->title = $this->data->post->post_title;
+			$this->title = $this->data->get_name();
 		} else {
 			$this_price = ( $this->data->get_price() ? $this->data->get_price() : '0' );
-			echo '<!-- ' . $this->data->post->post_title . ' -->';
+			echo '<!-- ' . $this->data->get_name() . ' -->';
 			switch ( $booked_wc_currency_position ) {
 				case 'left' :
-					$this->title = $booked_wc_currency_symbol . $this_price . ' - ' . $this->data->post->post_title;
+					$this->title = $booked_wc_currency_symbol . $this_price . ' - ' . $this->data->get_name();
 				break;
 				case 'right' :
-				 	$this->title = $this_price . $booked_wc_currency_symbol . ' - ' . $this->data->post->post_title;
+				 	$this->title = $this_price . $booked_wc_currency_symbol . ' - ' . $this->data->get_name();
 				break;
 				case 'left_space' :
-				  	$this->title = $booked_wc_currency_symbol . ' ' . $this_price . ' - ' . $this->data->post->post_title;
+				  	$this->title = $booked_wc_currency_symbol . ' ' . $this_price . ' - ' . $this->data->get_name();
 				break;
 				case 'right_space' :
-				  	$this->title = $this_price . ' ' . $booked_wc_currency_symbol . ' - ' . $this->data->post->post_title;
+				  	$this->title = $this_price . ' ' . $booked_wc_currency_symbol . ' - ' . $this->data->get_name();
 				break;
 			}
 		}

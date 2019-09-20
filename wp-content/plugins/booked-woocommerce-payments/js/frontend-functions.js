@@ -4,7 +4,7 @@
 	var $field_container;
 
 	$doc.ready(function() {
-			
+
 		$(document).on("booked-on-new-app", function(event) {
 			$field_container = $('.field.field-paid-service');
 			booked_wc_products_field($field_container);
@@ -17,7 +17,7 @@
 		$(document).on("booked-before-loading-calendar-booking-options", function(event) {
 			booked_wc_change_calendar_loading_paramenters();
 		});
-		
+
 		$(document).on("booked-before-loading-booking-form", function(event) {
 			booked_wc_change_booking_form_paramenters();
 		});
@@ -25,12 +25,21 @@
 		$(document).on("booked-on-requested-appointment", function(event,redirectObj) {
 			redirectObj.redirect = booked_wc_redirect_to_checkout_if_product_option();
 		});
-		
+
 	});
 
 	function booked_wc_products_field(field_container) {
 
 		var $dropdown = $('select', field_container);
+
+		if ( $dropdown.find( 'option' ).length < 3 ){
+			$dropdown.find( 'option:first-child' ).remove();
+			var calendar_id = parseInt( $dropdown.data('calendar-id') ),
+				product_id = $dropdown.val(),
+				field_name = $dropdown.attr('name'),
+				$variations_container = $dropdown.parent().find('.paid-variations');
+				booked_wc_load_variations(product_id, field_name, calendar_id, $variations_container);
+		}
 
 		$dropdown.on('change', function() {
 			var $this = $(this),
@@ -75,13 +84,13 @@
 			var $button = $(this),
 				appt_id = $button.attr('data-appt-id'),
 				calendar_link = $button.attr('data-app-calendar');
-				
+
 			if (booked_wc_variables.i18n_confirm_appt_edit){
 				confirm_edit = confirm(booked_wc_variables.i18n_confirm_appt_edit);
 			} else {
 				confirm_edit = true;
 			}
-			
+
 			if ( confirm_edit === true ) {
 				window.location.href = calendar_link;
 			}
@@ -120,7 +129,7 @@
 	}
 
 	function booked_wc_change_calendar_loading_paramenters() {
-		
+
 		if ( !booked_load_calendar_date_booking_options ) {
 			return;
 		};
@@ -140,9 +149,9 @@
 				booked_load_calendar_date_booking_options[name] = value;
 			}
 		};
-		
+
 	}
-	
+
 	function booked_wc_change_booking_form_paramenters() {
 		if ( !booked_appt_form_options ) {
 			return;
@@ -163,11 +172,11 @@
 				booked_appt_form_options[name] = value;
 			}
 		};
-		
+
 	}
 
 	function booked_wc_redirect_to_checkout_if_product_option() {
-		
+
 		var redirect = false,
 			$form = $('form#newAppointmentForm');
 
@@ -187,22 +196,22 @@
 			window.location = booked_wc_variables.checkout_page;
 			return true;
 		}
-		
+
 		return false;
-		
+
 	}
 
 	function booked_wc_btn_edit_appointment_popup_app() {
-		
+
 		$doc.on('click', '.booked-form input#submit-edit-request-appointment', function(e){
-			
+
 			var $thisButton = $(this);
-			
+
 			$('form#newAppointmentForm p.status').show().html('<i class="booked-icon booked-icon-spinner-clock booked-icon-spin"></i>&nbsp;&nbsp;&nbsp;' + booked_js_vars.i18n_please_wait);
 	        resize_booked_modal();
-			
+
 			e.preventDefault();
-			
+
 			$.ajax({
 				type	: 'post',
 				url 	: booked_js_vars.ajax_url,
@@ -227,7 +236,7 @@
 						resize_booked_modal();
 
 					} else {
-						
+
 						window.location = booked_js_vars.profilePage
 
 					}
@@ -235,7 +244,7 @@
 				}
 			});
 		});
-		
+
 	}
 
 })(jQuery, window, document);

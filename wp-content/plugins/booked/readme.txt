@@ -1,12 +1,17 @@
 === Booked Classic ===
 Tags: appointment, appointments
 Requires at least: 4.7
-Tested up to: 5.1.1
-Requires PHP: 7.0
+Tested up to: 5.2.1
+Requires PHP: 5.6
 
 Powerful appointment booking made simple.
 
 == Changelog ==
+
+= 2.2.5 =
+* **NEW:** Admin screens design refresh.
+* **FIX:** Fixed the broken documentation links on the What's New page.
+* **FIX:** Minor bug fixes
 
 = 2.2.4 =
 * **FIX:** XSS Vulnerability Fixes

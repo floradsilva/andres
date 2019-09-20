@@ -56,11 +56,11 @@ use Bookly\Lib\Entities\CustomerAppointment;
                                     <div class="col-sm-4">
                                         <label for="bookly-date"><?php esc_html_e( 'Date', 'bookly' ) ?></label>
                                         <input id="bookly-date" class="form-control" type=text
-                                               ng-model=form.date ui-date="dateOptions" autocomplete="off"
+                                               ng-model=form.date ui-date="datePickerOptions" autocomplete="off"
                                                ng-change=onDateChange()>
                                     </div>
                                     <div class="col-sm-8">
-                                        <div ng-hide="form.service.duration >= 86400">
+                                        <div ng-hide="form.service.duration >= 86400 && form.service.units_max == 1">
                                             <label for="bookly-period"><?php esc_html_e( 'Period', 'bookly' ) ?></label>
                                             <div class="bookly-flexbox">
                                                 <div class="bookly-flex-cell">

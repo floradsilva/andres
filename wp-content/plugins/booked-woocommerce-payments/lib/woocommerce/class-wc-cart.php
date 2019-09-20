@@ -152,6 +152,7 @@ class Booked_WC_Cart_Hooks {
 	    $booked_first_name = $woocommerce->session->get( 'booked_first_name' );
 	    $booked_last_name = $woocommerce->session->get( 'booked_last_name' );
 	    $booked_email = $woocommerce->session->get( 'booked_email' );
+
 	    if(!is_null($booked_first_name)):
 	    	$fields['billing']['billing_first_name']['default'] = $booked_first_name;
 	    endif;

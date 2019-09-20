@@ -1,4 +1,5 @@
-<div class="booked-settings-wrap wrap"><?php
+<div class="booked-settings-prewrap">
+	<div class="booked-settings-wrap wrap"><?php
 
 	$calendars = get_terms('booked_custom_calendars','orderby=slug&hide_empty=0');
 	$booked_none_assigned = true;
@@ -244,4 +245,5 @@
 
 	?>
 
+	</div>
 </div>
