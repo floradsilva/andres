@@ -235,6 +235,9 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		$product->set_children( $child_products );
 		$product->save();
 
+		update_option( 'product_' . $product_obj->id, $product_id );
+
+
 		return $product->get_id();
 	}
 
@@ -263,6 +266,8 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 		}
 
 		$product = $this->set_product_common_data( $product, $product_obj );
+
+		update_option( 'product_' . $product_obj->id, $product_id );
 
 		return $product->get_id();
 	}
@@ -448,8 +453,6 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 		// Meta data for Cost of Goods Plugin.
 		update_post_meta( $product_id, '_wc_cog_cost', $product_obj->replacementCost );
-
-		update_option( 'product_' . $product_obj->id, $product_id );
 
 		return $product;
 	}
@@ -789,6 +792,9 @@ class Wdm_Ebridge_Woocommerce_Sync_Products {
 
 		// $product->set_children( $child_products );
 		$product->save();
+
+		update_option( 'product_' . $product_obj->id, $product_id );
+
 
 		return $product->get_id();
 	}
