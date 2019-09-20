@@ -109,6 +109,10 @@ if ( ! class_exists( 'Wews_Helper_Functions' ) ) {
 			delete_option( 'ebridge_sync_last_updated_date' );
 			delete_option( 'ebridge_sync_last_updated_time' );
 			delete_option( 'ebridge_sync_web_server_time_zone_offset' );
+
+			wc_delete_shop_order_transients();
+			delete_transient( 'wc_count_comments' );
+			wc_delete_expired_transients();
 		}
 	}
 }
