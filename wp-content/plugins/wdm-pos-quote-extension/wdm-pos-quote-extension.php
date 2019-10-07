@@ -22,8 +22,10 @@ if ( ! defined( 'WPQE_PLUGIN_PATH' ) ) {
 }
 
 // Load dependencies.
-require  WPQE_PLUGIN_PATH . 'includes/class-pos-quote.php';
+require WPQE_PLUGIN_PATH . 'includes/class-pos-quote.php';
 
 
 
 // Initialize our classes.
+
+POS_Quote::init();
