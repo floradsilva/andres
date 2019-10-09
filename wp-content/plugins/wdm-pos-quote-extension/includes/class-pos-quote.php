@@ -9,7 +9,7 @@ class POS_Quote {
 	}
 
 	// order custom data
-	public function staticcustom_order_field( $session_response_data ) {
+	public static function  custom_order_field( $session_response_data ) {
 
 		$addition_checkout_fields = array();
 
@@ -37,14 +37,14 @@ class POS_Quote {
 	}
 
 	// this function use to save or interactive with other system
-	public function staticcustom_order_field_data( $order, $order_data ) {
+	public static function  custom_order_field_data( $order, $order_data ) {
 		$order_id             = $order->get_id();
 		$addition_information = isset( $order_data['addition_information'] ) ? $order_data['addition_information'] : array();
 		// continue logic from here to save or interactive with other system
 	}
 
 	// this function use to save or interactive with other system
-	public function staticsubmit_quote( $order_parse_data, $session_data ) {
+	public static function  submit_quote( $order_parse_data, $session_data ) {
 		echo '<pre>';
 		echo '===================order_parse_data=================<br>';
 		var_dump( $order_parse_data );
