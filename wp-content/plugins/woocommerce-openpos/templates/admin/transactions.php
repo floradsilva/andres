@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
                 <th data-column-id="title" data-identifier="true" data-type="numeric"><?php echo __( 'Ref', 'openpos' ); ?></th>
                 <th data-column-id="in_amount" data-sortable="false"><?php echo __( 'IN', 'openpos' ); ?></th>
                 <th data-column-id="out_amount" data-sortable="false"><?php echo __( 'OUT', 'openpos' ); ?></th>
+                <th data-column-id="payment_name" data-sortable="false"><?php echo __( 'Method', 'openpos' ); ?></th>
                 <th data-column-id="register" data-sortable="false"><?php echo __( 'Register', 'openpos' ); ?></th>
                 <th data-column-id="created_by" data-sortable="false"><?php echo __( 'By', 'openpos' ); ?></th>
                 <th data-column-id="created_at" data-sortable="false" data-order="desc"><?php echo __( 'Created At', 'openpos' ); ?></th>

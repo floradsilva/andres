@@ -8,6 +8,7 @@
                     <th><?php echo __( 'Ref', 'openpos' ); ?></th>
                     <th><?php echo __( 'IN', 'openpos' ); ?></th>
                     <th><?php echo __( 'OUT', 'openpos' ); ?></th>
+                    <th><?php echo __( 'Method', 'openpos' ); ?></th>
                     <th><?php echo __( 'Create At', 'openpos' ); ?></th>
                     <th><?php echo __( 'By', 'openpos' ); ?></th>
                 </tr>

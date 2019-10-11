@@ -279,6 +279,7 @@
     "LABEL_TIME" : "Time",
     "LABEL_IN" : "IN",
     "LABEL_OUT" : "OUT",
+    "LABEL_METHOD" : "Method",
     "LABEL_REF" : "Ref",
     "BTN_BACK" : "Back",
     "LABEL_ADD" : "Add  Transactions",
@@ -313,6 +314,7 @@
     "LABEL_STOCK_OVER_VIEW": "Stock Overview",
     "LABEL_SALE_BY_PAYMENT": "Sales By Payment Methods",
     "LABEL_SALE_BY_SELLER": "Sales By Seller",
+    "LABEL_Z_REPORT": "Z-Report",
     "LABEL_SALE_BY_PAYMENT_TOTAL": "Total",
     "LABEL_SALE_BY_PAYMENT_ITEM_DISCOUNT": "Total Item Discount",
     "LABEL_SALE_BY_PAYMENT_CART_DISCOUNT": "Total Cart Discount"

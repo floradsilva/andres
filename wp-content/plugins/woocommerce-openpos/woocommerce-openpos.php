@@ -5,7 +5,7 @@ Plugin URI: http://openswatch.com
 Description: Quick POS system for woocommerce.
 Author: anhvnit@gmail.com
 Author URI: http://openswatch.com/
-Version: 3.4.0
+Version: 3.7.0
 WC requires at least: 2.6
 WC tested up to: 3.7.0
 Text Domain: openpos
@@ -23,7 +23,6 @@ if(!function_exists('is_plugin_active'))
     include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 }
 
-
 require(OPENPOS_DIR.'vendor/autoload.php');
 
 require_once( OPENPOS_DIR.'lib/class-tgm-plugin-activation.php' );
@@ -40,7 +39,9 @@ require_once( OPENPOS_DIR.'lib/class-op-register.php' );
 require_once( OPENPOS_DIR.'lib/class-op-table.php' );
 require_once( OPENPOS_DIR.'lib/class-op-warehouse.php' );
 require_once( OPENPOS_DIR.'lib/class-op-stock.php' );
-require_once( OPENPOS_DIR.'lib/class-op-exchange.php' );
+require_once( OPENPOS_DIR.'lib/class-op-exchange.php' ); 
+require_once( OPENPOS_DIR.'lib/class-op-report.php' ); 
+
 require_once( OPENPOS_DIR.'includes/Core.php' );
 require_once( OPENPOS_DIR.'includes/admin/Admin.php' );
 
@@ -54,6 +55,7 @@ global $op_woo;
 global $op_woo_cart;
 global $op_woo_order;
 global $op_exchange;
+global $op_report;
 
 //check woocommerce active
 if(is_plugin_active( 'woocommerce/woocommerce.php' ))
@@ -66,12 +68,12 @@ if(is_plugin_active( 'woocommerce/woocommerce.php' ))
     $op_woo->init();
     $op_woo_cart = new OP_Woo_Cart();
     $op_woo_order = new OP_Woo_Order();
-
     $op_warehouse = new OP_Warehouse();
     $op_register = new OP_Register();
     $op_table = new OP_Table();
     $op_stock = new OP_Stock();
     $op_exchange = new OP_Exchange();
+    $op_report = new OP_Report();
 
     if(class_exists('TGM_Plugin_Activation'))
     {
@@ -116,15 +118,12 @@ if(is_plugin_active( 'woocommerce/woocommerce.php' ))
 
     }
 
-
     $OPENPOS_SETTING = new Openpos_Settings();
     $OPENPOS_CORE = new Openpos_Core();
     $OPENPOS_CORE->init();
 
     $tmp = new Openpos_Admin();
     $tmp->init();
-
-
 
     if(!class_exists('Openpos_Front'))
     {

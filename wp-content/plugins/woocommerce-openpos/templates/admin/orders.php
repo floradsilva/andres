@@ -11,13 +11,13 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
         <table id="grid-selection" class="table table-condensed table-hover table-striped op-product-grid">
             <thead>
             <tr>
-                <th data-column-id="id" data-identifier="true" data-type="numeric"><?php echo __( 'Order', 'openpos' ); ?></th>
+                <th data-column-id="id" data-identifier="true" data-type="numeric"><?php echo __( 'ID', 'openpos' ); ?></th>
+                <th data-column-id="order_number" data-sortable="false"><?php echo __( 'Order', 'openpos' ); ?></th>
                 <th data-column-id="created_at" data-identifier="true" data-type="numeric"><?php echo __( 'Date', 'openpos' ); ?></th>
                 <th data-column-id="source" data-sortable="false"><?php echo __( 'Source', 'openpos' ); ?></th>
                 <th data-column-id="created_by" data-sortable="false"><?php echo __( 'By', 'openpos' ); ?></th>
                 <th data-column-id="total" data-sortable="false"><?php echo __( 'Total', 'openpos' ); ?></th>
                 <th data-column-id="status" data-sortable="false"><?php echo __( 'Status', 'openpos' ); ?></th>
-                <th data-column-id="view_url" class="text-right" data-sortable="false"></th>
             </tr>
             </thead>
         </table>

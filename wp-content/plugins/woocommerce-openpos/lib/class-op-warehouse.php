@@ -19,6 +19,7 @@ if(!class_exists('OP_Warehouse'))
                 'facebook' => '_op_facebook'
             );
         }
+        
         public function warehouses(){
             $result = array();
             $default_store = $this->get(0);
@@ -135,12 +136,57 @@ if(!class_exists('OP_Warehouse'))
             }
 
         }
+        public function is_instore($warehouse_id = 0,$product_id){
+            $result = true;
+            if($warehouse_id > 0)
+            {
+                $product = wc_get_product($product_id);
+                $product_type = $product->get_type();
+                $meta_key = $this->_meta_product_qty.'_'.$warehouse_id;
+                if($product_type == 'variable')
+                {
+                    $childs = $product->get_children();
+                    $total = false;
+                    foreach($childs as $child_id)
+                    {
+                        $qty = get_post_meta($child_id,$meta_key,true);
+                        if($qty === false || $qty == '')
+                        {
+                            
+                        }else{
+                            $total += 1 * $qty;
+                        }
+                    }
+                    if($total === false)
+                    {
+                        $result = false;   
+                    }
+                }else{
+                    $qty = get_post_meta($product_id,$meta_key,true);
+                    if($qty === false || $qty == '')
+                    {
+                        $result = false;
+                    }
+                }
+            }
+            return apply_filters('op_warehouse_is_instore',$result,$this);
+
+        }
+        public function remove_instore($warehouse_id = 0,$product_id){
+            if($warehouse_id > 0)
+            {
+                $meta_key = $this->_meta_product_qty.'_'.$warehouse_id;
+                update_post_meta($product_id,$meta_key,'');
+            }
+
+        }
         public function get_qty($warehouse_id = 0,$product_id){
             $qty = 0;
             if($warehouse_id > 0)
             {
                 $meta_key = $this->_meta_product_qty.'_'.$warehouse_id;
                 $qty = get_post_meta($product_id,$meta_key,true);
+
                 if(!$qty)
                 {
                     $qty = 0;

@@ -31,6 +31,10 @@ class Openpos_Core
     public function init(){
         add_action( 'woocommerce_reduce_order_stock', array($this,'update_product_qty'), 10, 1 );
     }
+    public function getPosPostType(){
+        $post_types = array('product','product_variation');
+        return apply_filters('op_pos_post_types',$post_types);
+    }
 
     public function update_product_qty($order){
         global $OPENPOS_CORE;
@@ -69,20 +73,24 @@ class Openpos_Core
         }else{
             $ignores = $this->getAllVariableProducts();
         }
-        $args['post_type'] = array('product','product_variation');
+        $args['post_type'] = $this->getPosPostType();
+
         $args['exclude'] = $ignores;
         $args['post_status'] = 'publish';
         $args['suppress_filters'] = false;
 
         $defaults = array(
             'numberposts' => 5,
-            'category' => 0, 'orderby' => 'date',
-            'order' => 'DESC', 'include' => array(),
-            'exclude' => array(), 'meta_key' => '',
-            'meta_value' =>'', 'post_type' => 'product',
+            'category' => 0, 
+            'orderby' => 'date',
+            'order' => 'DESC', 
+            'include' => array(),
+            'exclude' => array(), 
+            'meta_key' => '',
+            'meta_value' =>'', 
+            'post_type' => 'product',
             'suppress_filters' => true
         );
-
         $r = wp_parse_args( $args, $defaults );
         if ( empty( $r['post_status'] ) )
             $r['post_status'] = ( 'attachment' == $r['post_type'] ) ? 'inherit' : 'publish';
@@ -645,6 +653,39 @@ class Openpos_Core
         );
     }
 
+    function render_ago_date_by_time_stamp($date_string){
+        $WC_DateTime = wc_string_to_datetime( $date_string );
+        $order_timestamp = $WC_DateTime->getTimestamp() ;
+
+
+        // Check if the order was created within the last 24 hours, and not in the future.
+        if ( $order_timestamp > strtotime( '-1 day', current_time( 'timestamp', true ) ) && $order_timestamp <= current_time( 'timestamp', true ) ) {
+            $show_date = sprintf(
+            /* translators: %s: human-readable time difference */
+                _x( '%s ago', '%s = human-readable time difference', 'woocommerce' ),
+                human_time_diff( $order_timestamp, current_time( 'timestamp', true ) )
+            );
+        } else {
+            $show_date = $WC_DateTime->date_i18n( apply_filters( 'woocommerce_admin_order_date_format', __( 'M j, Y', 'woocommerce' ) ) );
+        }
+        return sprintf(
+            '<time datetime="%1$s" title="%2$s">%3$s</time>',
+            esc_attr( $WC_DateTime->date( 'c' ) ),
+            esc_html( $WC_DateTime->date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) ) ),
+            esc_html( $show_date )
+        );
+    }
+    function formatTimeStamp($timestamp){
+        $datetime = new WC_DateTime( "@{$timestamp}", new DateTimeZone( 'UTC' ) );
+        // Set local timezone or offset.
+        if ( get_option( 'timezone_string' ) ) {
+            $datetime->setTimezone( new DateTimeZone( wc_timezone_string() ) );
+        } else {
+            $datetime->set_utc_offset( wc_timezone_offset() );
+        }
+        return $datetime;
+    }
+
     function additionPaymentMethodDetails(){
         $payment_options = array();
         $payment_options['chip_pin'] = array(
@@ -738,7 +779,7 @@ class Openpos_Core
             );
             $payment_methods[] = apply_filters('op_login_format_payment_data',$payment_method_data,$methods);
         }
-        return $payment_methods;
+        return apply_filters('op_pos_payment_method_list',$payment_methods);
     }
     function getAllLanguage(){
         $langs = array(
@@ -968,6 +1009,7 @@ class Openpos_Core
             '[sale_person]' => '<% if(typeof sale_person_name != "undefined") { %> <%= sale_person_name %> <% } %>',
             '[created_at]' => '<%= created_at %>',
             '[order_number]' => '<%= order_id %>',
+            '[order_number_format]' => '<%= order_number_format %>',
             '[order_note]' => '<%= note %>',
             '[customer_email]' => '<%= customer.email %>',
             '[payment_method]' => $payment_methods,
@@ -1108,6 +1150,21 @@ class Openpos_Core
         $setting['receipt_template_header'] =  apply_filters('op_receipt_template_header_data',do_shortcode($setting['receipt_template_header']),$setting);
         $setting['receipt_template_footer'] =  apply_filters('op_receipt_template_footer_data',do_shortcode($setting['receipt_template_footer']),$setting);
         $setting['receipt_template'] =  apply_filters('op_receipt_template_data',$receipt_template,$setting);
+
+        if(isset($setting['openpos_type']) && $setting['openpos_type'] == 'restaurant')
+        {
+            //kitchen_receipt_template
+            $file_name = 'kitchen_receipt_template.txt';
+            $kitchen_file_path = rtrim(OPENPOS_DIR,'/').'/default/'.$file_name;
+            $kitchen_receipt_template = $this->_filesystem->get_contents($kitchen_file_path);
+            $theme_file_path = rtrim(get_stylesheet_directory(),'/').'/woocommerce-openpos/'.$file_name;
+            if(file_exists($theme_file_path))
+            {
+                $kitchen_receipt_template = $this->_filesystem->get_contents($theme_file_path);
+            }
+            $setting['pos_kitchen_receipt_template'] =  apply_filters('op_kitchen_receipt_template_data',$kitchen_receipt_template,$setting);
+        }
+        
 
         $lang = $this->settings_api->get_option('pos_language','openpos_pos');
         if($lang == 'vi')

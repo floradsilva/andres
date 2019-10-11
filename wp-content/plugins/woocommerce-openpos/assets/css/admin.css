@@ -276,3 +276,17 @@ body.op_loading #wrap-loading{
     width: calc(100% - 30px);
     margin-right: 5px;
 }
+.warehouse-list .warehouse-frm{
+    background-color: #ccccccb3;
+}
+
+.bootgrid-table thead{
+    background-color: #ccc;
+}
+.bootgrid-table thead tr th{
+    padding: 10px 5px;
+}
+
+.bootgrid-table tr td{
+    padding: 1em!important;
+}

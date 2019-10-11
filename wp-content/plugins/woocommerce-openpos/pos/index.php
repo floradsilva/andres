@@ -22,7 +22,7 @@
     $pos_url =  OPENPOS_URL.'/pos/';
 
     # $pos_url =  'https://yoursite-address.com/pos/';  // uncomment and change this to https://yoursite-address.com/pos/ if you want post to webroot
-
+    $plugin_info = $OPENPOS_CORE->getPluginInfo();
 
 ?>
 <!doctype html>
@@ -34,7 +34,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,user-scalable=0"/>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-
+    <link rel="manifest" href="<?php echo $pos_url; ?>manifest.json" />
     <?php
         $handes = array(
             'openpos.material.icon',
@@ -44,6 +44,7 @@
         wp_print_styles($handes);
     ?>
     <script type="text/javascript">
+        
         var action_url = '<?php echo admin_url('admin-ajax.php'); ?>';
         <?php if($lang): ?>
         var pos_lang = '<?php echo $lang; ?>';
@@ -51,6 +52,7 @@
         var pos_receipt_css = <?php echo json_encode($OPENPOS_CORE->getReceiptFontCss()); ?>;
         var global = global || window;
         global.action_url = action_url;
+        global.version = '<?php echo  esc_attr($plugin_info['Version']); ?>';
         var Buffer = Buffer || [];
         var process = process || {
             env: { DEBUG: undefined },
@@ -227,7 +229,21 @@ wp_print_scripts($handes);
         'openpos.pos.main'
     );
     wp_print_scripts($handes);
+    
+    
 ?>
-
+<script type='text/javascript' src='<?php echo trim($pos_url,'/') ; ?>/runtime.js?ver=<?php echo  esc_attr($plugin_info['Version']); ?>'></script>
+<script type='text/javascript' src='<?php echo trim($pos_url,'/') ; ?>/polyfills.js?ver=<?php echo  esc_attr($plugin_info['Version']); ?>'></script>
+<script type='text/javascript' src='<?php echo trim($pos_url,'/') ; ?>/main.js?ver=<?php echo  esc_attr($plugin_info['Version']); ?>'></script>
+<script type='text/javascript'>
+        if ('serviceWorker' in navigator) {
+            console.log('register service worker');
+            navigator.serviceWorker.register('./service-worker.js?v=<?php echo  esc_attr($plugin_info['Version']); ?>').then(function(registration) {
+                console.log('ServiceWorker registration successful with scope:',  registration.scope);
+            }).catch(function(error) {
+                console.log('ServiceWorker registration failed:', error);
+            });
+        }
+</script>
 </body>
 </html>

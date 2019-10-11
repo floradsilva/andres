@@ -39,10 +39,10 @@ foreach($payment_gateways as $code => $gateway)
                             <option value="sale_by_seller" <?php echo $report_type == 'sale_by_seller' ? 'selected':''; ?>><?php echo __( 'Sales By Seller Report', 'openpos' ); ?></option>
                             <option value="sale_by_agent" <?php echo $report_type == 'sale_by_agent' ? 'selected':''; ?>><?php echo __( 'Sales By Shop Agent Report', 'openpos' ); ?></option>
                             <?php endif; ?>
-                            <option value="transactions" <?php echo $report_type == 'transactions' ? 'selected':''; ?>><?php echo __( 'Cash Transactions Report', 'openpos' ); ?></option>
+                            <option value="transactions" <?php echo $report_type == 'transactions' ? 'selected':''; ?>><?php echo __( 'Transactions Report', 'openpos' ); ?></option>
                             <option value="sale_by_payment" <?php echo $report_type == 'sale_by_payment' ? 'selected':''; ?>><?php echo __( 'Sales By Payment Method', 'openpos' ); ?></option>
                             <option value="sale_by_product" <?php echo $report_type == 'sale_by_product' ? 'selected':''; ?>><?php echo __( 'Sales By Product', 'openpos' ); ?></option>
-<!--                            <option value="x_report" --><?php //echo $report_type == 'x_report' ? 'selected':''; ?><!-->--><?php //echo __( 'X/Z Report', 'openpos' ); ?><!--</option>-->
+                           <option value="z_report"<?php echo $report_type == 'z_report' ? 'selected':''; ?> ><?php echo __( 'Z Report', 'openpos' ); ?></option>
 
                         </select>
                     </div>
@@ -196,6 +196,7 @@ foreach($payment_gateways as $code => $gateway)
                             data_table.addColumn('string', '<?php echo __('Ref','openpos'); ?>');
                             data_table.addColumn('string', '<?php echo __('IN','openpos'); ?>');
                             data_table.addColumn('string', '<?php echo __('OUT','openpos'); ?>');
+                            data_table.addColumn('string', '<?php echo __('Method','openpos'); ?>');
                             data_table.addColumn('string', '<?php echo __('Created At','openpos'); ?>');
                             data_table.addColumn('string', '<?php echo __('Created By','openpos'); ?>');
                         }
@@ -225,6 +226,17 @@ foreach($payment_gateways as $code => $gateway)
                             data_table.addColumn('string', '<?php echo __('Cashier','openpos'); ?>');
                             data_table.addColumn('string', '<?php echo __('Created At','openpos'); ?>');
                             data_table.addColumn('string', '<?php echo __('View','openpos'); ?>');
+                        }
+                        if(report_type == 'z_report' )
+                        {
+                            data_table.addColumn('string', '<?php echo __('#','openpos'); ?>');
+                            data_table.addColumn('string', '<?php echo __('Session','openpos'); ?>');
+                            data_table.addColumn('string', '<?php echo __('Clock IN','openpos'); ?>');
+                            data_table.addColumn('string', '<?php echo __('Clock OUT','openpos'); ?>');
+                            data_table.addColumn('number', '<?php echo __('Open Cash','openpos'); ?>');
+                            data_table.addColumn('number', '<?php echo __('Close Cash','openpos'); ?>');
+                            data_table.addColumn('number', '<?php echo __('Total Sales','openpos'); ?>');
+                            //data_table.addColumn('string', '<?php echo __('Print','openpos'); ?>');
                         }
                         var dataRows = data['table_data'];
                         data_table.addRows(dataRows);

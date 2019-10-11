@@ -21,7 +21,7 @@ class OP_Woo{
     public function init(){
         add_filter( 'posts_where', array($this,'title_filter'), 10, 2 );
         add_filter('woocommerce_payment_complete_reduce_order_stock',array($this,'op_payment_complete_reduce_order_stock'),10,2);
-        add_action( 'woocommerce_payment_complete', array($this,'op_maybe_reduce_stock_levels'),100,1 );
+        add_action( 'op_add_order_after', array($this,'op_maybe_reduce_stock_levels'),10,1 );
         add_action( 'parse_query', array( $this, 'order_table_custom_fields' ) );
         add_action( 'woocommerce_order_refunded', array( $this, 'woocommerce_order_refunded' ),10,2 );
         add_filter( 'woocommerce_hidden_order_itemmeta', array( $this, 'woocommerce_hidden_order_itemmeta' ),10,1 );
@@ -55,6 +55,8 @@ class OP_Woo{
 
         add_action( 'woocommerce_new_product', array( $this, 'woocommerce_new_product' ), 30,1 );
         add_action( 'woocommerce_update_product', array( $this, 'woocommerce_update_product' ), 30 ,1);
+
+        add_filter( 'woocommerce_order_item_display_meta_key', array( $this, 'woocommerce_order_item_display_meta_key' ), 30 ,2);
 
 
     }
@@ -188,10 +190,9 @@ class OP_Woo{
     }
     public function op_payment_complete_reduce_order_stock($result,$order_id){
         global $op_warehouse;
-
         $warehouse_meta_key = $op_warehouse->get_order_meta_key();
         $warehouse_id = get_post_meta($order_id,$warehouse_meta_key,true);
-        if($warehouse_id > 0)
+        if((int)$warehouse_id > 0)
         {
             $result = false;
         }
@@ -235,7 +236,6 @@ class OP_Woo{
                     }
                     $new_qty = $current_qty - $qty;
                     $op_warehouse->set_qty($warehouse_id,$product_id,$new_qty);
-
                 }
             }
 
@@ -279,6 +279,7 @@ class OP_Woo{
     }
 
     public function get_variations($product_id,$warehouse_id = 0){
+        global $op_warehouse;
         $core = $this->_core;
         $variation = new WC_Product_Variable($product_id);
         if($warehouse_id == 0)
@@ -287,7 +288,8 @@ class OP_Woo{
         }else{
             $item_variations = $this->get_available_variations($variation);
         }
-
+        
+        
         $variant_products_with_attribute = array();
         $variation_attributes   = $variation->get_variation_attributes();
 
@@ -301,7 +303,12 @@ class OP_Woo{
             $variant_product = wc_get_product($a_p['variation_id']);
             $a_p_price =  wc_get_price_including_tax($variant_product);
 
-
+           
+                
+            if($warehouse_id > 0 && !$op_warehouse->is_instore($warehouse_id,$a_p['variation_id']))
+            {
+                continue;
+            }
             //end update price
 
                 $v_tmp = array(
@@ -317,35 +324,41 @@ class OP_Woo{
                 );
         }
 
+        
+
         foreach($variation_attributes as $key => $variants)
         {
             $variants = $this->sortAttributeOptions($key,$variants);
+            $label = $key;
             if(strpos($key,'pa_') === false)
             {
                 $key = strtolower(esc_attr(sanitize_title($key)));
+            }else{
+                $key = urlencode($key);
             }
-
+            
             $options = array();
             foreach($variants as $v)
             {
                 $option_label = $v;
                 $values = array();
                 $values_price = array();
-
-
                 foreach($variant_products_with_attribute as $vp)
                 {
                     $attribute_key_1 = strtolower('attribute_'.$key);
-
+                    
                     if(isset($vp['attributes'][$attribute_key_1]) && ($vp['attributes'][$attribute_key_1] == $v || $vp['attributes'][$attribute_key_1] == ''))
                     {
+                        
                         if($vp['value_id'])
                         {
+
                             $taxonomy = $key;
                             $term = get_term_by('slug', $v, $taxonomy);
                             if($term)
                             {
                                 $option_label = $term->name;
+                                
                             }
                             $barcode = $core->getBarcode($vp['value_id']);
                             if($barcode)
@@ -366,8 +379,11 @@ class OP_Woo{
                 {
                     $values = array_unique($values);
                 }
+                
+                $option_label = rawurldecode( $option_label);
+                
                 $option_tmp = array(
-                    'title' => $option_label,
+                    'title' => esc_html($option_label),
                     'slug' => $v,
                     'values' => $values,
                     'prices' => $values_price
@@ -375,13 +391,15 @@ class OP_Woo{
                 $option_tmp = apply_filters('op_product_variation_attribute_option_data',$option_tmp);
                 $options[] = $option_tmp;
             }
+
             $variant = array(
-                'title' => wc_attribute_label( $key ),
+                'title' => wc_attribute_label( $label ),
                 'slug' => $key,
                 'options' => $options
             );
             $variations[] = $variant;
         }
+
         /*
         $variations = array(
             0 => array(
@@ -404,12 +422,13 @@ class OP_Woo{
             )
         );
         */
+        
         $result = array(
             'variations' => $variations,
             'price_list' => $price_list,
             'qty_list' => $qty_list
         );
-
+       
         return $result;
     }
     public function get_product_formatted_data($_product,$warehouse_id,$ignore_variable = false){
@@ -536,8 +555,15 @@ class OP_Woo{
             {
                 if($setting_tax_class == 'op_productax')
                 {
-                    $tax_rates = $this->getTaxRates( $product->get_tax_class() );
 
+                    $base_tax_rates = WC_Tax::get_base_tax_rates( $product->get_tax_class( 'unfiltered' ) );
+                    
+                    $tax_rates = $this->getTaxRates( $product->get_tax_class() );
+                    if(!empty($base_tax_rates))
+                    {
+                        $tax_rates = $base_tax_rates;
+                    }
+                     
                     if(!empty($tax_rates))
                     {
                         $keys = array_keys($tax_rates);
@@ -656,6 +682,17 @@ class OP_Woo{
         {
             $price_display_html = ' ';
         }
+        if($w_pricing = $this->is_weight_base_pricing($product->get_id()))
+        {
+            $options[] = array(
+                'label' => __("Weight",'openpos'),
+                'option_id' => 'op_weight',
+                'type' => 'price_base_input',
+                'require' => true,
+                'options' => array(),
+                'cost' => $w_pricing
+            );
+        }
 
         $tmp = array(
             'name' => $product->get_name(),
@@ -665,7 +702,7 @@ class OP_Woo{
             'qty' => $qty,
             'manage_stock' => $manage_stock,
             'stock_status' => $stock_status,
-            'barcode' => trim($this->_core->getBarcode($product->get_id())),
+            'barcode' => strtolower(trim($this->_core->getBarcode($product->get_id()))),
             'image' => $image,
             'price' => $price_without_tax,
             'final_price' => $price_without_tax,
@@ -1073,12 +1110,33 @@ class OP_Woo{
 
     }
     public function woocommerce_save_product_variation($variation_id, $i){
+        global $op_warehouse;
         $barcode = isset( $_POST['_op_barcode'][ $i ] ) ? sanitize_text_field($_POST['_op_barcode'][ $i ]) : '';
+        $_op_cost_price = isset( $_POST['_op_cost_price'][ $i ] ) ? sanitize_text_field($_POST['_op_cost_price'][ $i ]) : '';
 
         update_post_meta($variation_id,'_op_barcode',$barcode);
+        update_post_meta($variation_id,'_op_cost_price',$_op_cost_price);
+        $op_warehouse_stock = isset( $_POST['_op_stock']) ? $_POST['_op_stock'] : array();
+        foreach($op_warehouse_stock as $warehouse_id => $qty_varation)
+        {
+            if(is_numeric($qty_varation[ $i ]))
+            {
+                $qty = isset($qty_varation[ $i ]) ? 1* $qty_varation[ $i ] : 0;
+                $op_warehouse->set_qty($warehouse_id,$variation_id, 1*$qty );
+            }else{
+                $op_warehouse->remove_instore($warehouse_id,$variation_id);
+            }
+            
+        }
+
     }
     public function woocommerce_admin_process_product_object($product){
+        global $op_warehouse;
         $barcode = isset( $_POST['_op_barcode'] ) ? wc_clean( wp_unslash( $_POST['_op_barcode'] ) ) : '';
+        $_op_cost_price = isset( $_POST['_op_cost_price'] ) ? wc_clean( wp_unslash( $_POST['_op_cost_price'] ) ) : '';
+        $_op_weight_base_pricing = isset( $_POST['_op_weight_base_pricing'] ) ? wc_clean( wp_unslash( $_POST['_op_weight_base_pricing'] ) ) : 'no';
+
+
         $product_id = $product->get_id();
         $product_type = empty( $_POST['product-type'] ) ? WC_Product_Factory::get_product_type( $product_id ) : sanitize_title( wp_unslash( $_POST['product-type'] ) );
         if($product_type == 'variable')
@@ -1087,6 +1145,29 @@ class OP_Woo{
             $barcode = '';
         }
         update_post_meta($product_id,'_op_barcode',$barcode);
+        update_post_meta($product_id,'_op_cost_price',$_op_cost_price);
+        update_post_meta($product_id,'_op_weight_base_pricing',$_op_weight_base_pricing);
+
+        if($product_type != 'variable')
+        {
+            $op_warehouse_stock = isset( $_POST['_op_stock']) ? $_POST['_op_stock'] : array();
+            if(is_array($op_warehouse_stock) && !empty($op_warehouse_stock))
+            {
+                foreach($op_warehouse_stock as $warehouse_id => $qty)
+                {
+                    if(is_numeric($qty))
+                    {
+                        $op_warehouse->set_qty($warehouse_id,$product_id, 1*$qty );
+                    }else{
+                        $op_warehouse->remove_instore($warehouse_id,$product_id);
+                    }
+                    
+                }
+            }
+
+        }
+
+
     }
 
     public function filter_orders_by_source(){
@@ -1217,7 +1298,7 @@ class OP_Woo{
         $args = array(
             'posts_per_page'   => $limit,
             'search_prod_title' => $term,
-            'post_type'        => array('product','product_variation'),
+            'post_type'        => $this->_core->getPosPostType(),
             'post_status'      => 'publish',
             'suppress_filters' => false,
             'meta_query' => array(
@@ -1372,14 +1453,11 @@ class OP_Woo{
         return $recipient;
     }
 
-
-
-
     // format order to work with POS
     public function formatWooOrder($order_id){
-
+        global $op_register;
         $order = wc_get_order($order_id);
-        $order_number = $order_id;
+
         if($_pos_order_id = get_post_meta($order_id,'_pos_order_id',true))
         {
             // $order_number = $_pos_order_id.' ('.$order_id.')';
@@ -1412,11 +1490,22 @@ class OP_Woo{
 
         $items = array();
         $qty_allow_refund = false;
+        $cart_discount_item = array();
         foreach($item_ids as $item_id)
         {
 
-            $items[] = $this->formatOrderItem($order,$item_id);
+            $item = $this->formatOrderItem($order,$item_id);
+            if($item && $item['item_type'] != 'cart_discount')
+            {
+                $items[] = $item;
+            }
+            if($item && $item['item_type'] == 'cart_discount')
+            {
+                $cart_discount_item  = $item;
+            }
+            
         }
+       
         $user_id = $order->get_meta('_op_sale_by_person_id');
         $sale_person_name = '';
         if($user_id)
@@ -1433,15 +1522,17 @@ class OP_Woo{
             $sale_person_name = __('Done via website','openpos');
         }
         $sub_total = $order->get_subtotal();
+        
         $shipping_cost = (float)$order->get_shipping_total();
-        $final_discount_amount = $order->get_discount_total();
+        $shipping_tax = (float)$order->get_shipping_tax();
+
+        $final_discount_amount = 0;
         $tax_totals = $order->get_tax_totals();
         $tax_amount = 0;
         foreach($tax_totals as $tax)
         {
             $tax_amount += $tax->amount;
         }
-
         $allow_pickup = $this->allowPickup($order_id);
         $allow_refund = $this->allowRefundOrder($order_id);
         if($grand_total <= 0)
@@ -1467,50 +1558,131 @@ class OP_Woo{
         {
             $allow_refund = false;
         }
+        $order_status = $order->get_status();
+        $setting_pos_continue_checkout_order_status = $this->settings_api->get_option('pos_continue_checkout_order_status','openpos_general');
+        
         $allow_checkout = false;
+        if($setting_pos_continue_checkout_order_status && is_array($setting_pos_continue_checkout_order_status)){
+            foreach($setting_pos_continue_checkout_order_status as $setting_status)
+            {
+                $new_status = 'wc-' === substr( $setting_status, 0, 3 ) ? substr( $setting_status, 3 ) : $setting_status;
+                if($new_status == $order_status)
+                {
+                    $allow_checkout = true;
+                }
+            }
+        }
         if($payment_status != 'paid')
         {
             $allow_refund = false;
             $allow_pickup = false;
-            $allow_checkout = true;
         }
         $continue_pay_url = $order->get_checkout_payment_url(false);
 
+        $order_number = $order_id;
+        if($tmp = get_post_meta( $order_id, '_op_wc_custom_order_number', true ))
+        {
+            if((int)$tmp)
+            {
+                $order_number = (int)$tmp;
+            }
+        }
+        $discount_amount = 0;
+        $discount_tax_amount = 0;
+        $discount_excl_tax = 0;
+        $discount_tax_details = array();
+        
+        if(!empty($cart_discount_item))
+        {
+            $discount_amount += $cart_discount_item['total_incl_tax'];
+            $discount_tax_amount += $cart_discount_item['total_tax'];
+            $discount_excl_tax += $cart_discount_item['total'];
+            $final_discount_amount += $cart_discount_item['total_incl_tax'];
+            $discount_tax_details = $cart_discount_item['tax_details'];
+        }
+        $source = '#'.$order->get_order_number();
+        $source_type = 'online';
+        $tmp_source_type = get_post_meta($order_id,'_op_order_source',true);
+        if($tmp_source_type == 'openpos')
+        {
+            $source_type = 'openpos';
+            $cashdrawer_meta_key = $op_register->get_order_meta_key();
+            $tmp_source = get_post_meta($order_id,$cashdrawer_meta_key,true);
+            $cashdrawer = $op_register->get($tmp_source);
+            if($cashdrawer && !empty($cashdrawer))
+            {
+                $source = $cashdrawer['name'];
+            }
+           
 
+        }
+        
         $result = array(
-            'order_number' => $order_number,
+            'id' => $order_id,
             'order_id' => $order_id,
             'system_order_id' => $order_id,
-            'sale_person_name' => $sale_person_name,
-            'payment_method' => $payments, //ref , paid , return
             'pos_order_id' => $_pos_order_id,
-            'customer' => $customer_data,
+            'order_number' => $order_number,
+            'order_number_format' => '#'.$order->get_order_number(),
+            'title' => '',
             'items' => $items,
-            'sub_total' => $sub_total,
-            'sub_total_incl_tax' => $sub_total, //
-            'shipping_cost' => $shipping_cost,
-            'final_discount_amount' => (float)$final_discount_amount,
-            'discount_amount' => (float)$final_discount_amount,
+            'customer' => $customer_data,
+            'sub_total' => $sub_total, //excl tax
+            'sub_total_incl_tax' => $sub_total, // incl tax
             'tax_amount' => $tax_amount,
+            'discount_amount' => (float)$discount_amount,
+            'discount_type' => 'fixed',
+            'discount_final_amount' => (float)$discount_amount,
+            'final_items_discount_amount' => 0,
+            'final_discount_amount' => (float)$final_discount_amount,
+            'discount_tax_amount' => $discount_tax_amount,
+            'discount_excl_tax' => $discount_excl_tax,
             'grand_total' => 1 * $grand_total,
+            'discount_code' => '',
+            'discount_codes' => array(),
+            'discount_code_amount' => 0,
+            'discount_code_tax_amount' => 0,
+            'discount_code_excl_tax' => 0,
+            'payment_method' => $payments, //ref , paid , return
+            'shipping_cost' => $shipping_cost,
+            'shipping_tax' => $shipping_tax,
+            'shipping_rate_id' => '',
+            'shipping_information' => array(),
+            'sale_person' => 0,
+            'sale_person_name' => $sale_person_name,
+            'note' => '',
             'created_at' => wc_format_datetime($order->get_date_created()),
-            'checkout_url' => $continue_pay_url,
-            'allow_refund' => $allow_refund,
-            'allow_pickup' => $allow_pickup,
-            'allow_checkout' => $allow_checkout,
-            'payment_status' => $payment_status,
+            'state' => ($payment_status == 'paid') ? 'completed' : 'pending_payment',
+            'online_payment' => false,
+            'print_invoice' => true,
+            'point_discount' => 0,
+            'add_discount' => ($final_discount_amount > 0),
+            'add_shipping' => false,
+            'add_tax' => true,
             'custom_tax_rate' => '',
             'custom_tax_rates' => array(),
-            'note' => '',
+            'tax_details' => array(),
+            'discount_tax_details' => $discount_tax_details,
+            'source_type' => $source_type,
+            'source' => $source,
+            'available_shipping_methods' => array(),
+            'mode' => '',
+            'is_takeaway' => false,
+            'checkout_url' => $continue_pay_url,
+            'payment_status' => $payment_status,
             'status' => $order->get_status(),
-            'state' => ($payment_status == 'paid') ? 'completed' : 'pending_payment',
+            'allow_refund' => $allow_refund,
+            'allow_pickup' => $allow_pickup,
+            'allow_checkout' => $allow_checkout
         );
+        //print_r($result);die;
         return apply_filters('op_get_online_order_data',$result);
     }
 
     public function formatOrderItem($order,$item_id){
-
         $item = $order->get_item($item_id);
+
+    
         $items_data = $item->get_data();
         $product_data = array();
         $product_id = isset($items_data['product_id']) ? $items_data['product_id'] : 0;
@@ -1533,15 +1705,16 @@ class OP_Woo{
         $refund_total = $order->get_total_refunded_for_item($items_data['id']);
 
         $items_data['options'] = array();
+        //print_r($items_data);
         $subtotal = $items_data['subtotal'];
         $total = $items_data['total'];
 
 
         $total_tax = $items_data['total_tax'];
+        $subtotal_tax = $items_data['subtotal_tax'];
         $tax_details_data = array();
         if ( wc_tax_enabled() ) {
             $order_taxes      = $order->get_taxes();
-
             foreach($order_taxes as $otax)
             {
                 $o_tax_data = $otax->get_data();
@@ -1558,6 +1731,60 @@ class OP_Woo{
             }
 
         }
+        
+
+        $discount = ($subtotal   - $total) > 0 ? ($subtotal   - $total) : 0;
+        $discount_tax = 0;
+        if($discount)
+        {
+            $discount_tax = $items_data['subtotal_tax'] - $items_data['total_tax'];
+        }
+        
+
+        $item_price = $items_data['quantity'] > 0 ? ($subtotal / $items_data['quantity']) : $subtotal;
+
+        $item_tax_amount = ($total_tax != 0 && $items_data['quantity'] > 0 ) ? ($total_tax / $items_data['quantity']) : 0 ;
+        $item_subtax_amount = ($subtotal_tax != 0 && $items_data['quantity'] > 0 ) ? ($subtotal_tax / $items_data['quantity']) : 0 ;
+
+        //start meta
+        $sub_name = '';
+
+        $hidden_order_itemmeta = apply_filters(
+            'woocommerce_hidden_order_itemmeta', array(
+                '_qty',
+                '_tax_class',
+                '_product_id',
+                '_variation_id',
+                '_line_subtotal',
+                '_line_subtotal_tax',
+                '_line_total',
+                '_line_tax',
+                'method_id',
+                'cost',
+                '_reduced_stock',
+                'op_item_details'
+            )
+        );
+        $is_cart_discount = false;
+        if ( $meta_data = $item->get_formatted_meta_data( '' ) ){
+            foreach ( $meta_data as $meta_id => $meta ){
+                if ( in_array( $meta->key, $hidden_order_itemmeta, true ) ) {
+                    continue;
+                }
+                if($meta->key == '_pos_item_type' && $meta->value == 'cart_discount' )
+                {
+                    $is_cart_discount = true;
+                }
+                $tmp_sub = wp_kses_post( $meta->display_key ).': '.wp_kses_post( force_balance_tags( $meta->display_value ) );
+                $sub_name .= '<li id="'.esc_attr($meta->key).'">'.$tmp_sub.'</li>';
+            }
+        }
+        
+        if($sub_name )
+        {
+            $sub_name = '<ul class="item-options-label">'.$sub_name.'</ul>';
+        }
+
         $tax_details = array();
         $item_tax_data = $items_data['taxes'];
         foreach($item_tax_data['total'] as $id => $value)
@@ -1567,42 +1794,59 @@ class OP_Woo{
                 if($t_value['rate_id'] == $id)
                 {
                     $tmp = $t_value;
+                    if(!$value)
+                    {
+                        $value = 0;
+                    }
                     $tmp['total'] = 1 * $value;
+                    if($is_cart_discount)
+                    {
+                        $tmp['total'] = -1 * $value;
+                    }
                     $tax_details[] = $tmp;
                 }
             }
         }
+        $item_type = '';
+        if($is_cart_discount)
+        {
+            $item_type = 'cart_discount';
+            $item_price *= -1 ; 
+            $item_tax_amount *= -1 ; 
+            $item_subtax_amount *= -1 ; 
+            $discount *= -1 ; 
+            $discount_tax *= -1 ; 
+            $total_tax *= -1 ; 
+            $items_data['total'] *= -1 ; 
+            $items_data['total_tax'] *= -1 ; 
+        }
+        //end meta
 
-        $discount = ($subtotal   - $total) > 0 ? ($subtotal   - $total) : 0;
-
-        $item_price = $items_data['quantity'] > 0 ? ($subtotal / $items_data['quantity']) : $subtotal;
-
-        $item_tax_amount = ($total_tax > 0 && $items_data['quantity'] > 0 ) ? ($total_tax / $items_data['quantity']) : 0 ;
         $item_formatted_data = array(
             'id' => $items_data['id'],
             'name' => $items_data['name'],
-            'sub_name' => '',
+            'sub_name' => $sub_name,
             'dining' => '',
             'price' =>  $item_price,
-            'price_incl_tax' =>  ($item_price + $item_tax_amount), //
+            'price_incl_tax' =>  ($item_price + $item_subtax_amount), //
             'product_id' =>  $product_id,
             'final_price' =>  $item_price,
-            'final_price_incl_tax' =>  ($item_price + $item_tax_amount), //
+            'final_price_incl_tax' =>  ($item_price + $item_subtax_amount), //
             'options' => array(),
             'bundles' =>  array(),
             'variations' => array(),
-            'discount_amount' =>  $discount,
+            'discount_amount' =>  ($discount + $discount_tax),
             'discount_type' => 'fixed',
             'final_discount_amount' =>  $discount,
-            'final_discount_amount_incl_tax' =>  $discount,
+            'final_discount_amount_incl_tax' =>  ($discount + $discount_tax),
             'qty' =>  $items_data['quantity'],
             'refund_qty' =>  $refund_qty,
             'exchange_qty' =>  0,
-            'tax_amount' =>  $item_tax_amount,
+            'tax_amount' =>  $item_subtax_amount,
             'refund_total' =>  $refund_total,
             'total_tax'=> $total_tax,
-            'total'=>  ($items_data['subtotal'] - $discount),
-            'total_incl_tax'=>  ($items_data['subtotal_tax'] + $items_data['subtotal_tax']), //
+            'total'=>  $items_data['total'],
+            'total_incl_tax'=>  ($items_data['total'] + $items_data['total_tax']), //
             'product'=> $product_data,
             'option_pass' =>  true,
             'option_total' =>  0,
@@ -1611,15 +1855,17 @@ class OP_Woo{
             'parent_id' => 0,
             'seller_id' => 0,
             'seller_name' => '',
-            'item_type'=> '',
+            'item_type'=> $item_type,
             'has_custom_discount'=> false,
             'disable_qty_change'=> true,
-            'read_only'=> true,
+            'read_only'=> false,
             'promotion_added'=> false,
             'tax_details'=> $tax_details,
             'is_exchange'=> false,
         );
-        return $item_formatted_data;
+        //print_r($items_data);
+        return apply_filters('op_get_online_order_item_data',$item_formatted_data,$order);
+
     }
 
 
@@ -1929,6 +2175,46 @@ class OP_Woo{
         $str = preg_replace('/([\s]+)/', ' ', $str);
         $str = str_replace('  ',' ',$str);
         return $str;
+    }
+    public function woocommerce_order_item_display_meta_key($display_key, $meta){
+        if($meta->key && $meta->key == 'op_item_details')
+        {
+            $display_key = __('Item Details','openpos');
+        }
+        return $display_key;
+    }
+    public function get_cost_price($product_id){
+        $price = false;
+        $tmp_price = get_post_meta($product_id,'_op_cost_price',true);
+        if($tmp_price !== false && $tmp_price != '')
+        {
+            $price = $tmp_price;
+        }
+        return $price;
+    }
+    public function is_weight_base_pricing($product_id){
+        $result = false;
+        $post = get_post($product_id);
+        $setting_product_id = $product_id;
+        if($post && $post->post_parent)
+        {
+            $setting_product_id = $post->post_parent;
+        }
+        $tmp_price = get_post_meta($setting_product_id,'_op_weight_base_pricing',true);
+
+        if($tmp_price == 'yes')
+        {
+            $product = wc_get_product($product_id);
+            $weight =  $product->get_weight('pos');
+
+            if($weight && (float)$weight > 0)
+            {
+                $weight = (float)$weight;
+                $price = $product->get_price();
+                $result = ($price/$weight);
+            }
+        }
+        return $result;
     }
 
 }

@@ -319,17 +319,17 @@ if(!class_exists('OP_Woo_Cart'))
                 $customer = $cart->get_customer();
 
 
-                if($customer_data['email'])
+                if(isset($customer_data['email']) && $customer_data['email'])
                 {
                     $customer->set_email($customer_data['email']);
                     $post_customer_data['billing_email'] = $customer_data['email'];
                 }
-                if($customer_data['firstname'])
+                if(isset($customer_data['firstname']) && $customer_data['firstname'])
                 {
                     $customer->set_first_name($customer_data['firstname']);
                     $post_customer_data['billing_first_name'] = $customer_data['firstname'];
                 }
-                if($customer_data['lastname'])
+                if(isset($customer_data['lastname']) && $customer_data['lastname'])
                 {
                     $customer->set_last_name($customer_data['lastname']);
                     $post_customer_data['billing_last_name'] = $customer_data['lastname'];
@@ -340,31 +340,31 @@ if(!class_exists('OP_Woo_Cart'))
                     $post_customer_data['billing_address_1'] = $customer_data['address'];
                 }
 
-                if($customer_data['address_2'])
+                if(isset($customer_data['address_2']) && $customer_data['address_2'])
                 {
                     $customer->set_address_2($customer_data['address_2']);
                     $post_customer_data['billing_address_2'] = $customer_data['address_2'];
                 }
 
-                if($customer_data['state'])
+                if(isset($customer_data['state']) && $customer_data['state'])
                 {
                     $customer->set_state($customer_data['state']);
                     $post_customer_data['billing_state'] = $customer_data['state'];
                 }
 
-                if($customer_data['city'])
+                if(isset($customer_data['city']) && $customer_data['city'])
                 {
                     $customer->set_city($customer_data['city']);
                     $post_customer_data['billing_city'] = $customer_data['city'];
                 }
 
-                if($customer_data['country'])
+                if(isset($customer_data['country']) && $customer_data['country'])
                 {
                     $customer->set_country($customer_data['country']);
                     $post_customer_data['billing_country'] = $customer_data['country'];
                 }
 
-                if($customer_data['postcode'])
+                if(isset($customer_data['postcode']) && $customer_data['postcode'])
                 {
                     $customer->set_postcode($customer_data['postcode']);
                     $post_customer_data['billing_postcode'] = $customer_data['postcode'];
@@ -374,21 +374,34 @@ if(!class_exists('OP_Woo_Cart'))
             }
             WC()->session->set('refresh_totals', true);
             $cart->calculate_totals();
+            WC()->cart = $cart;
 
             $post_data = implode('&',$post_customer_data);
             $_POST['billing_email'] = $customer_data['email'];
             $_POST['post_data'] = $post_data;
             $_GET['wc-ajax'] = 'update_order_review';
 
+            
             $cart->calculate_totals();
-
-            $discount_amount = $cart->get_discount_total();
-
+            
+            $discount_amount = 0;
+            $coupons  = WC()->cart->get_coupons();
+            $discount_type = 'fixed';
+            foreach($coupons as $coupon)
+            {
+                $discount_amount += $coupon->get_amount();
+                $tmp_discount_type = $coupon->get_discount_type();
+                if($tmp_discount_type == 'percent')
+                {
+                    $discount_type = 'percent';
+                }
+            }
             if($discount_amount)
             {
                 $result = array(
                     'discount_amount' => $discount_amount,
-                    'discount_type' => 'fixed' // percent , fixed
+                    'discount_type' => $discount_type // percent , fixed
+                    
                 );
             }
 

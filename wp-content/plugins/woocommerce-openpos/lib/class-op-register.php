@@ -149,6 +149,7 @@ if(!class_exists('OP_Register'))
         }
         public function update_bill_screen($session_data,$cart_data){
             $register_id = isset($session_data['login_cashdrawer_id']) ? $session_data['login_cashdrawer_id'] : 0;
+
             if($register_id)
             {
                 $cart_data['session_user'] = $session_data['name'];

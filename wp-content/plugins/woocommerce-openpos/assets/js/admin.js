@@ -1,6 +1,7 @@
 (function($) {
     function realTime()
     {
+        let _time = 60*60*1000;
         $.ajax({
             url: openpos_admin.ajax_url,
             type: 'post',
@@ -12,14 +13,14 @@
                     function()
                     {
                         realTime();
-                    }, 5000);
+                    }, _time);
             },
             error: function(){
                 setTimeout(
                     function()
                     {
                         realTime();
-                    }, 5000);
+                    }, _time);
             }
         })
     }

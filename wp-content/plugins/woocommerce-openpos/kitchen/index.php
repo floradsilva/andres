@@ -11,7 +11,7 @@ $base_dir = dirname(dirname(dirname(dirname(__DIR__))));
 require_once ($base_dir.'/wp-load.php');
 global $op_table;
 global $op_woo;
-$id = esc_attr($_GET['id']);
+$id = isset($_GET['id']) ? esc_attr($_GET['id']) : 0;
 
 if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'clear_data')
 {

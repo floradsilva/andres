@@ -155,9 +155,9 @@ $warehouses = $op_warehouse->warehouses();
                      if(checked)
                      {
 
-                         //input_qty.prop('readonly',false);
+                         input_qty.prop('readonly',false);
                      }else {
-                         //input_qty.prop('readonly',true);
+                         input_qty.prop('readonly',true);
                      }
             });
         });

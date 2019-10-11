@@ -611,121 +611,132 @@ class Openpos_Settings {
      * This code uses localstorage for displaying active tabs
      */
     function script() {
+        
         ?>
         <script>
-            jQuery(document).ready(function($) {
-                //Initiate Color Picker
-                $('.wp-color-picker-field').wpColorPicker();
+            (function($) {
+   
+                $(document).ready(function($) {
+                        //Initiate Color Picker
+                        //$('.wp-color-picker-field').wpColorPicker();
 
-                var receipt_css = CodeMirror.fromTextArea(document.getElementById("openpos_receipt[receipt_css]"), {
-                    mode: "text/css",
-                    styleActiveLine: true,
-                    lineNumbers: true,
-                    lineWrapping: true,
-                    autoRefresh: true
-                });
-                var custom_css = CodeMirror.fromTextArea(document.getElementById("openpos_pos[pos_custom_css]"), {
-                    mode: "text/css",
-                    styleActiveLine: true,
-                    lineNumbers: true,
-                    lineWrapping: true,
-                    autoRefresh: true
-                });
+                        var receipt_css = CodeMirror.fromTextArea(document.getElementById("openpos_receipt[receipt_css]"), {
+                            mode: "text/css",
+                            styleActiveLine: true,
+                            lineNumbers: true,
+                            lineWrapping: true,
+                            autoRefresh: true
+                        });
+                        var custom_css = CodeMirror.fromTextArea(document.getElementById("openpos_pos[pos_custom_css]"), {
+                            mode: "text/css",
+                            styleActiveLine: true,
+                            lineNumbers: true,
+                            lineWrapping: true,
+                            autoRefresh: true
+                        });
 
-                // Switches option sections
-                $('.group').hide();
-                var activetab = '';
-                if (typeof(localStorage) != 'undefined' ) {
-                    activetab = localStorage.getItem("activetab");
-                }
-                if (activetab != '' && $(activetab).length ) {
-                    $(activetab).fadeIn();
-
-                    receipt_css.refresh();
-                    custom_css.refresh();
-
-                } else {
-                    $('.group:first').fadeIn();
-
-                    receipt_css.refresh();
-                    custom_css.refresh();
-                }
-                $('.group .collapsed').each(function(){
-                    $(this).find('input:checked').parent().parent().parent().nextAll().each(
-                    function(){
-                        if ($(this).hasClass('last')) {
-                            $(this).removeClass('hidden');
-                            return false;
+                        // Switches option sections
+                        $('.group').hide();
+                        var activetab = '';
+                        if (typeof(localStorage) != 'undefined' ) {
+                            activetab = localStorage.getItem("activetab");
                         }
-                        $(this).filter('.hidden').removeClass('hidden');
-                    });
+                        if (activetab != '' && $(activetab).length ) {
+                            $(activetab).fadeIn();
+
+                            receipt_css.refresh();
+                            custom_css.refresh();
+
+                        } else {
+                            $('.group:first').fadeIn();
+
+                            receipt_css.refresh();
+                            custom_css.refresh();
+                        }
+                        $('.group .collapsed').each(function(){
+                            $(this).find('input:checked').parent().parent().parent().nextAll().each(
+                            function(){
+                                if ($(this).hasClass('last')) {
+                                    $(this).removeClass('hidden');
+                                    return false;
+                                }
+                                $(this).filter('.hidden').removeClass('hidden');
+                            });
+                        });
+
+                        if (activetab != '' && $(activetab + '-tab').length ) {
+                            $(activetab + '-tab').addClass('nav-tab-active');
+                        }
+                        else {
+                            $('.nav-tab-wrapper a:first').addClass('nav-tab-active');
+                        }
+                        $('.nav-tab-wrapper a').click(function(evt) {
+                            $('.nav-tab-wrapper a').removeClass('nav-tab-active');
+                            $(this).addClass('nav-tab-active').blur();
+                            var clicked_group = $(this).attr('href');
+                            if (typeof(localStorage) != 'undefined' ) {
+                                localStorage.setItem("activetab", $(this).attr('href'));
+                            }
+                            $('.group').hide();
+                            $(clicked_group).fadeIn();
+
+                            receipt_css.refresh();
+                            custom_css.refresh();
+
+                            evt.preventDefault();
+                        });
+
+                        $('.wpsa-browse').on('click', function (event) {
+                            event.preventDefault();
+
+                            var self = $(this);
+
+                            // Create the media frame.
+                            var file_frame = wp.media.frames.file_frame = wp.media({
+                                title: self.data('uploader_title'),
+                                button: {
+                                    text: self.data('uploader_button_text'),
+                                },
+                                multiple: false
+                            });
+
+                            file_frame.on('select', function () {
+                                attachment = file_frame.state().get('selection').first().toJSON();
+                                self.prev('.wpsa-url').val(attachment.url).change();
+                            });
+
+                            // Finally, open the modal
+                            file_frame.open();
+                        });
+
+                    // $('.category_tags').tagThis(); op_ajax_category
+                        var object = $('.category_tags').tokenize2({
+                            sortable: true,
+                            dataSource: '<?php echo admin_url('admin-ajax.php?action=op_ajax_category'); ?>'
+                        });
+                        $('.save-categories-popup').click(function(){
+                            var categories = $('form#frm-list-categories').serializeArray();
+                            for(var i =0;i < categories.length; i++){
+                                var category = categories[i];
+                                var select_cat = $('select[name="show_categories[]"]').find('option[value="'+category.value+'"]').first().text();
+
+                                object.trigger('tokenize:tokens:add', [category.value, select_cat, true]);
+
+                            }
+                            $('#close-category-popup').trigger('click');
+
+                        });
+
+                        var object = $('.list_tags').tokenize2({
+                            sortable: true,
+                            dataSource: '<?php echo admin_url('admin-ajax.php?action=op_ajax_order_status'); ?>'
+                        });
+
+
                 });
 
-                if (activetab != '' && $(activetab + '-tab').length ) {
-                    $(activetab + '-tab').addClass('nav-tab-active');
-                }
-                else {
-                    $('.nav-tab-wrapper a:first').addClass('nav-tab-active');
-                }
-                $('.nav-tab-wrapper a').click(function(evt) {
-                    $('.nav-tab-wrapper a').removeClass('nav-tab-active');
-                    $(this).addClass('nav-tab-active').blur();
-                    var clicked_group = $(this).attr('href');
-                    if (typeof(localStorage) != 'undefined' ) {
-                        localStorage.setItem("activetab", $(this).attr('href'));
-                    }
-                    $('.group').hide();
-                    $(clicked_group).fadeIn();
-
-                    receipt_css.refresh();
-                    custom_css.refresh();
-
-                    evt.preventDefault();
-                });
-
-                $('.wpsa-browse').on('click', function (event) {
-                    event.preventDefault();
-
-                    var self = $(this);
-
-                    // Create the media frame.
-                    var file_frame = wp.media.frames.file_frame = wp.media({
-                        title: self.data('uploader_title'),
-                        button: {
-                            text: self.data('uploader_button_text'),
-                        },
-                        multiple: false
-                    });
-
-                    file_frame.on('select', function () {
-                        attachment = file_frame.state().get('selection').first().toJSON();
-                        self.prev('.wpsa-url').val(attachment.url).change();
-                    });
-
-                    // Finally, open the modal
-                    file_frame.open();
-                });
-
-               // $('.category_tags').tagThis(); op_ajax_category
-                var object = $('.category_tags').tokenize2({
-                    sortable: true,
-                    dataSource: '<?php echo admin_url('admin-ajax.php?action=op_ajax_category'); ?>'
-                });
-                $('.save-categories-popup').click(function(){
-                    var categories = $('form#frm-list-categories').serializeArray();
-                    for(var i =0;i < categories.length; i++){
-                        var category = categories[i];
-                        var select_cat = $('select[name="show_categories[]"]').find('option[value="'+category.value+'"]').first().text();
-
-                        object.trigger('tokenize:tokens:add', [category.value, select_cat, true]);
-
-                    }
-                    $('#close-category-popup').trigger('click');
-
-                });
-
-
-        });
+            }(jQuery));
+            
         </script>
         <?php
         $this->_style_fix();
@@ -801,6 +812,51 @@ class Openpos_Settings {
 
         $html        = sprintf( '<textarea rows="5" cols="55" class="%1$s-text textarea-code" id="%2$s[%3$s]" name="%2$s[%3$s]"%4$s>%5$s</textarea>', $size, $args['section'], $args['id'], $placeholder, $value );
         $html        .= $this->get_field_description( $args );
+
+        echo $html;
+    }
+    function callback_pos_grid($args){
+        $value       = $this->get_option( $args['id'], $args['section'], $args['std'] ) ;
+
+        $size        = isset( $args['size'] ) && !is_null( $args['size'] ) ? $args['size'] : 'regular';
+        $type        = 'number';
+        $placeholder = empty( $args['placeholder'] ) ? '' : ' placeholder="' . $args['placeholder'] . '"';
+
+        
+
+        $html        = sprintf( '<input type="%1$s" class="%2$s-pos-grid" id="%3$s[%4$s]" name="%3$s[%4$s][col]" value="%5$s"%7$s/> x <input type="%1$s" class="%2$s-pos-grid" id="%3$s[%4$s]" name="%3$s[%4$s][row]" value="%6$s"%7$s/>', $type, $size, $args['section'], $args['id'], $value['col'],$value['row'], $placeholder );
+        $html       .= $this->get_field_description( $args );
+
+        echo $html;
+    }
+    function callback_list_tags($args){
+
+
+        $values =  $this->get_option( $args['id'], $args['section'], $args['std'] );
+
+
+        $size  = isset( $args['size'] ) && !is_null( $args['size'] ) ? $args['size'] : 'regular';
+        $html = '<div class="category-tag-container"><div class="tag-list">';
+        $html  .= sprintf( '<select class="%1$s list_tags" multiple name="%2$s[%3$s][]" id="%2$s[%3$s]">', $size, $args['section'], $args['id'] );
+        $args['options'] = array();
+
+        $wc_order_status = wc_get_order_statuses();
+       
+
+        if(is_array($values))
+        {
+            foreach ( $values as $key => $status_id ) {
+                //$term = get_term_by( 'id', $cat_id, 'product_cat', 'ARRAY_A' );
+                
+                if(isset($wc_order_status[$status_id]))
+                {
+                    $html .= sprintf( '<option value="%s"%s>%s</option>', $status_id, 'selected', $wc_order_status[$status_id] );
+                }
+            }
+        }
+        $html .= sprintf( '</select>' );
+        $html .= sprintf( '</div></div>' );
+        $html .= $this->get_field_description( $args );
 
         echo $html;
     }

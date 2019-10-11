@@ -10,6 +10,7 @@ class OP_Woocommerce_Product_Addons{
     public function init(){
         if(file_exists( WP_CONTENT_DIR.'/plugins/woocommerce-product-addons/woocommerce-product-addons.php'))
         {
+           
             $this->wc_addons();
         }
 
@@ -23,6 +24,8 @@ class OP_Woocommerce_Product_Addons{
                 require_once WP_CONTENT_DIR.'/plugins/woocommerce-product-addons/woocommerce-product-addons.php';
             }
             add_filter('op_product_data',[$this,'wc_product_addons'],10,2);
+
+            add_filter('op_get_online_order_data',[$this,'op_get_online_order_data'],10,1);
         }
 
     }
@@ -99,12 +102,16 @@ class OP_Woocommerce_Product_Addons{
                     }else{
                         $a_price = 0;
                     }
-
                     $tmp = array(
                         'value_id' => $a_option['label'],
                         'label' => $a_option['label'],
                         'cost' => $a_price,
                     );
+                    if($a_price)
+                    {
+                        $tmp['label'] = $a_option['label'].' ('.wc_price($a_price).')';
+                    }
+
                     $radio['options'][] = $tmp;
                 }
                 $response_data['options'][] = $radio;
@@ -125,5 +132,91 @@ class OP_Woocommerce_Product_Addons{
 //            $options[]= $radio;
 //            $response_data['options'] = $options;
         return $response_data;
+    }
+    public function op_get_online_order_data($order_data){
+        $items = $order_data['items'];
+        $order_id = $order_data['id'];
+        $order_items = array();
+        $order= wc_get_order($order_id);
+        $item_option = array();
+        foreach($items as $item)
+        {
+            $item_id = $item['id'];
+            $_item = $order->get_item($item_id);
+            $product_data = $item['product'];
+            $product_options = isset($product_data['options']) ? $product_data['options'] : array();
+            if($_wc_pao_addon_field_type = $_item->get_meta('_wc_pao_addon_field_type',true))
+            {
+                
+                  $_wc_pao_addon_value = $_item->get_meta('_wc_pao_addon_value',true);  
+                  $_wc_pao_addon_name = $_item->get_meta('_wc_pao_addon_name',true);  
+            }else{
+                $option_pass = true;
+                $option_total = 0;
+                $item_option = array();
+                if( !empty($product_options) && $options = $_item->get_meta('_wc_pao_attached_addons',true))
+                {
+                    
+                    foreach($options as $op)
+                    {
+                        $product_option = array();
+                        foreach($product_options as $product_op)
+                        {
+                              if($product_op['option_id'] == $op['field_name']){
+                                $product_option = $product_op;
+                              }
+                        }
+                        if(!empty($product_option))
+                        {
+                            $product_option_value = array();
+                            $value_label = array();
+                            $value_id = array();
+                            
+                            $option_id = $product_option['option_id'];
+                            $cost = 0;
+                            if(isset($item_option[$option_id]))
+                            {
+                                $value_label = $item_option[$option_id]['value_label'];
+                                $value_id = $item_option[$option_id]['value_id'];
+                                $cost = $item_option[$option_id]['cost'];
+                            }
+
+                            $value_id[] = $op['value'];
+                            foreach($product_option['options'] as $p_o)
+                            {
+                                if($p_o['value_id'] == $op['value'])
+                                {
+                                    
+                                    $value_label[] = $p_o['label'];
+                                    $product_option_value = $p_o;
+                                }
+                            }
+                            
+                            $cost += isset($product_option_value['cost']) ? $product_option_value['cost'] : 0;
+                            $option_total += $cost;
+                            $tmp_option = array(
+                                'cost' => $cost,
+                                'option_id'=> $op['field_name'],
+                                'required'=> $product_option['require'],
+                                'title'=> $op['name'],
+                                'type'=> $product_option['type'],
+                                'value_id'=> $value_id,
+                                'value_label'=> $value_label,
+                            );
+                            $item_option[$option_id] = $tmp_option;
+                        }
+                       
+                    }
+                    $item['options'] = array_values($item_option);
+                    $item['option_total'] = $option_total;
+                    $item['option_pass'] = $option_pass;
+                }
+                $order_items[] = $item;
+            }
+           
+        }
+        $order_data['items'] = $order_items; 
+        return $order_data;
+          
     }
 }

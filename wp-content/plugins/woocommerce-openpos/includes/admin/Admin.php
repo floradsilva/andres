@@ -30,6 +30,8 @@ class Openpos_Admin{
 
     public function init()
     {
+       
+
         add_action( 'admin_notices',array($this, 'admin_notice') );
         add_action( 'admin_init', array($this, 'admin_init') );
         add_action( 'init', array($this, '_short_code') );
@@ -39,6 +41,13 @@ class Openpos_Admin{
         add_filter( "manage_edit-store_columns", array($this,'store_setting_column_header'), 10);
         add_action( "manage_store_custom_column",array($this,'store_setting_column_content'), 10, 3);
         add_action( 'admin_menu', array($this,'pos_admin_menu'),1 );
+
+        add_action( 'woocommerce_product_options_stock_fields', array($this,'woocommerce_product_options_stock_fields'));
+        add_action( 'woocommerce_variation_options_inventory', array($this,'woocommerce_variation_options_inventory'),10,3);
+
+        add_action( 'woocommerce_product_options_pricing', array($this,'woocommerce_product_options_pricing'));
+        add_action( 'woocommerce_variation_options_pricing', array($this,'woocommerce_variation_options_pricing'),10,3);
+        add_action( 'woocommerce_product_options_advanced', array($this,'woocommerce_product_options_advanced'));
 
         //ajax
 
@@ -86,11 +95,29 @@ class Openpos_Admin{
         add_action( 'wp_ajax_openpos_adjust_stock_finder', array($this,'adjust_stock_finder') );
         add_action( 'wp_ajax_op_adjust_stock', array($this,'op_adjust_stock') );
         add_action( 'wp_ajax_op_ajax_category', array($this,'op_ajax_category') );
+        add_action( 'wp_ajax_op_ajax_order_status', array($this,'op_ajax_order_statuses') );
         add_action( 'wp_ajax_op_ajax_report', array($this,'report_ajax') );
         add_action( 'wp_ajax_op_upload_product_image', array($this,'upload_product_image') );
 //        add_action( 'wp_ajax_openpos_report_data_table', array($this,'report_data_table') );
 
+        add_filter('pre_update_option_openpos_general',array($this,'pre_update_option_openpos_general'),10,3);
+
     }
+    function pre_update_option_openpos_general($value, $old_value, $option){
+        $se_number = isset($value['pos_sequential_number']) ? (int)$value['pos_sequential_number'] : 0;
+        $current_order_number = get_option('_op_wc_custom_order_number',0);
+        if($se_number && $current_order_number)
+        {
+            if($se_number > $current_order_number)
+            {
+                update_option('_op_wc_custom_order_number',$se_number);
+            }else{
+                //$value['pos_sequential_number'] = $current_order_number;
+            }
+        }
+        return $value;
+    }
+
 
     function admin_init() {
 
@@ -412,9 +439,51 @@ class Openpos_Admin{
             '_sku' => __('Product Sku','openpos')
         ));
 
+        $pos_sequential_number_enable = $this->settings_api->get_option('pos_sequential_number_enable','openpos_general');
+
+        $pos_sequential_number = array();
+        $pos_sequential_number_prefix = array();
+        if($pos_sequential_number_enable == 'yes')
+        {
+
+            $current_order_number = get_option('_op_wc_custom_order_number',0);
+            if(!$current_order_number)
+            {
+                $current_order_number = 1;
+            }
+
+            $pos_sequential_number = array(
+                'name'              => 'pos_sequential_number',
+                'label'             => __( 'Sequential: Start order number', 'openpos' ),
+                'type'              => 'number',
+                'default'           => $current_order_number,
+                'desc'    => __( 'Next order number', 'openpos' ).': '.$current_order_number,
+                'sanitize_callback' => 'sanitize_text_field'
+            );
+            $pos_sequential_number_prefix = array(
+                'name'              => 'pos_sequential_number_prefix',
+                'label'             => __( 'Order number prefix', 'openpos' ),
+                'type'              => 'text',
+                'default'           => '',
+                'sanitize_callback' => 'sanitize_text_field'
+            );
+        }
 
         $settings_fields = array(
             'openpos_general' => array(
+                array(
+                    'name'    => 'pos_sequential_number_enable',
+                    'label'   => __( 'Custom Order Number', 'openpos' ),
+                    'desc'    => __( 'Custom Sequential Order Numbers for Order create via POS', 'openpos' ),
+                    'type'    => 'select',
+                    'default' => 'no',
+                    'options' =>  array(
+                        'yes' => __( 'Yes', 'openpos' ),
+                        'no'  => __( 'No', 'openpos' ),
+                    )
+                ),
+                $pos_sequential_number,
+                $pos_sequential_number_prefix,
                 array(
                     'name'    => 'pos_stock_manage',
                     'label'   => __( 'POS Stock Manager', 'openpos' ),
@@ -426,6 +495,7 @@ class Openpos_Admin{
                         'no'  => __( 'No', 'openpos' ),
                     )
                 ),
+                
                 array(
                     'name'    => 'pos_order_status',
                     'label'   => __( 'POS Order Status', 'openpos' ),
@@ -433,6 +503,17 @@ class Openpos_Admin{
                     'type'    => 'select',
                     'default' => 'wc-completed',
                     'options' =>  $wc_order_status
+                ),
+                array(
+                    'name'              => 'pos_continue_checkout_order_status',
+                    'label'             => __( 'Continue Checkout Order Status', 'openpos' ),
+                    'desc'              => __( 'Status of online order allow continue checkout on POS. Enter status name to search', 'openpos' ),
+                    'default'           => '',
+                    'type'              => 'list_tags',
+                    'options' =>  array(
+                        'yes' => __( 'Yes', 'openpos' ),
+                        'no'  => __( 'No', 'openpos' ),
+                    )
                 ),
                 array(
                     'name'    => 'pos_allow_refund',
@@ -722,14 +803,14 @@ class Openpos_Admin{
                 array(
                     'name'              => 'receipt_template_header',
                     'label'             => __( 'Receipt Template Header', 'openpos' ),
-                    'desc'              => __( 'use [payment_method], [customer_name], [customer_phone],[sale_person], [created_at], [order_number],[order_note], [customer_email],[op_warehouse field="_fiel_name"] - (_fiel_name : name, address, city, postal_code,country,phone,email), [op_register field="name"] shortcode to adjust receipt information, accept html string', 'openpos' ),
+                    'desc'              => __( 'use [payment_method], [customer_name], [customer_phone],[sale_person], [created_at], [order_number],[order_number_format],[order_note],[order_qrcode width="_number_" height="_number_"],[order_barcode  width="_number_" height="_number_"], [customer_email],[op_warehouse field="_fiel_name"] - (_fiel_name : name, address, city, postal_code,country,phone,email), [op_register field="name"] shortcode to adjust receipt information, accept html string', 'openpos' ),
                     'type'              => 'wysiwyg',
                     'default'           => $this->get_default_value('receipt_template_header')
                 ),
                 array(
                     'name'              => 'receipt_template_footer',
                     'label'             => __( 'Receipt Template Footer', 'openpos' ),
-                    'desc'              => __( 'use [payment_method],[customer_name], [customer_phone], [sale_person], [created_at], [order_number],[order_note], [customer_email], [op_warehouse field="_fiel_name"] - (_fiel_name : name, address, city, postal_code,country,phone,email), [op_register field="name"] shortcode to adjust receipt information, accept html string', 'openpos' ),
+                    'desc'              => __( 'use [payment_method],[customer_name], [customer_phone], [sale_person], [created_at], [order_number],[order_number_format],[order_qrcode width="_number_" height="_number_"],[order_barcode  width="_number_" height="_number_"],[order_note], [customer_email], [op_warehouse field="_fiel_name"] - (_fiel_name : name, address, city, postal_code,country,phone,email), [op_register field="name"] shortcode to adjust receipt information, accept html string', 'openpos' ),
                     'type'              => 'wysiwyg',
                     'default'           => $this->get_default_value('receipt_template_footer')
                 ),
@@ -743,6 +824,14 @@ class Openpos_Admin{
             ),
             'openpos_pos' => array(
                 array(
+                    'name'              => 'openpos_logo',
+                    'label'             => __( 'POS Logo', 'openpos' ),
+                    'desc'              => __( 'Default Logo for POS Panel (ex: 100x50)', 'openpos' ),
+                    'default'           => '',
+                    'type'              => 'file',
+                    'options' => array()
+                ),
+                array(
                     'name'              => 'openpos_type',
                     'label'             => __( 'POS Type', 'openpos' ),
                     'desc'              => __( 'Default display for POS , their are table management in cafe/restaurant type', 'openpos' ),
@@ -754,6 +843,23 @@ class Openpos_Admin{
                     )
                 ),
                 $dashboard_display,
+                array(
+                    'name'              => 'pos_product_grid',
+                    'label'             => __( 'Product Grid Size', 'openpos' ),
+                    'desc'              => __( 'Grid Size for Products (column x row)  on POS Panel', 'openpos' ),
+                    'default'           => array('col' => 4,'row' => 4),
+                    'type'              => 'pos_grid',
+                    'options' =>  array()
+                ),
+
+                array(
+                    'name'              => 'pos_category_grid',
+                    'label'             => __( 'Category Grid Size', 'openpos' ),
+                    'desc'              => __( 'Grid Size for Categories (column x row)   on POS Panel', 'openpos' ),
+                    'default'           => array('col' => 2,'row' => 4),
+                    'type'              => 'pos_grid',
+                    'options' =>  array()
+                ),
 
                 array(
                     'name'              => 'pos_language',
@@ -913,8 +1019,31 @@ class Openpos_Admin{
                     )
                 ),
                 array(
+                    'name'              => 'pos_default_open_cash',
+                    'label'             => __( 'Open Cash When Login', 'openpos' ),
+                    'desc'              => __( 'Open Cash Adjustment Popup when login to POS','openpos'),
+                    'default'           => 'no',
+                    'type'              => 'select',
+                    'options' => array(
+                        'yes' => __('Yes','openpos'),
+                        'no' => __('No','openpos'),
+                    )
+                ),
+                
+                array(
+                    'name'              => 'pos_search_product_online',
+                    'label'             => __( 'Search Mode', 'openpos' ),
+                    'desc'              => __( 'The way of search when type keyword on search box on POS','openpos'),
+                    'default'           => 'suggestion',
+                    'type'              => 'select',
+                    'options' => array(
+                        'no' => __('Offline - Local browser data search','openpos'),
+                        'yes' => __('Online - Seach by your website','openpos'),
+                    )
+                ),
+                array(
                     'name'              => 'search_type',
-                    'label'             => __( 'Search Type', 'openpos' ),
+                    'label'             => __( 'Search Display Type', 'openpos' ),
                     'desc'              => __( 'Layout of result return by search product input ','openpos'),
                     'default'           => 'suggestion',
                     'type'              => 'select',
@@ -923,6 +1052,14 @@ class Openpos_Admin{
                         'grid' => __('Product Grid Display','openpos'),
                     )
                 ),
+                array(
+                    'name'              => 'search_result_total',
+                    'label'             => __( 'Total Search Result', 'openpos' ),
+                    'desc'              => __( 'Number of search result', 'openpos' ),
+                    'default'           => '10',
+                    'type'              => 'number'
+                ),
+                
                 array(
                     'name'              => 'pos_default_checkout_mode',
                     'label'             => __( 'Payment Type', 'openpos' ),
@@ -1098,7 +1235,7 @@ class Openpos_Admin{
             'orderby'          => $sortBy,
             'order'            => $order,
             'exclude'          => $ignores,
-            'post_type'        => array('product','product_variation'),
+            'post_type'        => $this->core->getPosPostType(),
             'post_status'      => 'publish',
             'suppress_filters' => false
         );
@@ -1237,13 +1374,20 @@ class Openpos_Admin{
                 }
         }else{
             $request_data = isset($_REQUEST['qty']) ? $_REQUEST['qty'] : array();
+            $request_in_store = isset($_REQUEST['allow_pos']) ? $_REQUEST['allow_pos'] : array();
             foreach($request_data as $product_id => $qty_data)
             {
                 foreach($qty_data as $warehouse_id => $qty)
                 {
                     if($warehouse_id > 0)
                     {
-                        $op_warehouse->set_qty($warehouse_id,$product_id,$qty);
+                        if(isset($request_in_store[$product_id][$warehouse_id]) && $request_in_store[$product_id][$warehouse_id] == 'yes')
+                        {
+                            $op_warehouse->set_qty($warehouse_id,$product_id,(int)$qty);
+                        }else{
+                            $op_warehouse->remove_instore($warehouse_id,$product_id);
+                        }
+
                     }else{
                         $_product = wc_get_product($product_id);
                         $_product->set_manage_stock(true);
@@ -1304,22 +1448,51 @@ class Openpos_Admin{
             'orderby'          => $sortBy,
             'order'            => $order,
             'exclude'          => $ignores,
-            'post_type'        => array('product','product_variation'),
+            'post_type'        => $this->core->getPosPostType(),
             'post_status'      => 'publish',
             'suppress_filters' => false
         );
+        $search_product_id = 0;
         if($searchPhrase)
         {
 
             $args['s'] = $searchPhrase;
+            $tmp = (int)$searchPhrase;
+            if($tmp)
+            {
+               $tmp_product = wc_get_product($tmp);
+               if($tmp_product)
+               {
+                   $tmp_post = $tmp_product->get_type();
+                   if($tmp_post != 'variable')
+                   {
+                       $search_product_id = $tmp_product->get_id();
+                   }
+
+               }
+            }
+        }
+        if($search_product_id)
+        {
+            $posts_array = array(
+                    get_post($search_product_id)
+            );
+            $total = 1;
+        }else{
+            $args = apply_filters('op_load_stock_product_args',$args);
+
+            $posts = $this->core->getProducts($args);
+
+
+            $posts_array = $posts['posts'];
+
+            $total = $posts['total'];
         }
 
-        $args = apply_filters('op_load_stock_product_args',$args);
 
-        $posts = $this->core->getProducts($args);
-        $posts_array = $posts['posts'];
-        $total = $posts['total'];
+
         $fields = array('post_title');
+
         $warehouses = $op_warehouse->warehouses();
         foreach($posts_array as $post)
         {
@@ -1404,20 +1577,51 @@ class Openpos_Admin{
                 foreach($warehouses as $w)
                 {
                     $tmp_qty_html = '';
+                    $read_only = '';
+                    $checked = 'checked';
+                    if(!$op_warehouse->is_instore($w['id'],$product_id))
+                    {
+                        $checked = '';
+                        $read_only = 'readonly';
+                    }
                     if($warehouse_id == -1)
                     {
 
                         $qty = $op_warehouse->get_qty($w['id'],$product_id);
 
                         $tmp['total_qty']  += $qty;
-                        $tmp_qty_html .= '<div class="warehouse-product-qty"> <p>'.$w['name'].': </p><p><input class="form-text-input input-control product-qty-warehouse" name="qty['.$product_id.']['.$w['id'].']" type="number" value="'.$qty.'"/><input class="input-control product-allow-warehouse" type="checkbox" name="allow_pos['.$product_id.']['.$w['id'].']" value="yes" checked /></p></div>';
+
+
+                        if($w['id'] > 0)
+                        {
+                            if($qty === false)
+                            {
+                                $read_only = 'readonly';
+                            }
+                            $tmp_qty_html .= '<div class="warehouse-product-qty"> <p>'.$w['name'].': </p><p><input '.$read_only.'  class="form-text-input input-control product-qty-warehouse" name="qty['.$product_id.']['.$w['id'].']" type="number" value="'.$qty.'"/><input class="input-control product-allow-warehouse" type="checkbox" name="allow_pos['.$product_id.']['.$w['id'].']" value="yes" '.$checked.' /></p></div>';
+                        }else{
+                            $tmp_qty_html .= '<div class="warehouse-product-qty"> <p>'.$w['name'].': </p><p><input class="form-text-input input-control product-qty-warehouse" name="qty['.$product_id.']['.$w['id'].']" type="number" value="'.$qty.'"/></p></div>';
+                        }
+
                     }else{
                         if($w['id'] == $warehouse_id)
                         {
                             $qty = $op_warehouse->get_qty($w['id'],$product_id);
 
                             $tmp['total_qty']  += $qty;
-                            $tmp_qty_html .= '<div class="warehouse-product-qty"> <p>'.$w['name'].': </p><p><input class="form-text-input input-control product-qty-warehouse" name="qty['.$product_id.']['.$w['id'].']" type="number" value="'.$qty.'"/><input  class="input-control product-allow-warehouse" type="checkbox" name="allow_pos['.$product_id.']['.$w['id'].']" value="yes" checked /></p></div>';
+
+                            if($w['id'] > 0)
+                            {
+                                if($qty === false)
+                                {
+                                    $read_only = 'readonly';
+                                }
+                                $tmp_qty_html .= '<div class="warehouse-product-qty"> <p>'.$w['name'].': </p><p><input '.$read_only.' class="form-text-input input-control product-qty-warehouse" name="qty['.$product_id.']['.$w['id'].']" type="number" value="'.$qty.'"/><input  class="input-control product-allow-warehouse" type="checkbox" name="allow_pos['.$product_id.']['.$w['id'].']" value="yes" '.$checked.' /></p></div>';
+                            }else{
+                                $tmp_qty_html .= '<div class="warehouse-product-qty"> <p>'.$w['name'].': </p><p><input class="form-text-input input-control product-qty-warehouse" name="qty['.$product_id.']['.$w['id'].']" type="number" value="'.$qty.'"/></p></div>';
+                            }
+
+
                         }
                     }
                     $tmp['qty_html'] .= apply_filters('op_warehouse_stock_qty_html_input',$tmp_qty_html,$tmp,$w);
@@ -1495,7 +1699,7 @@ class Openpos_Admin{
             'orderby'          => $sortBy,
             'order'            => $order,
             'exclude'          => $ignores,
-            'post_type'        => array('product','product_variation'),
+            'post_type'        => $this->core->getPosPostType(),
             'post_status'      => 'publish',
             'suppress_filters' => false
         );
@@ -1709,15 +1913,29 @@ class Openpos_Admin{
                 $user = get_user_by('ID',$user_id);
                 $name = $user->display_name;
             }
+            $method_code = get_post_meta($id,'_payment_code',true);
+            $method_name = get_post_meta($id,'_payment_name',true);
+            if(!$name)
+            {
+                $method_name = $method_code;
+            }
+            if(!$method_name)
+            {
+                $method_name = __('Cash','openpos');
+            }
+            $created_at_time =  get_post_meta($id,'_created_at',true);
+
+
+            $created_at = $this->core->render_ago_date_by_time_stamp($created_at_time);
             $tmp = array(
                 'id' => $id,
                 'title' => $post->post_title,
                 'in_amount' => wc_price(get_post_meta($id,'_in_amount',true)),
                 'out_amount'=> wc_price(get_post_meta($id,'_out_amount',true)),
-                'created_at'=> get_post_meta($id,'_created_at',true),
+                'payment_name'=> $method_name,
+                'created_at'=> $created_at,
                 'register' => $register,
                 'created_by' => $name
-
             );
             $rows[] = $tmp;
 
@@ -1861,13 +2079,12 @@ class Openpos_Admin{
 
             $by_html = '<p><b>C:</b> '.$cashier_name.'</p>';
             $by_html .= '<p><b>S:</b> '.$seller_name.'</p>';
-            $timezone = date_default_timezone_get();
-            //$created_date = Carbon::parse($post->post_date, $timezone);
-            //$created_at = $created_date->diffForHumans();
             $created_at = $this->core->render_order_date_column($order);
             $view_url = get_edit_post_link($id);
+            $order_number_str = '<a class="op-order-number" href="'.esc_url($view_url).'">#'.$order->get_order_number().'</a>';
             $tmp = array(
                 'id' => $id,
+                'order_number' => $order_number_str,
                 'source' => $register_name,
                 'created_at' => $created_at,
                 'total'=> wc_price($order->get_total()),
@@ -1965,37 +2182,118 @@ class Openpos_Admin{
                 array(
                     'labels'              => array(
                         'name'                  => __( 'Transactions', 'openpos' ),
-                        'singular_name'         => __( 'Transaction', 'openpos' ),
-                        'menu_name'             => _x( 'POS - Transactions', 'Admin menu name', 'openpos' ),
-                        'add_new'               => __( 'Add Transaction', 'openpos' ),
-                        'add_new_item'          => __( 'Add New Transaction', 'openpos' ),
-                        'edit'                  => __( 'Edit', 'openpos' ),
-                        'edit_item'             => __( 'Edit Transaction', 'openpos' ),
-                        'new_item'              => __( 'New Transaction', 'openpos' ),
-                        'view'                  => __( 'View Transactions', 'openpos' ),
-                        'view_item'             => __( 'View Transaction', 'openpos' ),
-                        'search_items'          => __( 'Search Transactions', 'openpos' ),
-                        'not_found'             => __( 'No Transactions found', 'openpos' ),
-                        'not_found_in_trash'    => __( 'No Transactions found in trash', 'openpos' ),
-                        'parent'                => __( 'Parent Transactions', 'openpos' ),
-                        'filter_items_list'     => __( 'Filter Transactions', 'openpos' ),
-                        'items_list_navigation' => __( 'Transactions navigation', 'openpos' ),
-                        'items_list'            => __( 'Transactions list', 'openpos' ),
+                        'singular_name'         => __( 'Transaction', 'openpos' )
                     ),
                     'description'         => __( 'This is where you can add new transaction that customers can use in your store.', 'openpos' ),
                     'public'              => false,
-                    'show_ui'             => true,
+                    'show_ui'             => false,
                     'capability_type'     => 'op_transaction',
                     'map_meta_cap'        => true,
                     'publicly_queryable'  => false,
                     'exclude_from_search' => true,
-                    'show_in_menu'        => current_user_can( 'manage_woocommerce' ) ? 'woocommerce' : true,
+                    'show_in_menu'        => false,
                     'hierarchical'        => false,
                     'rewrite'             => false,
                     'query_var'           => false,
                     'supports'            => array( 'title','author' ),
                     'show_in_nav_menus'   => false,
-                    'show_in_admin_bar'   => true
+                    'show_in_admin_bar'   => false
+                )
+
+        );
+       
+        register_post_type( 'op_z_report',
+                array(
+                    'labels'              => array(
+                        'name'                  => __( 'Z-Report', 'openpos' ),
+                        'singular_name'         => __( 'Z-Report', 'openpos' )
+                    ),
+                    'description'         => __( 'This is where you can add new transaction that customers can use in your store.', 'openpos' ),
+                    'public'              => false,
+                    'show_ui'             => false,
+                    'capability_type'     => 'op_report',
+                    'map_meta_cap'        => true,
+                    'publicly_queryable'  => false,
+                    'exclude_from_search' => true,
+                    'show_in_menu'        => false,
+                    'hierarchical'        => false,
+                    'rewrite'             => false,
+                    'query_var'           => false,
+                    'supports'            => array( 'title','author','content' ),
+                    'show_in_nav_menus'   => false,
+                    'show_in_admin_bar'   => false
+                )
+
+        );
+
+        register_post_type( '_op_warehouse',
+                array(
+                    'labels'              => array(
+                        'name'                  => __( 'Warehouse', 'openpos' ),
+                        'singular_name'         => __( 'Warehouse', 'openpos' )
+                    ),
+                    'description'         => __( 'This is where you can add new transaction that customers can use in your store.', 'openpos' ),
+                    'public'              => false,
+                    'show_ui'             => false,
+                    'capability_type'     => 'op_report',
+                    'map_meta_cap'        => true,
+                    'publicly_queryable'  => false,
+                    'exclude_from_search' => true,
+                    'show_in_menu'        => false,
+                    'hierarchical'        => false,
+                    'rewrite'             => false,
+                    'query_var'           => false,
+                    'supports'            => array( 'title','author','content' ),
+                    'show_in_nav_menus'   => false,
+                    'show_in_admin_bar'   => false
+                )
+
+        );
+
+        register_post_type( '_op_table',
+                array(
+                    'labels'              => array(
+                        'name'                  => __( 'Table', 'openpos' ),
+                        'singular_name'         => __( 'Table', 'openpos' )
+                    ),
+                    'description'         => __( 'This is where you can add new transaction that customers can use in your store.', 'openpos' ),
+                    'public'              => false,
+                    'show_ui'             => false,
+                    'capability_type'     => 'op_report',
+                    'map_meta_cap'        => true,
+                    'publicly_queryable'  => false,
+                    'exclude_from_search' => true,
+                    'show_in_menu'        => false,
+                    'hierarchical'        => false,
+                    'rewrite'             => false,
+                    'query_var'           => false,
+                    'supports'            => array( 'title','author','content' ),
+                    'show_in_nav_menus'   => false,
+                    'show_in_admin_bar'   => false
+                )
+
+        );
+
+        register_post_type( '_op_register',
+                array(
+                    'labels'              => array(
+                        'name'                  => __( 'Register', 'openpos' ),
+                        'singular_name'         => __( 'Register', 'openpos' )
+                    ),
+                    'description'         => __( 'This is where you can add new transaction that customers can use in your store.', 'openpos' ),
+                    'public'              => false,
+                    'show_ui'             => false,
+                    'capability_type'     => 'op_report',
+                    'map_meta_cap'        => true,
+                    'publicly_queryable'  => false,
+                    'exclude_from_search' => true,
+                    'show_in_menu'        => false,
+                    'hierarchical'        => false,
+                    'rewrite'             => false,
+                    'query_var'           => false,
+                    'supports'            => array( 'title','author','content' ),
+                    'show_in_nav_menus'   => false,
+                    'show_in_admin_bar'   => false
                 )
 
         );
@@ -2024,19 +2322,17 @@ class Openpos_Admin{
             'title'  => __( 'Visit POS', 'woocommerce' ),
             'href'   => $pos_url,
         ) );
-
-
     }
 
     function pos_admin_menu() {
         $openpos_type = $this->settings_api->get_option('openpos_type','openpos_pos');
-        $page = add_menu_page( __( 'Open POS', 'openpos' ), __( 'POS', 'openpos' ),'manage_options','openpos-dasboard',array($this,'dashboard'),plugins_url('woocommerce-openpos/assets/images/pos.png'),58 );
+        $page = add_menu_page( __( 'Open POS', 'openpos' ), __( 'POS', 'openpos' ),'manage_woocommerce','openpos-dasboard',array($this,'dashboard'),plugins_url('woocommerce-openpos/assets/images/pos.png'),58 );
         add_action( 'admin_print_styles-'. $page, array( &$this, 'admin_enqueue' ) );
 
         $page = add_submenu_page( 'openpos-dasboard', __( 'POS - Orders', 'openpos' ),  __( 'Orders', 'openpos' ) , 'manage_woocommerce', 'op-orders', array( $this, 'orders_page' ) );
         add_action( 'admin_print_styles-'. $page, array( &$this, 'admin_enqueue' ) );
 
-        $page = add_submenu_page( 'openpos-dasboard', __( 'POS - Cash Management', 'openpos' ),  __( 'Cash Management', 'openpos' ) , 'manage_woocommerce', 'op-transactions', array( $this, 'transactions_page' ) );
+        $page = add_submenu_page( 'openpos-dasboard', __( 'POS - Transactions', 'openpos' ),  __( 'Transactions', 'openpos' ) , 'manage_woocommerce', 'op-transactions', array( $this, 'transactions_page' ) );
         add_action( 'admin_print_styles-'. $page, array( &$this, 'admin_enqueue' ) );
 
         $page = add_submenu_page( 'openpos-dasboard', __( 'POS - Products', 'openpos' ),  __( 'Products Barcode', 'openpos' ) , 'manage_woocommerce', 'op-products', array( $this, 'products_page' ) );
@@ -2047,15 +2343,15 @@ class Openpos_Admin{
 
 
 
-        $page = add_submenu_page( 'openpos-dasboard', __( 'POS - Registers', 'openpos' ),  __( 'Registers', 'openpos' ) , 'manage_woocommerce', 'op-registers', array( $this, 'register_page' ) );
+        $page = add_submenu_page( 'openpos-dasboard', __( 'POS - Registers', 'openpos' ),  __( 'Registers', 'openpos' ) , 'manage_options', 'op-registers', array( $this, 'register_page' ) );
         add_action( 'admin_print_styles-'. $page, array( &$this, 'admin_enqueue' ) );
 
-        $page = add_submenu_page( 'openpos-dasboard', __( 'POS - Outlets', 'openpos' ),  __( 'Outlets', 'openpos' ) , 'manage_woocommerce', 'op-warehouses', array( $this, 'warehouse_page' ) );
+        $page = add_submenu_page( 'openpos-dasboard', __( 'POS - Outlets', 'openpos' ),  __( 'Outlets', 'openpos' ) , 'manage_options', 'op-warehouses', array( $this, 'warehouse_page' ) );
         add_action( 'admin_print_styles-'. $page, array( &$this, 'admin_enqueue' ) );
 
         if($openpos_type == 'restaurant')
         {
-            $page = add_submenu_page( 'openpos-dasboard', __( 'POS - Tables', 'openpos' ),  __( 'Tables', 'openpos' ) , 'manage_woocommerce', 'op-tables', array( $this, 'table_page' ) );
+            $page = add_submenu_page( 'openpos-dasboard', __( 'POS - Tables', 'openpos' ),  __( 'Tables', 'openpos' ) , 'manage_options', 'op-tables', array( $this, 'table_page' ) );
             add_action( 'admin_print_styles-'. $page, array( &$this, 'admin_enqueue' ) );
         }
 
@@ -2200,6 +2496,8 @@ class Openpos_Admin{
                 $total_transaction
             );
         }
+       
+        
         require(OPENPOS_DIR.'templates/admin/dashboard.php');
     }
     public function cashier_page()
@@ -2300,6 +2598,7 @@ class Openpos_Admin{
                             __('Ref','openpos'),
                             __('IN','openpos'),
                             __('OUT','openpos'),
+                            __('Method','openpos'),
                             __('Created At','openpos'),
                             __('Created By','openpos')
                         );
@@ -2361,6 +2660,11 @@ class Openpos_Admin{
                             }
                             $in_amount = get_post_meta($id,'_in_amount',true);
                             $out_amount = get_post_meta($id,'_out_amount',true);
+                            $method = get_post_meta($id,'_payment_name',true);
+                            if(!$method)
+                            {
+                                $method = __('Cash','openpos');
+                            }
                             $total_in += $in_amount;
                             $total_out += $out_amount;
                             $tmp = array(
@@ -2368,6 +2672,7 @@ class Openpos_Admin{
                                 $_transaction->post_title,
                                 wc_price($in_amount),
                                 wc_price($out_amount),
+                                $method,
                                 get_post_meta($id,'_created_at',true),
                                 $name
                             );
@@ -2377,6 +2682,7 @@ class Openpos_Admin{
                                 $_transaction->post_title,
                                 $in_amount,
                                 $out_amount,
+                                $method,
                                 get_post_meta($id,'_created_at',true),
                                 $name
                             );
@@ -2435,7 +2741,7 @@ class Openpos_Admin{
                                     if($_agent_sale_id && $_agent_sale_id == $report_seller_id)
                                     {
 
-                                        $total_sales += $order->get_total();
+                                        $total_sales += $order->get_total() - $order->get_total_refunded();
                                     }
 
                                 }
@@ -2459,7 +2765,7 @@ class Openpos_Admin{
                                 if($_agent_sale_id && $_agent_sale_id == $report_seller_id)
                                 {
                                     $is_sale_by_seller = true;
-                                    $summary_data['total_sales'] += $order->get_total();
+                                    $summary_data['total_sales'] += $order->get_total() - $order->get_total_refunded();
                                     $seller_order_sale += $order->get_total();
 
                                     foreach($items as $item)
@@ -2477,7 +2783,7 @@ class Openpos_Admin{
                                     {
                                         $author_name = $author->display_name;
                                     }
-                                    $grand_total = $order->get_total();
+                                    $grand_total = $order->get_total() - $order->get_total_refunded();
 
                                     $orders_table_data[] = array(
                                         $order->get_order_number(),
@@ -2572,7 +2878,7 @@ class Openpos_Admin{
                                         {
                                             $total_sales += $partial_sale;
                                         }else{
-                                            $total_sales += $order->get_total();
+                                            $total_sales += $order->get_total() - $order->get_total_refunded();
                                         }
                                     }else{
                                         foreach($items as $item)
@@ -2637,8 +2943,8 @@ class Openpos_Admin{
                                     if(!$has_parital)
                                     {
                                         $is_sale_by_seller = true;
-                                        $seller_order_sale += $order->get_total();
-                                        $summary_data['total_sales'] += $order->get_total();
+                                        $seller_order_sale += $order->get_total() - $order->get_total_refunded();
+                                        $summary_data['total_sales'] += $order->get_total() - $order->get_total_refunded();
                                         $summary_data['total_qty'] += $partial_all_qty;
                                     }else{
                                         if($partial_sale > 0)
@@ -2677,7 +2983,7 @@ class Openpos_Admin{
                                     {
                                         $author_name = $author->display_name;
                                     }
-                                    $grand_total = $order->get_total();
+                                    $grand_total = $order->get_total() - $order->get_total_refunded();
 
                                     $orders_table_data[] = array(
                                         $order->get_order_number(),
@@ -2823,7 +3129,7 @@ class Openpos_Admin{
                                             {
                                                 $author_name = $author->display_name;
                                             }
-                                            $grand_total = $order->get_total();
+                                            $grand_total = $order->get_total() - $order->get_total_refunded();
                                             $summary_data['total_sales'] += $paid;
                                             $orders_table_data[] = array(
                                                 $order->get_order_number(),
@@ -2900,7 +3206,7 @@ class Openpos_Admin{
                             foreach($sales as $s)
                             {
                                 $order = new WC_Order($s->ID);
-                                $total_sales += $order->get_total();
+                                $total_sales += $order->get_total()- $order->get_total_refunded();
                             }
 
                             $chart_data[] = array(
@@ -2931,7 +3237,7 @@ class Openpos_Admin{
                             {
                                 $author_name = $author->display_name;
                             }
-                            $grand_total = $order->get_total();
+                            $grand_total = $order->get_total() - $order->get_total_refunded();
                             $summary_data['total_sales'] += $grand_total;
                             $orders_table_data[] = array(
                                 $order->get_order_number(),
@@ -3070,16 +3376,17 @@ class Openpos_Admin{
                         }
                         $summary_html.= '</table></div></div></div>';
                         break;
-                    case 'x_report':
-                    case 'z_report':
-
-                        break;
+                    
 
                 }
                 $result['table_data'] = $orders_table_data;
                 $result['chart_data'] = $chart_data;
+                $result['orders_export_data'] = $orders_export_data;
                 $result['summary_html'] = $summary_html;
                 $result['export_file'] = '';
+                
+                $result = apply_filters('op_report_result',$result,$ranges,$report_type);
+                
                 if($is_export)
                 {
                     $upload_dir = wp_upload_dir();
@@ -3089,7 +3396,7 @@ class Openpos_Admin{
                     $objPHPExcel = new PHPExcel();
                     $objPHPExcel->setActiveSheetIndex(0);
 
-                    $objPHPExcel->getActiveSheet()->fromArray($orders_export_data, null, 'A1');
+                    $objPHPExcel->getActiveSheet()->fromArray( $result['orders_export_data'], null, 'A1');
                     $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
                     $file_name = 'openpos-report-'.time().'.xls';
                     $objWriter->save(ABSPATH.'wp-content/uploads/openpos/'.$file_name);
@@ -3151,7 +3458,9 @@ class Openpos_Admin{
             foreach($sales as $s)
             {
                 $order = new WC_Order($s->ID);
-                $total_sales += $order->get_total();
+                $total_refunded  = $order->get_total_refunded();
+                $total_sales += $order->get_total() - $total_refunded;
+               
             }
 
             $chart_data[] = array(
@@ -3174,7 +3483,7 @@ class Openpos_Admin{
             {
                 $author_name = $author->display_name;
             }
-            $grand_total = $order->get_total();
+            $grand_total = $order->get_total() - $order->get_total_refunded();
             $summaries['total_sale'] += $grand_total;
             $orders_table_data[] = array(
                 $order->get_order_number(),
@@ -3269,23 +3578,19 @@ class Openpos_Admin{
             }else{
                 $tmp['allow_pos'] = '<select  type="text" name="_op_allow_pos['.$tmp['id'].']" class="form-control _op_allow_pos" disabled><option value="0" selected>No</option><option value="1">Yes</option></select>';
             }
-
             $rows[] = $tmp;
         }
-
-
         $result = array(
             'current' => $current,
             'rowCount' => $rowCount,
             'rows' => $rows,
             'total' => $total
-
         );
         echo json_encode($result);
         exit;
     }
 
-    public function dashboard_data(){
+    public function dashboard_data($return = false){
         global $op_register;
         $result = array('order' => array());
 
@@ -3325,7 +3630,7 @@ class Openpos_Admin{
             }
 
             $tmp = array(
-                'order_id' => "#".$id,
+                'order_id' => "#".$_order->get_order_number(),
                 'customer_name' => $customer_name,
                 'total' => wc_price($grand_total),
                 'cashier' => $cashier_name,
@@ -3345,8 +3650,14 @@ class Openpos_Admin{
 
         }
         $result['cash_balance'] = wc_price($balance);
-        echo json_encode($result);
-        exit;
+        if($return)
+        {
+            return $result;
+        }else{
+            echo json_encode($result);
+            exit;
+        }
+       
     }
 
     public function save_cashier(){
@@ -3418,7 +3729,6 @@ class Openpos_Admin{
             $warehouse_id = $data['warehouse_id'];
             if(isset($data['barcode']))
             {
-
                 foreach($data['qty'] as $product_id => $val)
                 {
                     if($warehouse_id > 0)
@@ -3466,6 +3776,8 @@ class Openpos_Admin{
         add_shortcode( 'op_warehouse', array($this,'_warehouse_func'));
 
         add_shortcode( 'op_register', array($this,'_register_func'));
+
+        $this->register_post_types();
     }
     public function _order_barcode_func($atts)
     {
@@ -3622,7 +3934,7 @@ class Openpos_Admin{
         {
             $result = wc_price($result);
         }
-        $result = apply_filters('op_product_info_label',$result,$_op_product);
+        $result = apply_filters('op_product_info_label',$result,$_op_product,$atts );
         return $result;
     }
 
@@ -4230,6 +4542,21 @@ class Openpos_Admin{
         echo json_encode($result);
         exit;
     }
+    function op_ajax_order_statuses(){
+        $result = array();
+        $wc_order_status = wc_get_order_statuses();
+        
+        foreach($wc_order_status as $key =>$status)
+        {
+            $result[] = array(
+                'value' => $key,
+                'text' => $status
+            );
+        }
+        
+        echo json_encode($result);
+        exit;
+    }
     function upload_product_image(){
         $product_id = isset($_REQUEST['id']) ? $_REQUEST['id'] : 0;
         if($product_id && current_user_can('upload_files'))
@@ -4299,6 +4626,185 @@ class Openpos_Admin{
             <?php
             update_option('_admin_op_setting_msg','');
         }
+    }
+    function woocommerce_product_options_stock_fields(){
+        global $post;
+        global $op_warehouse;
+        $warehouses = $op_warehouse->warehouses();
+        if($post && count($warehouses) > 1)
+        {
+            $product = wc_get_product($post->ID);
+            $product_type = $product->get_type();
+            if($product_type != 'variable')
+            {
+                ?>
+                <div class="op-product-outlet-stock hide_if_variable">
+                    <p class="op-stock-label"><?php echo __('Other Outlet Stock quantity'); ?></p>
+                    <table border="1">
+                        <?php foreach($warehouses as $warehouse): ?>
+                            <?php if($warehouse['id'] > 0): $warehouse_id  = $warehouse['id']; ?>
+                            <tr>
+                                <th><?php echo sprintf(__( '<strong>%s</strong>', 'openpos' ),$warehouse['name']); ?></th>
+                                <td>
+                                    <?php
+                                        $product_id = $post->ID;
+                                        $qty = '';
+                                        if($op_warehouse->is_instore($warehouse_id,$product_id))
+                                        {
+                                            $qty = $op_warehouse->get_qty($warehouse_id,$product_id);
+                                            
+                                        }
+                                        woocommerce_wp_text_input(
+                                            array(
+                                                'id'                => '_op_stock',
+                                                'name'                => '_op_stock['.$warehouse_id.']',
+                                                'value'             => $qty,
+                                                'label'             => '',
+                                                'type'              => 'text'
+                                    
+                                            )
+                                        );
+                                    ?>
+                                </td>
+                            </tr>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </table>
+                </div>
+                <?php
+            }
+
+        }
+
+    }
+    function woocommerce_variation_options_inventory($loop, $variation_data, $variation){
+
+        global $op_warehouse;
+        $warehouses = $op_warehouse->warehouses();
+        if(count($warehouses) > 1)
+        {
+
+            ?>
+            <div class="op-product-outlet-stock-variation">
+                <p class="op-stock-label"><?php echo __('Other Outlet Stock quantity'); ?></p>
+
+                <table border="1">
+                    <?php foreach($warehouses as $warehouse): ?>
+                        <?php if($warehouse['id'] > 0): $warehouse_id  = $warehouse['id']; ?>
+                            <tr>
+                                <th><?php echo sprintf(__( '<strong>%s</strong>', 'openpos' ),$warehouse['name']); ?></th>
+                                <td>
+                                    <?php
+
+                                    $qty = 0;
+                                    if($variation && isset($variation->ID))
+                                    {
+                                        $variation_id = $variation->ID;
+
+                                        $qty = 1 * $op_warehouse->get_qty($warehouse_id,$variation_id);
+
+                                        if(!$op_warehouse->is_instore($warehouse_id,$variation_id))
+                                        {
+                                                $qty = '';
+                                        }
+                                    }
+
+                                    
+
+                                    woocommerce_wp_text_input(
+                                        array(
+                                            'id'                => "_op_stock_{$warehouse_id}_{$loop}",
+                                            'name'              => "_op_stock[{$warehouse_id}][{$loop}]",
+                                            'label'             => '',
+                                            'value' => $qty,
+                                            'type'         => 'text',
+                                            'wrapper_class' => 'form-row form-row-full op-outlet-variation-stock-row',
+                                        )
+                                    );
+                                    ?>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </table>
+
+
+
+            </div>
+            <?php
+        }
+
+    }
+
+    function woocommerce_product_options_pricing(){
+        global $post;
+        $product = wc_get_product($post->ID);
+        $product_type = $product->get_type();
+        $price = '';
+        if($product && $product_type != 'variable')
+        {
+            $tmp_price = get_post_meta($post->ID,'_op_cost_price',true);
+            if($tmp_price !== '')
+            {
+                $price = $tmp_price;
+            }
+        }
+        woocommerce_wp_text_input(
+            array(
+                'id'        => '_op_cost_price',
+                'value'     => $price,
+                'label'     => __( 'OP Cost price', 'openpos' ) . ' (' . get_woocommerce_currency_symbol() . ')',
+                'data_type' => 'price',
+            )
+        );
+
+    }
+    function woocommerce_variation_options_pricing($loop, $variation_data, $variation){
+        $price = '';
+        if($variation && isset($variation->ID))
+        {
+            $variation_id = $variation->ID;
+
+            $tmp_price = get_post_meta($variation_id,'_op_cost_price',true);
+            if($tmp_price !== '')
+            {
+                $price = $tmp_price;
+            }
+        }
+        woocommerce_wp_text_input(
+            array(
+                'id'            => "_op_cost_price{$loop}",
+                'name'          => "_op_cost_price[{$loop}]",
+                'value'         => $price,
+                'label'         => __( 'OP Cost price', 'openpos' ) . ' (' . get_woocommerce_currency_symbol() . ')',
+                'data_type'     => 'price',
+                'wrapper_class' => 'form-row form-row-first',
+                'placeholder'   => __( 'Cost price', 'openpos' ),
+            )
+        );
+
+    }
+    function woocommerce_product_options_advanced(){
+        global $post;
+        $tmp_price = get_post_meta($post->ID,'_op_weight_base_pricing',true);
+        if($tmp_price != 'yes')
+        {
+            $tmp_price = 'no';
+        }
+        ?>
+        <div class="options_group op-weight-base-pricing">
+            <?php
+            woocommerce_wp_checkbox(
+                array(
+                    'id'      => '_op_weight_base_pricing',
+                    'value'   => $tmp_price,
+                    'label'   => __( 'POS Weight-base Pricing', 'openpos' ),
+                    'cbvalue' => 'yes',
+                )
+            );
+            ?>
+        </div>
+        <?php
     }
 
 

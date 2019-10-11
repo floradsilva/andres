@@ -8,17 +8,19 @@
 if(!class_exists('OP_Integration'))
 {
     class OP_Integration{
+    
         public function init(){
             foreach($this->plugins() as $plugin)
             {
 
                 if(is_plugin_active( $plugin))
                 {
+                    
                     $file = basename($plugin);
                     $file_path = rtrim(OPENPOS_DIR,'/').'/lib/integration/'.$file;
                     $info = pathinfo($file);
                     $class_name = $this->generateClassName($info['filename']);
-
+                        
                     if(file_exists($file_path))
                     {
                         require_once($file_path);

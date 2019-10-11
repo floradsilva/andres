@@ -109,19 +109,23 @@ if(!class_exists('OP_Table'))
                                 $result_table = json_decode($data,true);
                                 $desk = $result_table['desk'];
 
-                                if($warehouse_id >= 0 && $desk['warehouse_id'] != $warehouse_id)
+
+                                if(isset($desk['warehouse_id']))
                                 {
-                                    continue;
+                                    if(  $warehouse_id >= 0 && $desk['warehouse_id'] != $warehouse_id)
+                                    {
+                                        continue;
+                                    }
+                                    $result[] = array(
+                                        'id' => $desk['id'],
+                                        'name' => $desk['name'],
+                                        'warehouse' => $desk['warehouse_id'],
+                                        'position' => 0,
+                                        'status' => 'publish',
+                                        'type' => 'takeaway',
+                                    );
                                 }
 
-                                $result[] = array(
-                                    'id' => $desk['id'],
-                                    'name' => $desk['name'],
-                                    'warehouse' => $desk['warehouse_id'],
-                                    'position' => 0,
-                                    'status' => 'publish',
-                                    'type' => 'takeaway',
-                                );
 
                             }
                         }
