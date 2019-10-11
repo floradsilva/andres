@@ -352,6 +352,97 @@ if ( ! class_exists( 'Wdm_Ebridge_Woocommerce_Sync_Order' ) ) {
 
 
 		/**
+		 * Tasks to do when the status of a subscription_order is in processing.
+		 */
+		public function on_processing_status_ebridge_order( $order_id ) {
+			$order = wc_get_order( $order_id );
+
+			$success = $this->add_processed_payment( $order );
+
+			// =============================================================
+				$path = WEWS_PLUGIN_PATH;
+				$file = $path . $order_id . '_test.txt';
+				ob_start();
+				echo "<pre>";
+				echo "===================order=================<br>";
+				var_dump( $order->get_meta_data() );
+				echo "================================================<br>";
+				echo "</pre>";
+				$output = ob_get_contents();
+				ob_end_clean();
+
+				// Write the contents back to the file
+				file_put_contents($file, $output);
+			// =============================================================
+		}
+
+
+		public function add_processed_payment( $order ) {
+			if ( $this->api_url && $this->api_token ) {
+				$url = $this->api_url . '/' . $this->api_token . '/orders/deposits';
+
+				$deposit_json     = array();
+				$deposit_json['custNumber'] = $order->get_meta( 'ebridge_order_customerId' );
+				$deposit_json['orderId'] = $order->get_meta( 'ebridge_order_id' );
+				$deposit_json['locationId'] = 99;
+				$deposit_json['depositAmount'] = $order->get_total();
+				$deposit_json['depositType'] = 'WBPAY';
+				$deposit_json['rejectUnauthorized'] = false;
+
+				// $deposit_json['emvToken'] = 'String content';
+				// $deposit_json['financeAccountNumber'] = 'String content';
+				// $deposit_json['staffId'] = 'String content';
+				// $deposit_json['authorizationNumber'] = 'String content';
+				// $deposit_json['paymentOptionDetails'] = {};
+
+				// [{
+				// 	"paymentOptionDetails":{
+				// 		"creditCard":{
+				// 			"creditCardNumber":"String content",
+				// 			"expirationMonth":"String content",
+				// 			"expirationYear":"String content",
+				// 			"CCVN":"String content",
+				// 			"magneticStripeData":"String content"
+				// 		},
+				// 		"check":{
+				// 			"checkNumber":"String content",
+				// 			"driversLicenseNumber":"String content"
+				// 		}
+				// 	}
+				// }]
+				
+
+
+				$response = wp_remote_request(
+					$url,
+					array(
+						'headers'     => array( 'Content-Type' => 'application/json; charset=utf-8' ),
+						'body'        => array( json_encode( $deposit_json ) ),
+						'method'      => 'PUT',
+						'data_format' => 'body',
+						'timeout'     => 6000,
+					)
+				);
+
+				$json_response = json_decode( wp_remote_retrieve_body( $response ) );
+
+				if ( ( 200 == wp_remote_retrieve_response_code( $response ) ) && ( 0 === $json_response->status ) ) {
+					$deposit_details = $json_response->applyDeposits[0];
+
+					if ( 0 === $deposit_details->updateStatus ) {
+						$order->add_order_note( __('The payment of ' . $order->get_total() . ' synced with Ebridge.', 'wdm-ebridge-woocommerce-sync' ) );
+						$order->save();
+
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+
+
+		/**
 		 * Handle a custom 'ebridge_order_id' query var to get orders with the 'ebridge_order_id' meta.
 		 *
 		 * @param array $query - Args for WP_Query.

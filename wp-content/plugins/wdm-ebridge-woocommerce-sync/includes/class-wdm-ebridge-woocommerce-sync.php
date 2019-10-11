@@ -171,8 +171,9 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		$plugin_admin                = new Wdm_Ebridge_Woocommerce_Sync_Admin( $this->get_plugin_name(), $this->get_version() );
 		$admin_settings              = new Wdm_Ebridge_Woocommerce_Sync_Settings( $this->get_plugin_name(), $this->get_version() );
 		$product_sync                = new Wdm_Ebridge_Woocommerce_Sync_Product_Sync( $this->get_plugin_name(), $this->get_version() );
-		$order_sync                  = new Wdm_Ebridge_Woocommerce_Sync_Orders( $this->get_plugin_name(), $this->get_version() );
+		$orders_sync                 = new Wdm_Ebridge_Woocommerce_Sync_Orders( $this->get_plugin_name(), $this->get_version() );
 		$customer_order_history_sync = new WEWS_Customer_Order_History_Sync( $this->get_plugin_name(), $this->get_version() );
+		$order_sync                  = new Wdm_Ebridge_Woocommerce_Sync_Order();
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
@@ -192,7 +193,7 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		$this->loader->add_action( 'wp_ajax_delete_product', $product_sync, 'delete_product' );
 		$this->loader->add_filter( 'bulk_actions-edit-product', $product_sync, 'register_sync_products_bulk_action' );
 		$this->loader->add_filter( 'handle_bulk_actions-edit-product', $product_sync, 'sync_products_bulk_action_handler', 10, 3 );
-		$this->loader->add_action( 'woocommerce_checkout_create_order', $order_sync, 'wews_create_order', 10, 2 );
+		$this->loader->add_action( 'woocommerce_checkout_create_order', $orders_sync, 'wews_create_order', 10, 2 );
 		$this->loader->add_action( 'admin_menu', $customer_order_history_sync, 'menu_page', 10 );
 		$this->loader->add_action( 'admin_init', $customer_order_history_sync, 'setup_sections' );
 		$this->loader->add_action( 'wp_ajax_fetch_customers_to_sync', $customer_order_history_sync, 'fetch_customers_to_sync' );
@@ -200,6 +201,7 @@ class Wdm_Ebridge_Woocommerce_Sync {
 		$this->loader->add_action( 'wp_ajax_sync_order', $customer_order_history_sync, 'sync_order' );
 		$this->loader->add_filter( 'bulk_actions-edit-shop_order', $customer_order_history_sync, 'register_sync_orders_bulk_action' );
 		$this->loader->add_filter( 'handle_bulk_actions-edit-shop_order', $customer_order_history_sync, 'sync_orders_bulk_action_handler', 10, 3 );
+		$this->loader->add_filter( 'woocommerce_order_status_processing', $order_sync, 'on_processing_status_ebridge_order', 10, 1 );
 	}
 
 	/**

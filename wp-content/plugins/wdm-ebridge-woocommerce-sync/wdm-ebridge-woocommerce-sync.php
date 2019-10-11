@@ -42,9 +42,14 @@ if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins',
  */
 define( 'WDM_EBRIDGE_WOOCOMMERCE_SYNC_VERSION', '1.0.0' );
 
-// Define WC_PLUGIN_FILE.
+// Define WC_PLUGIN_URL.
+if ( ! defined( 'WEWS_PLUGIN_URL' ) ) {
+	define( 'WEWS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+}
+
+// Define WC_PLUGIN_URL.
 if ( ! defined( 'WEWS_PLUGIN_PATH' ) ) {
-	define( 'WEWS_PLUGIN_PATH', plugin_dir_url( __FILE__ ) );
+	define( 'WEWS_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 }
 
 /**

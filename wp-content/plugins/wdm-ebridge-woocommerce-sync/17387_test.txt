@@ -1,0 +1,87 @@
+<pre>===================order=================<br>array(4) {
+  [0]=>
+  object(WC_Meta_Data)#15894 (2) {
+    ["current_data":protected]=>
+    array(3) {
+      ["id"]=>
+      int(368433)
+      ["key"]=>
+      string(13) "is_vat_exempt"
+      ["value"]=>
+      string(2) "no"
+    }
+    ["data":protected]=>
+    array(3) {
+      ["id"]=>
+      int(368433)
+      ["key"]=>
+      string(13) "is_vat_exempt"
+      ["value"]=>
+      string(2) "no"
+    }
+  }
+  [1]=>
+  object(WC_Meta_Data)#15895 (2) {
+    ["current_data":protected]=>
+    array(3) {
+      ["id"]=>
+      int(368434)
+      ["key"]=>
+      string(16) "ebridge_order_id"
+      ["value"]=>
+      string(8) "01783329"
+    }
+    ["data":protected]=>
+    array(3) {
+      ["id"]=>
+      int(368434)
+      ["key"]=>
+      string(16) "ebridge_order_id"
+      ["value"]=>
+      string(8) "01783329"
+    }
+  }
+  [2]=>
+  object(WC_Meta_Data)#15896 (2) {
+    ["current_data":protected]=>
+    array(3) {
+      ["id"]=>
+      int(368435)
+      ["key"]=>
+      string(18) "ebridge_order_type"
+      ["value"]=>
+      string(5) "Order"
+    }
+    ["data":protected]=>
+    array(3) {
+      ["id"]=>
+      int(368435)
+      ["key"]=>
+      string(18) "ebridge_order_type"
+      ["value"]=>
+      string(5) "Order"
+    }
+  }
+  [3]=>
+  object(WC_Meta_Data)#15897 (2) {
+    ["current_data":protected]=>
+    array(3) {
+      ["id"]=>
+      int(368436)
+      ["key"]=>
+      string(24) "ebridge_order_customerId"
+      ["value"]=>
+      string(8) "99783126"
+    }
+    ["data":protected]=>
+    array(3) {
+      ["id"]=>
+      int(368436)
+      ["key"]=>
+      string(24) "ebridge_order_customerId"
+      ["value"]=>
+      string(8) "99783126"
+    }
+  }
+}
+================================================<br></pre>

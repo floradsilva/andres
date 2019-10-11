@@ -244,7 +244,7 @@ class Wdm_Ebridge_Woocommerce_Sync_Settings {
 			<h2><?php echo __( 'Sync Customers with Woocommerce', 'wdm-ebridge-woocommerce-sync' ); ?></h2>
 			<p><?php echo __( 'Add a .csv file with each row having data as email, username, password. The first row is reserved for headings.', 'wdm-ebridge-woocommerce-sync' ); ?></p>
 			<p><?php echo __( 'Please click', 'wdm-ebridge-woocommerce-sync' ); ?>
-				<a href="<?php echo WEWS_PLUGIN_PATH . 'example.csv'; ?>"><?php echo __( 'here', 'wdm-ebridge-woocommerce-sync' ); ?></a>
+				<a href="<?php echo WEWS_PLUGIN_URL . 'example.csv'; ?>"><?php echo __( 'here', 'wdm-ebridge-woocommerce-sync' ); ?></a>
 				<?php echo __( 'to download the reference file.', 'wdm-ebridge-woocommerce-sync' ); ?>
 			</p>
 
